@@ -43,15 +43,15 @@ export class UserService {
       refreshToken: refreshToken,
     };
   }
-
   async create(createUserDto: CreateUserDto, res: Response) {
+    console.log({ createUserDto })
     if (!createUserDto || !createUserDto.password) {
       throw new BadRequestException('Password is required');
     }
 
     const existingUser = await this.userRepository.findOne({
       where: { email: createUserDto.email },
-    }); createUserDto
+    });
 
     if (existingUser) {
       throw new BadRequestException('User already registered');
@@ -64,9 +64,10 @@ export class UserService {
     if (existingUsername) {
       throw new BadRequestException('Username already taken');
     }
-    const salt = await bcrypt.genSalt(10);
 
+    const salt = await bcrypt.genSalt(10);
     const hashed_password = await bcrypt.hash(createUserDto.password, salt);
+
     const newUser = this.userRepository.create({
       ...createUserDto,
       password: hashed_password,
@@ -91,6 +92,7 @@ export class UserService {
       tokens,
     });
   }
+
 
   async findAll() {
     return this.userRepository.find();

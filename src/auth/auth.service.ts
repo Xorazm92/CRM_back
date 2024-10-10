@@ -3,7 +3,7 @@ import { Response } from 'express';
 import { Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
-import bcrypt from "bcrypt"
+import * as bcrypt from "bcrypt"
 import { SignInAuthDto, SignUpAuthDto, UpdateUserDto } from './dto';
 import { User } from 'src/user/entities/user.entity';
 
@@ -14,8 +14,8 @@ export class AuthService {
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     private readonly jwtService: JwtService,
-  ) {}
-  
+  ) { }
+
 
   async getTokens(user: User) {
     const payload = {
@@ -40,7 +40,10 @@ export class AuthService {
     };
   }
 
-  async signUp(singUpAuthDto: SignUpAuthDto, res:Response) {
+  async signUp(singUpAuthDto: SignUpAuthDto, res: Response) {
+    console.log({ singUpAuthDto })
+
+
     const existingUser = await this.userRepository.findOne({
       where: { email: singUpAuthDto.email },
     });
@@ -57,7 +60,10 @@ export class AuthService {
       throw new BadRequestException('Username already taken');
     }
 
-    const hashed_password = await bcrypt.hash(singUpAuthDto.password, 7);
+    console.log({ singUpAuthDto })
+    const salt = await bcrypt.genSalt(10)
+
+    const hashed_password = await bcrypt.hash(singUpAuthDto.password, salt);
     const newUser = this.userRepository.create({
       ...singUpAuthDto,
       password: hashed_password,
@@ -120,7 +126,7 @@ export class AuthService {
     return this.userRepository.remove([userToRemove]);
   }
 
-  async signIn(signInAuthDto:SignInAuthDto, res: Response) {
+  async signIn(signInAuthDto: SignInAuthDto, res: Response) {
     const user = await this.userRepository.findOne({
       where: { email: signInAuthDto.email },
     });

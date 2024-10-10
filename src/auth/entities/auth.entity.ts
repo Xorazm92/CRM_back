@@ -8,11 +8,11 @@ export class Auth {
   @Column()
   full_name: string;
 
-  @Column()
-  email: string;
-
-  @Column()
+  @Column({ unique: true })
   username: string;
+
+  @Column({ unique: true })
+  email: string;
 
   @Column()
   password: string;
@@ -21,7 +21,7 @@ export class Auth {
   is_active: boolean;
 
   @Column({ nullable: true })
-  refreshToken: string;
+  refreshToken?: string;
 
   // @OneToMany(() => UserCar, (userCar) => userCar.user)
   // userCars: UserCar[];

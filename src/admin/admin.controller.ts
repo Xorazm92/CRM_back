@@ -26,7 +26,7 @@ export class AdminController {
   constructor(private readonly adminService: AdminService) { }
 
   // @UseGuards(creatorGuard)
-  @UseGuards(AdminGuard)
+  // @UseGuards(AdminGuard)
   @Post()
   create(@Body() createAdminDto: CreateAdminDto) {
     return this.adminService.create(createAdminDto);

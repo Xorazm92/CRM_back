@@ -17,8 +17,6 @@ export class User {
   @Column()
   password: string;
 
-  @Column()
-  address: string;
 
   @Column({ nullable: true })
   balance: number;

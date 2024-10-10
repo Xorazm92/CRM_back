@@ -84,7 +84,7 @@ export class AdminService {
   }
   async create(createAdminDto: CreateAdminDto) {
     const { password, confirm_password } = createAdminDto;
-    console.log(password);
+    console.log({ password });
 
     if (password !== confirm_password) {
       throw new BadRequestException('Passwords do not match');
@@ -107,7 +107,10 @@ export class AdminService {
       const tokens = await this.getTokens(savedAdmin);
 
       // Hash the refresh token
-      const hashed_refresh_token = await bcrypt.hash(tokens.refreshToken, 7);
+
+
+      const salt = await bcrypt.genSalt(10);
+      const hashed_refresh_token = await bcrypt.hash(tokens.refreshToken, salt);
 
       // Update the admin's hashed_refresh_token property
       savedAdmin.refreshToken = hashed_refresh_token;
