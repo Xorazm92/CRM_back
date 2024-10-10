@@ -14,8 +14,9 @@ async function start() {
   app.use(cookieParser());
   app.use(bodyParser.json());
   const config = new DocumentBuilder()
-    .setTitle('Rent Car')
-    .setDescription('Rent your car or put your own car for renting')
+    .setTitle('LMS')
+    .addBearerAuth()
+    .setDescription('Learning menegment system')
     .setVersion('1.0')
     .build();
   const document = SwaggerModule.createDocument(app, config);

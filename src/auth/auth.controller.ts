@@ -1,13 +1,14 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Res } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { SignInAuthDto, SignUpAuthDto } from './dto';
 import { Response } from 'express';
 
-@ApiTags('Users')
+@ApiTags('Auth')
+@ApiBearerAuth()  // Swagger'ga Bearer token kerakligini aytish
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) { }
 
   @ApiOperation({ summary: 'Register a new user' })
   @ApiResponse({
@@ -16,7 +17,7 @@ export class AuthController {
   })
   @ApiResponse({ status: 403, description: 'Forbidden.' })
   @Post('/signup')
-  async  signUp(
+  async signUp(
     @Body() signUpAuthDto: SignUpAuthDto,
     @Res() response: Response,
   ) {

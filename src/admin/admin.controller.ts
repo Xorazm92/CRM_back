@@ -12,20 +12,21 @@ import {
 import { AdminService } from './admin.service';
 import { CreateAdminDto } from './dto/create-admin.dto';
 import { Response } from 'express';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Cookiegetter } from '../decorators/cookie_getter.decorator';
 
 import { LoginAdminDto } from './dto/login-participant.dto';
 import { creatorGuard } from './guards/admin.creator.guard';
 import { AdminGuard } from './guards/admin.guard';
 
-@ApiTags('admin')
-@Controller('admin')
+@ApiTags('Admin')
+@ApiBearerAuth()
+@Controller('Admin')
 export class AdminController {
-  constructor(private readonly adminService: AdminService) {}
+  constructor(private readonly adminService: AdminService) { }
 
   // @UseGuards(creatorGuard)
-  // @UseGuards(AdminGuard)
+  @UseGuards(AdminGuard)
   @Post()
   create(@Body() createAdminDto: CreateAdminDto) {
     return this.adminService.create(createAdminDto);
@@ -39,7 +40,7 @@ export class AdminController {
     return this.adminService.signIn(loginAdminDto, res);
   }
 
-  // @UseGuards(AdminGuard)
+  @UseGuards(AdminGuard)
   @Post('logout')
   logout(
     @Cookiegetter('refresh_token') refreshToken: string,

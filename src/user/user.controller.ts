@@ -9,7 +9,7 @@ import {
   UseGuards,
   Res,
 } from '@nestjs/common';
-import { ApiOperation, ApiTags, ApiResponse } from '@nestjs/swagger';
+import { ApiOperation, ApiTags, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { Response } from 'express';
 import { LoginUserDto } from '../user/dto/login-user.dto';
 import { AdminGuard } from '../admin/guards/admin.guard';
@@ -19,6 +19,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { Cookiegetter } from '../decorators/cookie_getter.decorator';
 
 @ApiTags('Users')
+@ApiBearerAuth()  // Swagger'ga Bearer token kerakligini aytish
 @Controller('User')
 export class UserController {
   constructor(private readonly userService: UserService) { }
