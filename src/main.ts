@@ -6,7 +6,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as bodyParser from 'body-parser';
 
 async function start() {
-  const PORT = process.env.PORT || 80;
+  const PORT = process.env.PORT || 3000;
   const app = await NestFactory.create(AppModule);
 
   app.setGlobalPrefix('api');
