@@ -1,35 +1,38 @@
-import { Module } from "@nestjs/common";
-import { APP_GUARD } from "@nestjs/core";
-import { JwtModule } from "@nestjs/jwt";
-import { ThrottlerGuard, ThrottlerModule } from "@nestjs/throttler";
-import { AppController } from './app.controller';
-import { AuthModule } from './auth/auth.module';
-import { PrismaService } from './prisma/prisma.service';
+import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Admin } from './admin/entities/admin.entity';
+import { AdminModule } from './admin/admin.module';
 import { UserModule } from './user/user.module';
+import { User } from './user/entities/user.entity';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
-    JwtModule.register({
-      global: true,
-      secret: "qwer12345",
-      signOptions: { expiresIn: '5m' },
-
+    ConfigModule.forRoot({ envFilePath: '.env', isGlobal: true }),
+    // TypeOrmModule.forRoot({
+    //   type: 'postgres',
+    //   host: process.env.DB_HOST,
+    //   port: Number(process.env.DB_PORT),
+    //   username: process.env.DB_USER,
+    //   password: process.env.DB_PASS,
+    //   database: process.env.DB_NAME,
+    //   entities: [Admin, User, Car, UserCar, Order, Review],
+    //   synchronize: true,
+    //   logging: false,
+    // }),
+    TypeOrmModule.forRoot({
+      type: 'sqlite',
+      database: 'database.sqlite',
+      entities: [__dirname + '/**/*.entity{.ts,.js}'],
+      // entities: [Admin, User],
+      synchronize: true,
     }),
-    ThrottlerModule.forRoot([{
-      ttl: 60000,
-      limit: 50,
-    }]),
+    AdminModule,
     UserModule,
-    AuthModule
+    AuthModule,
   ],
-  controllers: [AppController],
-  providers: [
-    {
-      provide: APP_GUARD,
-      useClass: ThrottlerGuard
-    },
-    PrismaService
-
-  ],
+  controllers: [],
+  providers: [],
 })
 export class AppModule { }

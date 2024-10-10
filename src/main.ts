@@ -1,28 +1,30 @@
-import { ValidationPipe } from "@nestjs/common";
-import { NestFactory } from "@nestjs/core";
-import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
-import { AppModule } from "./app.module";
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './app.module';
+import * as cookieParser from 'cookie-parser';
+import { ValidationPipe } from '@nestjs/common';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import * as bodyParser from 'body-parser';
 
-async function bootstrap() {
+async function start() {
+  const PORT = process.env.PORT || 3030;
   const app = await NestFactory.create(AppModule);
+
+  app.setGlobalPrefix('api');
   app.useGlobalPipes(new ValidationPipe());
-  app.setGlobalPrefix("api/v1")
-
+  app.use(cookieParser());
+  app.use(bodyParser.json());
   const config = new DocumentBuilder()
-    .setTitle('Clean service')
-    .setDescription('The clean service API description')
+    .setTitle('Rent Car')
+    .setDescription('Rent your car or put your own car for renting')
     .setVersion('1.0')
-    .addTag('clean')
-    .addBearerAuth()
     .build();
-
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('docs', app, document);
+  SwaggerModule.setup('api/docs', app, document);
 
-  SwaggerModule.setup('swagger', app, document, {
-    jsonDocumentUrl: 'swagger/json',
+  await app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+    console.log(`Docs: http://localhost:${PORT}/api/docs`);
   });
-
-  await app.listen(3000);
 }
-bootstrap();
+
+start();
