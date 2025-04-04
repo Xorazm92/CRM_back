@@ -4,6 +4,13 @@
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
+enum UserRole {
+  ADMIN
+  MANAGER
+  TEACHER
+  STUDENT
+}
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -13,8 +20,100 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Roles {
+  role_id    String   @id @default(uuid())
+  role_name  UserRole @default(MANAGER)
+  role_level Int
+  users      User[]
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
 model User {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
-  name  String?
+  user_id           String         @id @default(uuid())
+  full_name         String?
+  email             String         @unique
+  password          String
+  role_id           String
+  role              Roles          @relation(fields: [role_id], references: [role_id])
+  created_at        DateTime       @default(now())
+  updated_at        DateTime       @updatedAt
+  group_members     GroupMembers[]
+  attendance        Attendance[]
+  submissions       Submissions[]  @relation("StudentSubmissions")
+  gradedSubmissions Submissions[]  @relation("GraderSubmissions")
+}
+
+model Groups {
+  group_id      String         @id @default(uuid())
+  name          String
+  description   String
+  created_at    DateTime       @default(now())
+  updated_at    DateTime       @updatedAt
+  group_members GroupMembers[]
+  lessons       Lessons[]
+}
+
+model GroupMembers {
+  group_members_id String   @id @default(uuid())
+  group_id         String
+  group            Groups   @relation(fields: [group_id], references: [group_id])
+  user_id          String
+  user             User     @relation(fields: [user_id], references: [user_id])
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+}
+
+model Lessons {
+  lesson_id      String        @id @default(uuid())
+  group_id       String
+  group          Groups        @relation(fields: [group_id], references: [group_id])
+  topic          String
+  lesson_date    DateTime
+  recording_path String
+  created_at     DateTime      @default(now())
+  updated_at     DateTime      @updatedAt
+  attendance     Attendance[]
+  assignments    Assignments[]
+}
+
+model Attendance {
+  attendance_id String   @id @default(uuid())
+  lesson_id     String
+  lesson        Lessons  @relation(fields: [lesson_id], references: [lesson_id])
+  student_id    String
+  student       User     @relation(fields: [student_id], references: [user_id])
+  status        String
+  remarks       String
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+}
+
+model Assignments {
+  assignment_id String        @id @default(uuid())
+  lesson_id     String
+  lesson        Lessons       @relation(fields: [lesson_id], references: [lesson_id])
+  title         String
+  description   String
+  due_date      DateTime
+  created_at    DateTime      @default(now())
+  updated_at    DateTime      @updatedAt
+  submissions   Submissions[]
+}
+
+model Submissions {
+  submission_id String @id @default(uuid())
+
+  assignment_id String
+  assignment    Assignments @relation(fields: [assignment_id], references: [assignment_id])
+
+  student_id String
+  student    User   @relation("StudentSubmissions", fields: [student_id], references: [user_id])
+
+  graded_by String
+  graded    User     @relation("GraderSubmissions", fields: [graded_by], references: [user_id])
+  file_path String
+  grade     String
+  graded_at DateTime
+  feedback  String
 }
