@@ -2,12 +2,14 @@ import { NestFactory } from '@nestjs/core';
 import { HttpStatus, ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
+import { CustomLogger } from '../infrastructure/lib/custom-logger/logger.service';
 // import { AllExceptionsFilter } from '../infrastructure';
 // import { config } from '../config';
 
 export default class Application {
   public static async main(): Promise<void> {
     const app = await NestFactory.create(AppModule);
+    const logger = app.get(CustomLogger);
     // app.useGlobalFilters(new AllExceptionsFilter());
     app.useGlobalPipes(
       new ValidationPipe({
@@ -31,8 +33,9 @@ export default class Application {
     const documentFactory = () =>
       SwaggerModule.createDocument(app, config_swagger);
     SwaggerModule.setup(swaggerApi, app, documentFactory);
-    await app.listen(process.env.API_PORT ?? 3000, () => {
-      console.log(Date.now());
+    const server_port = process.env.API_PORT ?? 3000;
+    await app.listen(server_port, () => {
+      logger.log(`Server: http://localhost:${server_port}/api/v1/`);
     });
   }
 }
