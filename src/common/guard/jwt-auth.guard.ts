@@ -4,28 +4,23 @@ import {
   CanActivate,
   UnauthorizedException,
 } from '@nestjs/common';
+import { CustomJwtService } from '../../infrastructure/lib/custom-jwt/custom-jwt.service';
 import { Reflector } from '@nestjs/core';
-import { JwtService } from '@nestjs/jwt';
-import { Observable } from 'rxjs';
-import { config } from 'src/config';
 
 @Injectable()
 export class JwtGuard implements CanActivate {
   constructor(
-    private readonly jwtService: JwtService,
-    private readonly reflector: Reflector,
+    private readonly reflecotr: Reflector,
+    private jwt: CustomJwtService,
   ) {}
-  canActivate(
-    context: ExecutionContext,
-  ): boolean | Promise<boolean> | Observable<boolean> {
-    const isPublic = this.reflector.get<boolean>(
+  async canActivate(context: ExecutionContext): Promise<boolean> {
+    const isPublic = this.reflecotr.get<boolean>(
       'isPublic',
       context.getHandler(),
     );
     if (isPublic) {
       return true;
     }
-
     const req = context.switchToHttp().getRequest();
     const auth = req.headers.authorization;
     if (!auth) {
@@ -34,13 +29,11 @@ export class JwtGuard implements CanActivate {
     const bearer = auth.split(' ')[0];
     const token = auth.split(' ')[1];
     if (bearer !== 'Bearer' || !token) {
-      throw new UnauthorizedException('Unauthorized');
+      throw new UnauthorizedException('Unauthorizated');
     }
     let user: any;
     try {
-      user = this.jwtService.verify(token, {
-        secret: config.ACCESS_TOKEN_KEY,
-      });
+      user = await this.jwt.verifyAccessToken(token);
       req.user = user;
     } catch (error) {
       throw new UnauthorizedException('Token expired');

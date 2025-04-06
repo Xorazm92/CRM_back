@@ -22,7 +22,7 @@ datasource db {
 
 model Roles {
   role_id    String   @id @default(uuid())
-  role_name  UserRole @default(MANAGER)
+  role_name  UserRole @default(STUDENT)
   role_level Int
   users      User[]
   created_at DateTime @default(now())
@@ -32,7 +32,7 @@ model Roles {
 model User {
   user_id           String         @id @default(uuid())
   full_name         String?
-  email             String         @unique
+  username           String         @unique
   password          String
   role_id           String
   role              Roles          @relation(fields: [role_id], references: [role_id])

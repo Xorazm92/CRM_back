@@ -11,7 +11,7 @@ export type ConfigType = {
   ACCESS_TOKEN_TIME: string;
   REFRESH_TOKEN_KEY: string;
   REFRESH_TOKEN_TIME: string;
-  FILE_PATH: string;
+  // FILE_PATH: string;
 };
 
 const requiredVariables = [
@@ -23,7 +23,7 @@ const requiredVariables = [
   'ACCESS_TOKEN_TIME',
   'REFRESH_TOKEN_KEY',
   'REFRESH_TOKEN_TIME',
-  'FILE_PATH',
+  // 'FILE_PATH',
 ];
 
 const missingVariables = requiredVariables.filter((variable) => {
@@ -49,5 +49,5 @@ export const config: ConfigType = {
   ACCESS_TOKEN_TIME: process.env.ACCESS_TOKEN_TIME as string,
   REFRESH_TOKEN_KEY: process.env.REFRESH_TOKEN_KEY as string,
   REFRESH_TOKEN_TIME: process.env.REFRESH_TOKEN_TIME,
-  FILE_PATH: process.env.FILE_PATH,
+  // FILE_PATH: process.env.FILE_PATH,
 };
