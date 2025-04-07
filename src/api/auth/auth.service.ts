@@ -3,14 +3,22 @@ import { RegisterDto, LoginDto } from '../admin/dto/auth.dto';
 import { PrismaService } from 'src/common/prisma/prisma.service';
 import { CustomJwtService } from 'src/infrastructure/lib/jwt/jwt.service';
 import { BcryptEncryption } from 'src/infrastructure/lib/bcrypt/bcrypt';
-import { UserRole } from '../admin/dto/auth.dto';
+import { UserRole } from '@prisma/client';
 
 type UserWithRole = {
   user_id: string;
   username: string;
   full_name: string | null;
+  password: string;
+  role_id: string;
+  created_at: Date;
+  updated_at: Date;
   role: {
+    role_id: string;
+    created_at: Date;
+    updated_at: Date;
     role_name: UserRole;
+    role_level: number;
   };
 };
 
@@ -46,15 +54,14 @@ export class AuthService {
       throw new ConflictException('Username already exists');
     }
 
-    // Create role if it doesn't exist
-    const role = await this.prisma.roles.upsert({
+    // Find or create role
+    const role = await this.prisma.roles.findFirst({
       where: { role_name: dto.role },
-      update: {},
-      create: {
-        role_name: dto.role,
-        role_level: this.getRoleLevel(dto.role),
-      },
     });
+
+    if (!role) {
+      throw new ConflictException('Invalid role specified');
+    }
 
     // Hash password
     const hashedPassword = await BcryptEncryption.hashPassword(dto.password);
