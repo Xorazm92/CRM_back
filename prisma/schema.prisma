@@ -19,7 +19,9 @@ model Roles {
 model User {
   created_at        DateTime       @default(now())
   full_name         String?
+
   username           String         @unique
+
   password          String
   role_id           String
   updated_at        DateTime       @updatedAt

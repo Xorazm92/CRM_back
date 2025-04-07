@@ -57,7 +57,9 @@ export class AuthController {
     status: HttpStatus.OK,
     description: 'Token successfully refreshed',
   })
+
   refreshTokens(@Request() req) {
     return this.authService.refreshTokens(req.user.sub);
+
   }
 }
