@@ -32,7 +32,7 @@ model Roles {
 model User {
   user_id           String         @id @default(uuid())
   full_name         String?
-  username           String         @unique
+  username          String         @unique
   password          String
   role_id           String
   role              Roles          @relation(fields: [role_id], references: [role_id])
@@ -46,7 +46,7 @@ model User {
 
 model Groups {
   group_id      String         @id @default(uuid())
-  name          String
+  name          String         @unique
   description   String
   created_at    DateTime       @default(now())
   updated_at    DateTime       @updatedAt
