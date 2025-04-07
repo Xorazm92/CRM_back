@@ -7,7 +7,6 @@ import { JwtGuard } from 'src/common/guard/jwt-auth.guard';
 import { CustomJwtModule } from 'src/infrastructure/lib/custom-jwt';
 import { ConfigModule } from '@nestjs/config';
 import { GroupModule } from './group/group.module';
-import { PrismaService } from 'src/common/prisma/prisma.service';
 
 @Module({
   imports: [
