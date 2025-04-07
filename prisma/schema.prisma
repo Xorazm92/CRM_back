@@ -22,7 +22,7 @@ datasource db {
 
 model Roles {
   role_id    String   @id @default(uuid())
-  role_name  UserRole @default(STUDENT)
+  role_name  UserRole @unique
   role_level Int
   users      User[]
   created_at DateTime @default(now())

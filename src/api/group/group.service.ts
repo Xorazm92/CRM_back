@@ -8,7 +8,7 @@ import { UpdateGroupDto } from './dto/update.group.dto';
 export class GroupService {
   constructor(private readonly prismaService: PrismaService) {}
   async createGroup(createGroupDto: CreateGroupDto) {
-    const isBeenGroup = await this.prismaService.groups.findUnique({
+    const isBeenGroup = await this.prismaService.groups.findFirst({
       where: { name: createGroupDto.name },
     });
     if (isBeenGroup) {
@@ -78,20 +78,31 @@ export class GroupService {
     if (!currentGroup) {
       throw new NotFoundException('Group not found!');
     }
-    const currentUsername = await this.prismaService.groups.findUnique({
-      where: { name: updateGroupDto.name },
-    });
-    if (currentUsername) {
-      throw new AlreadyExistsException('Name already exist!');
+
+    // Check if the new name already exists for a different group
+    if (updateGroupDto.name) {
+      const existingGroupWithName = await this.prismaService.groups.findFirst({
+        where: { 
+          AND: [
+            { name: updateGroupDto.name },
+            { NOT: { group_id: groupId } }
+          ]
+        },
+      });
+      
+      if (existingGroupWithName) {
+        throw new AlreadyExistsException('Name already exist!');
+      }
     }
+
     // Proceed to update the group
     const updatedGroup = await this.prismaService.groups.update({
       where: { group_id: groupId },
       data: updateGroupDto,
       include: {
         group_members: {
-          where: { user_id: adminId }, // Filter the group members by adminId
-          include: { user: true }, // Include user information within the group members
+          where: { user_id: adminId },
+          include: { user: true },
         },
       },
     });

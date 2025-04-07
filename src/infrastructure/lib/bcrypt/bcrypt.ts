@@ -19,4 +19,13 @@ export class BcryptEncryption {
       throw new BadRequestException(`Error on decrypt: ${error}`);
     }
   }
+
+  static async hashPassword(password: string): Promise<string> {
+    const salt = await bcrypt.genSalt();
+    return bcrypt.hash(password, salt);
+  }
+
+  static async compareData(data: string, encrypted: string): Promise<boolean> {
+    return bcrypt.compare(data, encrypted);
+  }
 }
