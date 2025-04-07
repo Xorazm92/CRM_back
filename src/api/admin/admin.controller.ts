@@ -137,8 +137,8 @@ export class AdminController {
         data: [
           {
             user_id: 'f6bb055d-8b0b-4503-b53b-67c1230993f7',
-            full_name: 'Jhon Doe',
-            username: 'jhondoe007',
+            full_name: 'Talant',
+            username: 'talant007',
             password:
               '$2b$10$D01/2P0O1TI5Jg4hRglByOEwavU3cfLcLAbimHCgIn1VUXo0ZKN4W',
             role_id: '81cef556-8bd2-45e2-9442-a50d4f560379',
@@ -181,8 +181,8 @@ export class AdminController {
         message: 'success',
         data: {
           user_id: 'f6bb055d-8b0b-4503-b53b-67c1230993f7',
-          full_name: 'Jhon Doe',
-          username: 'jhondoe007',
+          full_name: 'Talant',
+          username: 'talant007',
           password:
             '$2b$10$D01/2P0O1TI5Jg4hRglByOEwavU3cfLcLAbimHCgIn1VUXo0ZKN4W',
           role_id: '81cef556-8bd2-45e2-9442-a50d4f560379',
