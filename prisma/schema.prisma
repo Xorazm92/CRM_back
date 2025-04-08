@@ -1,16 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
-enum UserRole {
-  ADMIN
-  MANAGER
-  TEACHER
-  STUDENT
-}
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -22,17 +9,22 @@ datasource db {
 
 
 model User {
-  user_id           String         @id @default(uuid())
+  created_at        DateTime       @default(now())
   full_name         String?
-  username          String         @unique
+
+  username           String         @unique
+
   password          String
   role              UserRole   
   created_at        DateTime       @default(now())
   updated_at        DateTime       @updatedAt
-  group_members     GroupMembers[]
+  user_id           String         @id @default(uuid())
+  username          String         @unique
   attendance        Attendance[]
-  submissions       Submissions[]  @relation("StudentSubmissions")
+  group_members     GroupMembers[]
   gradedSubmissions Submissions[]  @relation("GraderSubmissions")
+  submissions       Submissions[]  @relation("StudentSubmissions")
+  role              Roles          @relation(fields: [role_id], references: [role_id])
 }
 
 model Groups {
@@ -48,63 +40,67 @@ model Groups {
 model GroupMembers {
   group_members_id String   @id @default(uuid())
   group_id         String
-  group            Groups   @relation(fields: [group_id], references: [group_id])
   user_id          String
-  user             User     @relation(fields: [user_id], references: [user_id])
   created_at       DateTime @default(now())
   updated_at       DateTime @updatedAt
+  group            Groups   @relation(fields: [group_id], references: [group_id])
+  user             User     @relation(fields: [user_id], references: [user_id])
 }
 
 model Lessons {
   lesson_id      String        @id @default(uuid())
   group_id       String
-  group          Groups        @relation(fields: [group_id], references: [group_id])
   topic          String
   lesson_date    DateTime
   recording_path String
   created_at     DateTime      @default(now())
   updated_at     DateTime      @updatedAt
-  attendance     Attendance[]
   assignments    Assignments[]
+  attendance     Attendance[]
+  group          Groups        @relation(fields: [group_id], references: [group_id])
 }
 
 model Attendance {
   attendance_id String   @id @default(uuid())
   lesson_id     String
-  lesson        Lessons  @relation(fields: [lesson_id], references: [lesson_id])
   student_id    String
-  student       User     @relation(fields: [student_id], references: [user_id])
   status        String
   remarks       String
   created_at    DateTime @default(now())
   updated_at    DateTime @updatedAt
+  lesson        Lessons  @relation(fields: [lesson_id], references: [lesson_id])
+  student       User     @relation(fields: [student_id], references: [user_id])
 }
 
 model Assignments {
   assignment_id String        @id @default(uuid())
   lesson_id     String
-  lesson        Lessons       @relation(fields: [lesson_id], references: [lesson_id])
   title         String
   description   String
   due_date      DateTime
   created_at    DateTime      @default(now())
   updated_at    DateTime      @updatedAt
+  lesson        Lessons       @relation(fields: [lesson_id], references: [lesson_id])
   submissions   Submissions[]
 }
 
 model Submissions {
-  submission_id String @id @default(uuid())
-
+  submission_id String      @id @default(uuid())
   assignment_id String
+  student_id    String
+  graded_by     String
+  file_path     String
+  grade         String
+  graded_at     DateTime
+  feedback      String
   assignment    Assignments @relation(fields: [assignment_id], references: [assignment_id])
+  graded        User        @relation("GraderSubmissions", fields: [graded_by], references: [user_id])
+  student       User        @relation("StudentSubmissions", fields: [student_id], references: [user_id])
+}
 
-  student_id String
-  student    User   @relation("StudentSubmissions", fields: [student_id], references: [user_id])
-
-  graded_by String
-  graded    User     @relation("GraderSubmissions", fields: [graded_by], references: [user_id])
-  file_path String
-  grade     String
-  graded_at DateTime
-  feedback  String
+enum UserRole {
+  ADMIN
+  MANAGER
+  TEACHER
+  STUDENT
 }

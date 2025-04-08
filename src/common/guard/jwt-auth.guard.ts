@@ -4,17 +4,17 @@ import {
   CanActivate,
   UnauthorizedException,
 } from '@nestjs/common';
-import { CustomJwtService } from '../../infrastructure/lib/custom-jwt/custom-jwt.service';
+import { CustomJwtService } from '../../infrastructure/lib/jwt/jwt.service';
 import { Reflector } from '@nestjs/core';
 
 @Injectable()
 export class JwtGuard implements CanActivate {
   constructor(
-    private readonly reflecotr: Reflector,
+    private readonly reflector: Reflector,
     private jwt: CustomJwtService,
   ) {}
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const isPublic = this.reflecotr.get<boolean>(
+    const isPublic = this.reflector.get<boolean>(
       'isPublic',
       context.getHandler(),
     );
@@ -29,7 +29,7 @@ export class JwtGuard implements CanActivate {
     const bearer = auth.split(' ')[0];
     const token = auth.split(' ')[1];
     if (bearer !== 'Bearer' || !token) {
-      throw new UnauthorizedException('Unauthorizated');
+      throw new UnauthorizedException('Unauthorized');
     }
     let user: any;
     try {
