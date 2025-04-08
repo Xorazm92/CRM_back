@@ -1,10 +1,15 @@
-import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  ConflictException,
+  HttpStatus,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { RegisterDto, LoginDto } from '../admin/dto/auth.dto';
 import { PrismaService } from 'src/common/prisma/prisma.service';
-import { CustomJwtService } from 'src/infrastructure/lib/jwt/jwt.service';
 import { BcryptEncryption } from 'src/infrastructure/lib/bcrypt/bcrypt';
-
 import { UserRole } from '@prisma/client';
+import { CustomJwtService } from 'src/infrastructure/lib/custom-jwt';
+import { ConfigService } from '@nestjs/config';
 
 type UserWithRole = {
   user_id: string;
@@ -20,6 +25,7 @@ export class AuthService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly customJwtService: CustomJwtService,
+    private readonly configService: ConfigService,
   ) {}
 
   private getRoleLevel(role: UserRole): number {
@@ -38,7 +44,6 @@ export class AuthService {
   }
 
   async register(dto: RegisterDto) {
-    // Check if username already exists
     const existingUser = await this.prisma.user.findUnique({
       where: { username: dto.username },
     });
@@ -47,60 +52,28 @@ export class AuthService {
       throw new ConflictException('Username already exists');
     }
 
-    // Create role if it doesn't exist
-    const role = await this.prisma.roles.upsert({
-      where: { role_name: dto.role },
-      update: {},
-      create: {
-        role_name: dto.role,
-        role_level: this.getRoleLevel(dto.role),
-      },
-    });
+    dto.password = await BcryptEncryption.hashPassword(dto.password);
 
-    // Hash password
-    const hashedPassword = await BcryptEncryption.hashPassword(dto.password);
-
-    // Create user
     const user = await this.prisma.user.create({
-      data: {
-        full_name: dto.full_name,
-        username: dto.username,
-        password: hashedPassword,
-        role_id: role.role_id,
-      },
-      include: {
-        role: true,
-      },
+      data: dto,
     });
-
-    // Generate tokens
-    const tokens = await this.customJwtService.generateTokens(user);
 
     return {
-      user: {
-        user_id: user.user_id,
-        full_name: user.full_name,
-        username: user.username,
-        role: user.role.role_name,
-      },
-      tokens,
+      status: HttpStatus.CREATED,
+      message: 'created',
+      data: user,
     };
   }
 
   async login(dto: LoginDto) {
-    // Find user by username
     const user = await this.prisma.user.findUnique({
       where: { username: dto.username },
-      include: {
-        role: true,
-      },
     });
 
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    // Verify password
     const isPasswordValid = await BcryptEncryption.compare(
       dto.password,
       user.password,
@@ -110,32 +83,46 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    // Generate tokens
-    const tokens = await this.customJwtService.generateTokens(user);
-
+    const payload = {
+      id: user.user_id,
+      sub: user.username,
+      role: user.role,
+    };
+    const accessToken =
+      await this.customJwtService.generateAccessToken(payload);
+    const refreshToken =
+      await this.customJwtService.generateRefreshToken(payload);
     return {
-      user: {
-        user_id: user.user_id,
-        full_name: user.full_name,
-        username: user.username,
-        role: user.role.role_name,
+      status: HttpStatus.OK,
+      message: 'success',
+      data: {
+        accessToken,
+        access_token_expire:
+          this.configService.get<string>('ACCESS_TOKEN_TIME'),
+        refreshToken,
+        refresh_token_expire:
+          this.configService.get<string>('REFRESH_TOKEN_TIME'),
       },
-      tokens,
     };
   }
 
   async refreshTokens(userId: string) {
     const user = await this.prisma.user.findUnique({
       where: { user_id: userId },
-      include: {
-        role: true,
-      },
     });
 
     if (!user) {
       throw new UnauthorizedException('User not found');
     }
-
-    return this.customJwtService.generateTokens(user);
+    const payload = {
+      id: user.user_id,
+      sub: user.username,
+      role: user.role,
+    };
+    const accessToken =
+      await this.customJwtService.generateAccessToken(payload);
+    const refreshToken =
+      await this.customJwtService.generateRefreshToken(payload);
+    return { accessToken, refreshToken };
   }
 }

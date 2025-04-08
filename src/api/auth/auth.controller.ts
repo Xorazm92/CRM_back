@@ -9,9 +9,15 @@ import {
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto, RegisterDto } from '../admin/dto/auth.dto';
-import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { Public } from 'src/common/decorator/auth.decorator';
 import { JwtGuard } from 'src/common/guard/jwt-auth.guard';
+import { UserID } from 'src/common/decorator';
 
 @ApiTags('Authentication')
 @Controller('auth')
@@ -49,7 +55,6 @@ export class AuthController {
     return this.authService.login(loginDto);
   }
 
-  @UseGuards(JwtGuard)
   @Post('refresh')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Refresh access token' })
@@ -57,9 +62,7 @@ export class AuthController {
     status: HttpStatus.OK,
     description: 'Token successfully refreshed',
   })
-
-  refreshTokens(@Request() req) {
-    return this.authService.refreshTokens(req.user.sub);
-
+  refreshTokens(@UserID() id: string) {
+    return this.authService.refreshTokens(id);
   }
 }
