@@ -24,24 +24,9 @@ export class GroupService {
     };
   }
 
-  async findAllGroup(adminId: string) {
-    const userWithGroups = await this.prismaService.user.findUnique({
-      where: {
-        user_id: adminId,
-      },
-      include: {
-        group_members: {
-          include: {
-            group: true,
-          },
-        },
-      },
-    });
+  async findAllGroup() {
+    const allGroups = await this.prismaService.groups.findMany();
 
-    // Faqat grouplar ro'yxatini olish:
-    const allGroups = userWithGroups.group_members.map(
-      (member) => member.group,
-    );
     return {
       status: HttpStatus.OK,
       message: 'success',
@@ -49,28 +34,20 @@ export class GroupService {
     };
   }
 
-  async findOneGroup(adminId: string, groupId: string) {
-    const groupMember = await this.prismaService.groupMembers.findFirst({
-      where: {
-        user_id: adminId,
-        group_id: groupId,
-      },
-      include: {
-        group: true,
-      },
+  async findOneGroup(groupId: string) {
+    const groupMember = await this.prismaService.groups.findFirst({
+      where: { group_id: groupId },
     });
-
+    if (!groupMember) {
+      throw new NotFoundException('Group not found!');
+    }
     return {
       status: HttpStatus.OK,
       message: 'success',
       data: groupMember,
     };
   }
-  async updateOne(
-    adminId: string,
-    groupId: string,
-    updateGroupDto: UpdateGroupDto,
-  ) {
+  async updateOne(groupId: string, updateGroupDto: UpdateGroupDto) {
     const currentGroup = await this.prismaService.groups.findUnique({
       where: { group_id: groupId },
     });
@@ -88,12 +65,6 @@ export class GroupService {
     const updatedGroup = await this.prismaService.groups.update({
       where: { group_id: groupId },
       data: updateGroupDto,
-      include: {
-        group_members: {
-          where: { user_id: adminId }, // Filter the group members by adminId
-          include: { user: true }, // Include user information within the group members
-        },
-      },
     });
 
     return {
@@ -102,7 +73,7 @@ export class GroupService {
       data: updatedGroup,
     };
   }
-  async remove(adminId: string, groupId: string) {
+  async remove(groupId: string) {
     const currentGroup = await this.prismaService.groups.findUnique({
       where: { group_id: groupId },
     });
@@ -112,12 +83,6 @@ export class GroupService {
     }
     const deletedUser = await this.prismaService.groups.delete({
       where: { group_id: groupId },
-      include: {
-        group_members: {
-          where: { user_id: adminId },
-          include: { user: true },
-        },
-      },
     });
     return {
       status: HttpStatus.OK,
@@ -125,4 +90,4 @@ export class GroupService {
       data: deletedUser,
     };
   }
-}
+} 
