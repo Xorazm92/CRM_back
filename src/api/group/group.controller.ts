@@ -10,10 +10,12 @@ import {
 } from '@nestjs/common';
 import { CreateGroupDto } from './dto/create.group.dto';
 import { GroupService } from './group.service';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { UserID } from 'src/common/decorator/user-id.decorator';
 import { UpdateGroupDto } from './dto/update.group.dto';
 
 @ApiTags('Groups') // Group API documentation tag
+@ApiBearerAuth()
 @Controller('groups')
 export class GroupController {
   constructor(private readonly groupServer: GroupService) {}
