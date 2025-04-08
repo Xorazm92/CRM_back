@@ -46,8 +46,8 @@ export class GroupController {
     status: HttpStatus.NOT_FOUND,
     description: 'No groups found for this admin',
   })
-  getAllGroups(@UserID() adminId: string) {
-    return this.groupServer.findAllGroup(adminId);
+  getAllGroups() {
+    return this.groupServer.findAllGroup();
   }
 
   @Get(':id')
@@ -61,8 +61,8 @@ export class GroupController {
     status: HttpStatus.NOT_FOUND,
     description: 'Group not found',
   })
-  getOneGroup(@UserID() adminId: string, @Param('id') groupId: string) {
-    return this.groupServer.findOneGroup(adminId, groupId);
+  getOneGroup(@Param('id') groupId: string) {
+    return this.groupServer.findOneGroup(groupId);
   }
 
   @Put(':id')
@@ -81,11 +81,10 @@ export class GroupController {
     description: 'Group name already exists',
   })
   updateGroup(
-    @UserID() adminId: string,
     @Param('id') groupId: string,
     @Body() updateGroupDto: UpdateGroupDto,
   ) {
-    return this.groupServer.updateOne(adminId, groupId, updateGroupDto);
+    return this.groupServer.updateOne(groupId, updateGroupDto);
   }
 
   @Delete(':id')
@@ -98,7 +97,7 @@ export class GroupController {
     status: HttpStatus.NOT_FOUND,
     description: 'Group not found',
   })
-  deleteOne(@UserID() adminId: string, @Param('id') groupId: string) {
-    return this.groupServer.remove(adminId, groupId);
+  deleteOne(@Param('id') groupId: string) {
+    return this.groupServer.remove(groupId);
   }
 }
