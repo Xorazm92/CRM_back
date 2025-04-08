@@ -7,14 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Roles {
-  role_id    String   @id @default(uuid())
-  role_name  UserRole @unique
-  role_level Int
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-  users      User[]
-}
 
 model User {
   created_at        DateTime       @default(now())
@@ -23,7 +15,8 @@ model User {
   username           String         @unique
 
   password          String
-  role_id           String
+  role              UserRole   
+  created_at        DateTime       @default(now())
   updated_at        DateTime       @updatedAt
   user_id           String         @id @default(uuid())
   username          String         @unique

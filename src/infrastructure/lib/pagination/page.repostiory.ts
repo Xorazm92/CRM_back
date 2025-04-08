@@ -27,7 +27,7 @@ export class RepositoryPager {
   private static normalizePagination<T>(
     options?: IFindOptions<T>,
   ): FindManyOptions<T> {
-    let page = (options?.skip ?? RepositoryPager.DEFAULT_PAGE) - 1; // pagination is 1 indexed, convert into 0 indexed
+    const page = (options?.skip ?? RepositoryPager.DEFAULT_PAGE) - 1; // pagination is 1 indexed, convert into 0 indexed
     return {
       ...options,
       take: options?.take,

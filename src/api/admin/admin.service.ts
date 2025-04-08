@@ -27,9 +27,6 @@ export class AdminService {
   async signin(signinAdminDto: SignInAdminDto) {
     const currentAdmin = await this.prismaService.user.findUnique({
       where: { username: signinAdminDto.username },
-      include: {
-        role: true,
-      },
     });
     if (!currentAdmin) {
       throw new BadRequestException('Username or password invalid');
@@ -44,7 +41,7 @@ export class AdminService {
     const payload = {
       id: currentAdmin.user_id,
       sub: currentAdmin.username,
-      role: currentAdmin.role.role_name,
+      role: currentAdmin.role,
     };
     const accessToken = await this.jwt.generateAccessToken(payload);
     const refreshToken = await this.jwt.generateRefreshToken(payload);
@@ -72,11 +69,8 @@ export class AdminService {
     createAdminDto.password = await BcryptEncryption.encrypt(
       createAdminDto.password,
     );
-    const role = await this.prismaService.roles.create({
-      data: { role_name: UserRole.ADMIN, role_level: 1 },
-    });
     const admin = await this.prismaService.user.create({
-      data: { ...createAdminDto, role_id: role.role_id },
+      data: { ...createAdminDto, role: UserRole.ADMIN },
     });
     return {
       status: HttpStatus.CREATED,
@@ -118,11 +112,8 @@ export class AdminService {
   async findAll() {
     const admins = await this.prismaService.user.findMany({
       where: {
-        role: {
-          role_name: 'ADMIN',
-        },
+        role: 'ADMIN',
       },
-      include: { role: true },
     });
     return {
       status: HttpStatus.OK,
@@ -136,12 +127,7 @@ export class AdminService {
     const admin = await this.prismaService.user.findUnique({
       where: {
         user_id: id,
-        role: {
-          role_name: 'ADMIN',
-        },
-      },
-      include: {
-        role: true,
+        role: 'ADMIN',
       },
     });
     if (!admin) {
@@ -159,9 +145,7 @@ export class AdminService {
     const currentAdmin = await this.prismaService.user.findUnique({
       where: {
         user_id: id,
-        role: {
-          role_name: 'ADMIN',
-        },
+        role: 'ADMIN',
       },
     });
     if (!currentAdmin) {
@@ -182,9 +166,7 @@ export class AdminService {
     const currentAdmin = await this.prismaService.user.findUnique({
       where: {
         user_id: id,
-        role: {
-          role_name: 'ADMIN',
-        },
+        role: 'ADMIN',
       },
     });
     if (!currentAdmin) {

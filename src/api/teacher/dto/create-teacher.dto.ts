@@ -1,10 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsString, IsStrongPassword } from 'class-validator';
 
-export class CreateAdminDto {
+export class CreateTeacherDto {
   @ApiProperty({
     type: String,
-    description: 'FullName of admin',
+    description: 'FullName of teacher',
     example: 'Jhon Doe',
   })
   @IsString()
@@ -13,7 +13,7 @@ export class CreateAdminDto {
 
   @ApiProperty({
     type: String,
-    description: 'Username of admin',
+    description: 'Username of teacher',
     example: 'jhondoe007',
   })
   @IsString()
@@ -22,7 +22,7 @@ export class CreateAdminDto {
 
   @ApiProperty({
     type: String,
-    description: 'Password of admin',
+    description: 'Password of teacher',
     example: 'jhondoe007!A',
   })
   @IsStrongPassword()
