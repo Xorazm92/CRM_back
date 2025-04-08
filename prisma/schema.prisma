@@ -9,22 +9,17 @@ datasource db {
 
 
 model User {
-  created_at        DateTime       @default(now())
   full_name         String?
-
   username           String         @unique
-
   password          String
   role              UserRole   
   created_at        DateTime       @default(now())
   updated_at        DateTime       @updatedAt
   user_id           String         @id @default(uuid())
-  username          String         @unique
   attendance        Attendance[]
   group_members     GroupMembers[]
   gradedSubmissions Submissions[]  @relation("GraderSubmissions")
   submissions       Submissions[]  @relation("StudentSubmissions")
-  role              Roles          @relation(fields: [role_id], references: [role_id])
 }
 
 model Groups {

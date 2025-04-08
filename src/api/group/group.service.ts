@@ -24,6 +24,7 @@ export class GroupService {
     };
   }
 
+  
   async findAllGroup() {
     const allGroups = await this.prismaService.groups.findMany();
 
