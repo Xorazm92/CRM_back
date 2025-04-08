@@ -7,6 +7,7 @@ import { JwtGuard } from 'src/common/guard/jwt-auth.guard';
 import { CustomJwtModule } from 'src/infrastructure/lib/custom-jwt';
 import { ConfigModule } from '@nestjs/config';
 import { GroupModule } from './group/group.module';
+import { TeacherModule } from './teacher/teacher.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { GroupModule } from './group/group.module';
     CustomJwtModule,
     AdminModule,
     GroupModule,
+    TeacherModule,
   ],
   providers: [
     {
