@@ -32,9 +32,12 @@ export class StudentService {
     };
   }
 
-  async findAll() {
+  async findAll(page: number, limit: number) {
+    page = (page - 1) * limit;
     const students = await this.prismaService.user.findMany({
       where: { role: 'STUDENT' },
+      take: page,
+      skip: limit,
     });
     return {
       status: HttpStatus.OK,
@@ -45,7 +48,7 @@ export class StudentService {
   async getProfile(id: string) {
     const student = await this.prismaService.user.findUnique({
       where: { user_id: id, role: 'STUDENT' },
-      select: { user_id: true, full_name: true, username: true , role:true },
+      select: { user_id: true, full_name: true, username: true, role: true },
     });
     return {
       status: HttpStatus.OK,

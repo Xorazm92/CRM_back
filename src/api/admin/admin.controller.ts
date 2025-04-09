@@ -8,6 +8,9 @@ import {
   Delete,
   HttpStatus,
   UseGuards,
+  Query,
+  DefaultValuePipe,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { AdminService } from './admin.service';
 import { CreateAdminDto } from './dto/create-admin.dto';
@@ -153,8 +156,11 @@ export class AdminController {
   @Get()
   @UseGuards(AdminGuard)
   @ApiBearerAuth()
-  findAll() {
-    return this.adminService.findAll();
+  findAll(
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page?: number,
+    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit?: number,
+  ) {
+    return this.adminService.findAll(page , limit);
   }
 
   @ApiOperation({

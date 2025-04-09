@@ -14,15 +14,6 @@ import { CustomJwtService } from 'src/infrastructure/lib/custom-jwt';
 import { ConfigService } from '@nestjs/config';
 import { ConfirmPasswordDto } from './dto/confirm-password.dto';
 
-type UserWithRole = {
-  user_id: string;
-  username: string;
-  full_name: string | null;
-  role: {
-    role_name: UserRole;
-  };
-};
-
 @Injectable()
 export class AuthService {
   constructor(
