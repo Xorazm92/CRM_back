@@ -34,11 +34,11 @@ export class TeacherService {
   }
 
   async findAll(page: number, limit: number) {
-    page = (page - 1) * limit;
+    const skip = (page - 1) * limit;
     const teachers = await this.prismaService.user.findMany({
       where: { role: 'TEACHER' },
-      take: page,
-      skip: limit,
+      take: limit,
+      skip: skip,
     });
     return {
       status: HttpStatus.OK,

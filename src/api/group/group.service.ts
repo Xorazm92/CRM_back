@@ -1,12 +1,22 @@
-import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  HttpStatus,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateGroupDto } from './dto/create.group.dto';
 import { PrismaService } from 'src/common/prisma/prisma.service';
 import { AlreadyExistsException } from 'src/common/exceptions/already-exists.exception';
 import { UpdateGroupDto } from './dto/update.group.dto';
+import Redis from 'ioredis';
+import { config } from 'src/config';
 
 @Injectable()
 export class GroupService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    @Inject('REDIS_CLIENT') private readonly redis: Redis,
+  ) {}
   async createGroup(createGroupDto: CreateGroupDto) {
     const isBeenGroup = await this.prismaService.groups.findFirst({
       where: { name: createGroupDto.name },
@@ -17,6 +27,13 @@ export class GroupService {
     const newGroup = await this.prismaService.groups.create({
       data: createGroupDto,
     });
+
+    // group delete from redis
+    const keys = await this.redis.keys('groups:page:*');
+    if (keys.length) {
+      await this.redis.del(...keys);
+    }
+
     return {
       status: HttpStatus.CREATED,
       message: 'New group created',
@@ -24,10 +41,23 @@ export class GroupService {
     };
   }
 
-  async findAllGroup() {
+  async findAllGroup(page: number, limit: number) {
+    const redisKey = `groups:page:${page}:limit:${limit}`;
+    const cachedGroup = await this.redis.get(redisKey);
+    if (cachedGroup) {
+      return JSON.parse(cachedGroup);
+    }
+    const skip = (page - 1) * limit;
     const allGroups = await this.prismaService.groups.findMany({
-      include: { group_members: true },
+      skip,
+      take: limit,
     });
+    await this.redis.set(
+      redisKey,
+      JSON.stringify(allGroups),
+      'EX',
+      config.REDIS_EX_TIME,
+    );
 
     return {
       status: HttpStatus.OK,

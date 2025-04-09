@@ -9,6 +9,7 @@ import { CustomLogger } from '../infrastructure/lib/custom-logger/logger.service
 export default class Application {
   public static async main(): Promise<void> {
     const app = await NestFactory.create(AppModule);
+    app.enableCors()
     const logger = app.get(CustomLogger);
     // app.useGlobalFilters(new AllExceptionsFilter());
     app.useGlobalPipes(
