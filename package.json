@@ -27,7 +27,8 @@
     "migrate:resolve": "npx prisma migrate resolve --preview-feature",
     "prisma:studio": "npx prisma studio",
     "prisma:generate": "npx prisma generate",
-    "prisma:generate:watch": "npx prisma generate --watch"
+    "prisma:generate:watch": "npx prisma generate --watch",
+    "seed": "ts-node prisma/seed.ts"
   },
   "dependencies": {
     "@eslint/js": "^9.24.0",
