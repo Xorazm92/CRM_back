@@ -24,9 +24,10 @@ export class GroupService {
     };
   }
 
-  
   async findAllGroup() {
-    const allGroups = await this.prismaService.groups.findMany();
+    const allGroups = await this.prismaService.groups.findMany({
+      include: { group_members: true },
+    });
 
     return {
       status: HttpStatus.OK,
@@ -38,6 +39,7 @@ export class GroupService {
   async findOneGroup(groupId: string) {
     const groupMember = await this.prismaService.groups.findFirst({
       where: { group_id: groupId },
+      include: { group_members: true },
     });
     if (!groupMember) {
       throw new NotFoundException('Group not found!');
@@ -60,14 +62,11 @@ export class GroupService {
     // Check if the new name already exists for a different group
     if (updateGroupDto.name) {
       const existingGroupWithName = await this.prismaService.groups.findFirst({
-        where: { 
-          AND: [
-            { name: updateGroupDto.name },
-            { NOT: { group_id: groupId } }
-          ]
+        where: {
+          AND: [{ name: updateGroupDto.name }, { NOT: { group_id: groupId } }],
         },
       });
-      
+
       if (existingGroupWithName) {
         throw new AlreadyExistsException('Name already exist!');
       }
@@ -102,4 +101,4 @@ export class GroupService {
       data: deletedUser,
     };
   }
-} 
+}

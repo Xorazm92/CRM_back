@@ -9,6 +9,7 @@ import { GroupModule } from './group/group.module';
 import { AuthModule } from './auth/auth.module';
 import { TeacherModule } from './teacher/teacher.module';
 import { CustomJwtModule } from 'src/infrastructure/lib/custom-jwt';
+import { StudentModule } from './student/student.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { CustomJwtModule } from 'src/infrastructure/lib/custom-jwt';
     AdminModule,
     GroupModule,
     TeacherModule,
+    StudentModule,
   ],
   providers: [
     {

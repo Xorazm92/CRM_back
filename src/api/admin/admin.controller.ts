@@ -23,6 +23,7 @@ import {
 import { Public } from 'src/common/decorator/auth.decorator';
 import { AdminGuard } from 'src/common/guard/admin.guard';
 import { AddMemberDto } from './dto/add-memberdto';
+import { UserID } from 'src/common/decorator';
 
 @ApiTags('Admin Api')
 @Controller('admin')
@@ -141,7 +142,7 @@ export class AdminController {
             username: 'talant007',
             password:
               '$2b$10$D01/2P0O1TI5Jg4hRglByOEwavU3cfLcLAbimHCgIn1VUXo0ZKN4W',
-              role:'ADMIN',
+            role: 'ADMIN',
             created_at: '2025-04-06T15:25:06.746Z',
             updated_at: '2025-04-06T15:25:06.746Z',
           },
@@ -154,6 +155,33 @@ export class AdminController {
   @ApiBearerAuth()
   findAll() {
     return this.adminService.findAll();
+  }
+
+  @ApiOperation({
+    summary: 'Get Profile Admin ',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Profile Admin fetched successfully',
+    schema: {
+      example: {
+        status: HttpStatus.OK,
+        message: 'success',
+        data: [
+          {
+            user_id: 'f6bb055d-8b0b-4503-b53b-67c1230993f7',
+            full_name: 'Jhon Doe',
+            username: 'jhondoe007',
+          },
+        ],
+      },
+    },
+  })
+  @UseGuards(AdminGuard)
+  @ApiBearerAuth()
+  @Get('getProfile')
+  getProfile(@UserID() id: string) {
+    return this.adminService.getProfile(id);
   }
 
   @ApiOperation({
@@ -178,7 +206,7 @@ export class AdminController {
           username: 'talant007',
           password:
             '$2b$10$D01/2P0O1TI5Jg4hRglByOEwavU3cfLcLAbimHCgIn1VUXo0ZKN4W',
-          role:'ADMIN',
+          role: 'ADMIN',
           created_at: '2025-04-06T15:25:06.746Z',
           updated_at: '2025-04-06T15:25:06.746Z',
         },

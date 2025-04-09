@@ -34,17 +34,30 @@ export class TeacherService {
   }
 
   async findAll() {
-    const teachers = await this.prismaService.user.findMany({where: {role : 'TEACHER'}});
+    const teachers = await this.prismaService.user.findMany({
+      where: { role: 'TEACHER' },
+    });
     return {
       status: HttpStatus.OK,
       message: 'success',
       data: teachers,
     };
   }
+  async getProfile(id: string) {
+    const teacher = await this.prismaService.user.findUnique({
+      where: { user_id: id, role: 'TEACHER' },
+      select: { user_id: true, full_name: true, username: true, role: true },
+    });
+    return {
+      status: HttpStatus.OK,
+      message: 'success',
+      data: teacher,
+    };
+  }
 
   async findOne(id: string) {
     const teacher = await this.prismaService.user.findUnique({
-      where: { user_id: id , role: 'TEACHER'},
+      where: { user_id: id, role: 'TEACHER' },
     });
     if (!teacher) {
       throw new NotFoundException(`Teacher with id ${id} not found.`);

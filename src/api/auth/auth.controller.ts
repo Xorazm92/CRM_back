@@ -2,8 +2,6 @@ import {
   Body,
   Controller,
   Post,
-  UseGuards,
-  Request,
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
@@ -16,8 +14,8 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { Public } from 'src/common/decorator/auth.decorator';
-import { JwtGuard } from 'src/common/guard/jwt-auth.guard';
 import { UserID } from 'src/common/decorator';
+import { ConfirmPasswordDto } from './dto/confirm-password.dto';
 
 @ApiTags('Authentication')
 @Controller('auth')
@@ -53,6 +51,38 @@ export class AuthController {
   })
   login(@Body() loginDto: LoginDto) {
     return this.authService.login(loginDto);
+  }
+
+  @ApiOperation({
+    summary: 'Confirm Password User ',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Confirm Password  successfully',
+    schema: {
+      example: {
+        status: HttpStatus.OK,
+        message: 'success',
+      },
+    },
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Old Password invalid',
+    schema: {
+      example: {
+        status: HttpStatus.BAD_REQUEST,
+        message: 'Old Password invalid',
+      },
+    },
+  })
+  @ApiBearerAuth()
+  @Post('confirmPassword')
+  confirmPassword(
+    @UserID() id: string,
+    @Body() confirmPasswordDto: ConfirmPasswordDto,
+  ) {
+    return this.authService.confirmPassword(id, confirmPasswordDto);
   }
 
   @Post('refresh')
