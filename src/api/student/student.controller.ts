@@ -6,12 +6,12 @@ import {
   Patch,
   Param,
   Delete,
-  UseGuards,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
-import { TeacherService } from './teacher.service';
-import { CreateTeacherDto } from './dto/create-teacher.dto';
-import { UpdateTeacherDto } from './dto/update-teacher.dto';
+import { StudentService } from './student.service';
+import { CreateStudentDto } from './dto/create-student.dto';
+import { UpdateStudentDto } from './dto/update-student.dto';
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -19,23 +19,21 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-
-import { TeacherGuard } from 'src/common/guard/teacher.guard';
 import { AdminGuard } from 'src/common/guard/admin.guard';
 import { UserID } from 'src/common/decorator';
 
-@ApiTags('Teacher Api')
+@ApiTags('Student Api')
 @ApiBearerAuth()
-@Controller('teacher')
-export class TeacherController {
-  constructor(private readonly teacherService: TeacherService) {}
+@Controller('student')
+export class StudentController {
+  constructor(private readonly studentService: StudentService) {}
 
   @ApiOperation({
-    summary: 'Create Teacher ',
+    summary: 'Create Student ',
   })
   @ApiResponse({
     status: HttpStatus.CREATED,
-    description: 'Teacher created',
+    description: 'Student created',
     schema: {
       example: {
         status: HttpStatus.CREATED,
@@ -54,17 +52,17 @@ export class TeacherController {
     },
   })
   @UseGuards(AdminGuard)
-  @Post('createTeacher')
-  create(@Body() createTeacherDto: CreateTeacherDto) {
-    return this.teacherService.create(createTeacherDto);
+  @Post('createStudent')
+  create(@Body() createStudentDto: CreateStudentDto) {
+    return this.studentService.create(createStudentDto);
   }
 
   @ApiOperation({
-    summary: 'Get all Teacher ',
+    summary: 'Get all Student ',
   })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'All Teacher fetched successfully',
+    description: 'All Student fetched successfully',
     schema: {
       example: {
         status: HttpStatus.OK,
@@ -76,7 +74,7 @@ export class TeacherController {
             username: 'jhondoe007',
             password:
               '$2b$10$D01/2P0O1TI5Jg4hRglByOEwavU3cfLcLAbimHCgIn1VUXo0ZKN4W',
-            role: 'TEACHER',
+            role: 'STUDENT',
             created_at: '2025-04-06T15:25:06.746Z',
             updated_at: '2025-04-06T15:25:06.746Z',
           },
@@ -87,16 +85,15 @@ export class TeacherController {
   @UseGuards(AdminGuard)
   @Get()
   findAll() {
-    return this.teacherService.findAll();
+    return this.studentService.findAll();
   }
 
-
   @ApiOperation({
-    summary: 'Get Profile Teacher ',
+    summary: 'Get Profile Student ',
   })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'Profile Teacher fetched successfully',
+    description: 'Profile Student fetched successfully',
     schema: {
       example: {
         status: HttpStatus.OK,
@@ -111,24 +108,23 @@ export class TeacherController {
       },
     },
   })
-  @UseGuards(TeacherGuard)
   @Get('getProfile')
   getProfile(@UserID() id: string) {
-    return this.teacherService.getProfile(id);
+    return this.studentService.getProfile(id);
   }
 
   @ApiOperation({
-    summary: 'Get Teacher by ID',
+    summary: 'Get Student by ID',
   })
   @ApiParam({
     name: 'id',
-    description: 'ID of the Teacher',
+    description: 'ID of the Student',
     type: String,
     example: 'ws783241-213dsbzcxfdsh0329-ljdsk',
   })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'Teacher fetched by id successfully',
+    description: 'Student fetched by id successfully',
     schema: {
       example: {
         status: HttpStatus.OK,
@@ -139,7 +135,7 @@ export class TeacherController {
           username: 'jhondoe007',
           password:
             '$2b$10$D01/2P0O1TI5Jg4hRglByOEwavU3cfLcLAbimHCgIn1VUXo0ZKN4W',
-          role: 'TEACHER',
+          role: 'STUDENT',
           created_at: '2025-04-06T15:25:06.746Z',
           updated_at: '2025-04-06T15:25:06.746Z',
         },
@@ -148,26 +144,25 @@ export class TeacherController {
   })
   @ApiResponse({
     status: HttpStatus.NOT_FOUND,
-    description: 'Teacher Not Found',
+    description: 'Student Not Found',
     schema: {
       example: {
         status: HttpStatus.NOT_FOUND,
-        message: 'Teacher with id 2378askjdh-23498sjkdafh not found.',
+        message: 'Student with id 2378askjdh-23498sjkdafh not found.',
       },
     },
   })
-  @UseGuards(AdminGuard)
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.teacherService.findOne(id);
+    return this.studentService.findOne(id);
   }
 
   @ApiOperation({
-    summary: 'Edit Profile Teacher ',
+    summary: 'Edit Profile Student ',
   })
   @ApiResponse({
     status: HttpStatus.CREATED,
-    description: 'Teacher Updated successfully',
+    description: 'Student Updated successfully',
     schema: {
       example: {
         status: HttpStatus.OK,
@@ -177,26 +172,25 @@ export class TeacherController {
   })
   @ApiResponse({
     status: HttpStatus.NOT_FOUND,
-    description: 'Teacher Not Found',
+    description: 'Student Not Found',
     schema: {
       example: {
         status: HttpStatus.NOT_FOUND,
-        message: 'Teacher with id 2378askjdh-23498sjkdafh not found.',
+        message: 'Student with id 2378askjdh-23498sjkdafh not found.',
       },
     },
   })
-  @UseGuards(TeacherGuard)
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTeacherDto: UpdateTeacherDto) {
-    return this.teacherService.update(id, updateTeacherDto);
+  update(@Param('id') id: string, @Body() updateStudentDto: UpdateStudentDto) {
+    return this.studentService.update(id, updateStudentDto);
   }
 
   @ApiOperation({
-    summary: 'Delete Teacher ',
+    summary: 'Delete Student ',
   })
   @ApiResponse({
     status: HttpStatus.CREATED,
-    description: 'Teacher delete successfully',
+    description: 'Student delete successfully',
     schema: {
       example: {
         status: HttpStatus.OK,
@@ -206,17 +200,17 @@ export class TeacherController {
   })
   @ApiResponse({
     status: HttpStatus.NOT_FOUND,
-    description: 'Teacher Not Found',
+    description: 'Student Not Found',
     schema: {
       example: {
         status: HttpStatus.NOT_FOUND,
-        message: 'Teacher with id 2378askjdh-23498sjkdafh not found.',
+        message: 'Student with id 2378askjdh-23498sjkdafh not found.',
       },
     },
   })
   @UseGuards(AdminGuard)
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.teacherService.remove(id);
+    return this.studentService.remove(id);
   }
 }
