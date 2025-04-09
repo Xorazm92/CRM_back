@@ -11,6 +11,7 @@ export type ConfigType = {
   ACCESS_TOKEN_TIME: string;
   REFRESH_TOKEN_KEY: string;
   REFRESH_TOKEN_TIME: string;
+  REDIS_EX_TIME: number;
   // FILE_PATH: string;
 };
 
@@ -23,6 +24,7 @@ const requiredVariables = [
   'ACCESS_TOKEN_TIME',
   'REFRESH_TOKEN_KEY',
   'REFRESH_TOKEN_TIME',
+  'REDIS_EX_TIME',
   // 'FILE_PATH',
 ];
 
@@ -49,5 +51,6 @@ export const config: ConfigType = {
   ACCESS_TOKEN_TIME: process.env.ACCESS_TOKEN_TIME,
   REFRESH_TOKEN_KEY: process.env.REFRESH_TOKEN_KEY,
   REFRESH_TOKEN_TIME: process.env.REFRESH_TOKEN_TIME,
+  REDIS_EX_TIME: +process.env.REDIS_EX_TIME,
   // FILE_PATH: process.env.FILE_PATH,
 };
