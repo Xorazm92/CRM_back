@@ -64,13 +64,13 @@ async function main() {
     });
   }
 
-  console.log('Seed muvaffaqiyatli yakunlandi!');
+  console.log('yakunlandi!');
 }
 
 main()
   .then(() => prisma.$disconnect())
   .catch((e) => {
-    console.error('Xatolik:', e);
+    console.error('xatolik:', e);
     prisma.$disconnect();
     process.exit(1);
   });
