@@ -10,12 +10,20 @@ import { AuthModule } from './auth/auth.module';
 import { TeacherModule } from './teacher/teacher.module';
 import { CustomJwtModule } from 'src/infrastructure/lib/custom-jwt';
 import { StudentModule } from './student/student.module';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    ThrottlerModule.forRoot([
+      {
+        name: 'short',
+        ttl: 1000,
+        limit: 3,
+      },
+    ]),
     AuthModule,
     WinstonModule.forRoot({}),
     CustomJwtModule,
@@ -28,6 +36,10 @@ import { StudentModule } from './student/student.module';
     {
       provide: APP_GUARD,
       useClass: JwtGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
     },
     CustomLogger,
   ],

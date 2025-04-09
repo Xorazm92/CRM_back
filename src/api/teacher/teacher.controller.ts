@@ -8,6 +8,9 @@ import {
   Delete,
   UseGuards,
   HttpStatus,
+  Query,
+  DefaultValuePipe,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { TeacherService } from './teacher.service';
 import { CreateTeacherDto } from './dto/create-teacher.dto';
@@ -86,10 +89,12 @@ export class TeacherController {
   })
   @UseGuards(AdminGuard)
   @Get()
-  findAll() {
-    return this.teacherService.findAll();
+  findAll(
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page?: number,
+    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit?: number,
+  ) {
+    return this.teacherService.findAll(page, limit);
   }
-
 
   @ApiOperation({
     summary: 'Get Profile Teacher ',

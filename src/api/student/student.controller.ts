@@ -8,6 +8,9 @@ import {
   Delete,
   HttpStatus,
   UseGuards,
+  Query,
+  DefaultValuePipe,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { StudentService } from './student.service';
 import { CreateStudentDto } from './dto/create-student.dto';
@@ -84,8 +87,11 @@ export class StudentController {
   })
   @UseGuards(AdminGuard)
   @Get()
-  findAll() {
-    return this.studentService.findAll();
+  findAll(
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page?: number,
+    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit?: number,
+  ) {
+    return this.studentService.findAll(page , limit);
   }
 
   @ApiOperation({

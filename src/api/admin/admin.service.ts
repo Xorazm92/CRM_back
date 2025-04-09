@@ -83,7 +83,7 @@ export class AdminService {
   async getProfile(id: string) {
     const admin = await this.prismaService.user.findUnique({
       where: { user_id: id, role: 'ADMIN' },
-      select: { user_id: true, full_name: true, username: true , role: true},
+      select: { user_id: true, full_name: true, username: true, role: true },
     });
     return {
       status: HttpStatus.OK,
@@ -122,11 +122,14 @@ export class AdminService {
   }
 
   //! FIND ALL ADMIN
-  async findAll() {
+  async findAll(page: number, limit: number) {
+    page = (page - 1) * limit;
     const admins = await this.prismaService.user.findMany({
       where: {
         role: 'ADMIN',
       },
+      skip: page,
+      take: limit,
     });
     return {
       status: HttpStatus.OK,
