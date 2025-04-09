@@ -26,10 +26,14 @@ model Groups {
   group_id      String         @id @default(uuid())
   name          String         @unique
   description   String
+  course_id     String
+  status        GroupStatus    @default(ACTIVE)
   created_at    DateTime       @default(now())
   updated_at    DateTime       @updatedAt
   group_members GroupMembers[]
   lessons       Lessons[]
+  course        Course         @relation(fields: [course_id], references: [course_id])
+  schedules     Schedule[]
 }
 
 model GroupMembers {
@@ -59,7 +63,7 @@ model Attendance {
   attendance_id String   @id @default(uuid())
   lesson_id     String
   student_id    String
-  status        String
+  status        AttendanceStatus
   remarks       String
   created_at    DateTime @default(now())
   updated_at    DateTime @updatedAt
@@ -93,9 +97,56 @@ model Submissions {
   student       User        @relation("StudentSubmissions", fields: [student_id], references: [user_id])
 }
 
+model Course {
+  course_id     String   @id @default(uuid())
+  name          String   @unique
+  description   String
+  duration      Int
+  status        CourseStatus @default(ACTIVE)
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+  groups        Groups[]
+}
+
+model Schedule {
+  schedule_id   String   @id @default(uuid())
+  group_id      String
+  day_of_week   Int
+  start_time    DateTime
+  end_time      DateTime
+  room          String?
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+  group         Groups   @relation(fields: [group_id], references: [group_id])
+}
+
 enum UserRole {
   ADMIN
   MANAGER
   TEACHER
   STUDENT
+}
+
+enum CourseStatus {
+  ACTIVE
+  INACTIVE
+  ARCHIVED
+}
+
+enum GroupStatus {
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+enum Gender {
+  MALE
+  FEMALE
+}
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  LATE
+  EXCUSED
 }

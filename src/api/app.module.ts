@@ -11,6 +11,8 @@ import { TeacherModule } from './teacher/teacher.module';
 import { CustomJwtModule } from 'src/infrastructure/lib/custom-jwt';
 import { StudentModule } from './student/student.module';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { CourseModule } from './course/course.module';
+import { DashboardModule } from './dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -31,6 +33,8 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
     GroupModule,
     TeacherModule,
     StudentModule,
+    CourseModule,
+    DashboardModule,
   ],
   providers: [
     {
