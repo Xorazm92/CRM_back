@@ -1,0 +1,21 @@
+modules = ["nodejs-20"]
+run = "npm run start:dev"
+
+[nix]
+channel = "stable-24_05"
+
+[deployment]
+run = ["sh", "-c", "pnpm run start:prod"]
+build = ["sh", "-c", "pnpm run build"]
+
+[workflows]
+runButton = "Dev Server"
+
+[[workflows.workflow]]
+name = "Dev Server"
+author = 41345533
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "pnpm run start:dev"
