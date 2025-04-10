@@ -17,7 +17,7 @@ export class GroupService {
     private readonly prismaService: PrismaService,
     @Inject('REDIS_CLIENT') private readonly redis: Redis,
   ) {}
-  async createGroup(createGroupDto: CreateGroupDto) {
+  async createGroup(createGroupDto: CreateGroupDto) { 
     const isBeenGroup = await this.prismaService.groups.findFirst({
       where: { name: createGroupDto.name },
     });

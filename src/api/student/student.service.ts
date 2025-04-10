@@ -1,6 +1,7 @@
 import {
   ConflictException,
   HttpStatus,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -8,10 +9,16 @@ import { CreateStudentDto } from './dto/create-student.dto';
 import { UpdateStudentDto } from './dto/update-student.dto';
 import { PrismaService } from 'src/common/prisma/prisma.service';
 import { BcryptEncryption } from 'src/infrastructure/lib/bcrypt/bcrypt';
+import { Redis } from 'ioredis';
+import { config } from 'src/config';
 
 @Injectable()
 export class StudentService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    @Inject('REDIS_CLIENT') private readonly redis: Redis,
+  ) {}
+
   async create(createStudentDto: CreateStudentDto) {
     const currentStudent = await this.prismaService.user.findUnique({
       where: { username: createStudentDto.username },
@@ -19,12 +26,21 @@ export class StudentService {
     if (currentStudent) {
       throw new ConflictException('A user with this username already exists');
     }
+
     createStudentDto.password = await BcryptEncryption.hashPassword(
       createStudentDto.password,
     );
+
     const student = await this.prismaService.user.create({
       data: { ...createStudentDto, role: 'STUDENT' },
     });
+
+    // Redisni tozalash (pagination keshlarini)
+    const keys = await this.redis.keys('students:page:*');
+    if (keys.length) {
+      await this.redis.del(...keys);
+    }
+
     return {
       status: HttpStatus.CREATED,
       message: 'created',
@@ -33,18 +49,37 @@ export class StudentService {
   }
 
   async findAll(page: number, limit: number) {
-    page = (page - 1) * limit;
+    const redisKey = `students:page:${page}:limit:${limit}`;
+    const cachedStudents = await this.redis.get(redisKey);
+    if (cachedStudents) {
+      return JSON.parse(cachedStudents);
+    }
+
+    const skip = (page - 1) * limit;
     const students = await this.prismaService.user.findMany({
       where: { role: 'STUDENT' },
-      take: page,
-      skip: limit,
+      skip,
+      take: limit,
     });
+
+    await this.redis.set(
+      redisKey,
+      JSON.stringify({
+        status: HttpStatus.OK,
+        message: 'success',
+        data: students,
+      }),
+      'EX',
+      config.REDIS_EX_TIME,
+    );
+
     return {
       status: HttpStatus.OK,
       message: 'success',
       data: students,
     };
   }
+
   async getProfile(id: string) {
     const student = await this.prismaService.user.findUnique({
       where: { user_id: id, role: 'STUDENT' },
@@ -78,10 +113,18 @@ export class StudentService {
     if (!currentStudent) {
       throw new NotFoundException(`Student with id ${id} not found.`);
     }
+
     await this.prismaService.user.update({
       where: { user_id: id },
       data: { full_name: updateStudentDto.full_name },
     });
+
+    // Redisni tozalash
+    const keys = await this.redis.keys('students:page:*');
+    if (keys.length) {
+      await this.redis.del(...keys);
+    }
+
     return {
       status: HttpStatus.OK,
       message: 'success',
@@ -95,7 +138,15 @@ export class StudentService {
     if (!currentStudent) {
       throw new NotFoundException(`Student with id ${id} not found.`);
     }
+
     await this.prismaService.user.delete({ where: { user_id: id } });
+
+    // Redisni tozalash
+    const keys = await this.redis.keys('students:page:*');
+    if (keys.length) {
+      await this.redis.del(...keys);
+    }
+
     return {
       status: HttpStatus.OK,
       message: 'success',
