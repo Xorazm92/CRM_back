@@ -1,6 +1,7 @@
 import {
   ConflictException,
   HttpStatus,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -8,10 +9,14 @@ import { CreateTeacherDto } from './dto/create-teacher.dto';
 import { UpdateTeacherDto } from './dto/update-teacher.dto';
 import { PrismaService } from 'src/common/prisma/prisma.service';
 import { BcryptEncryption } from 'src/infrastructure/lib/bcrypt/bcrypt';
+import Redis from 'ioredis';
 
 @Injectable()
 export class TeacherService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    @Inject('REDIS_CLIENT') private readonly redis: Redis,
+  ) {}
 
   async create(createTeacherDto: CreateTeacherDto) {
     const currentTeacher = await this.prismaService.user.findUnique({
@@ -26,6 +31,13 @@ export class TeacherService {
     const teacher = await this.prismaService.user.create({
       data: { ...createTeacherDto, role: 'TEACHER' },
     });
+
+    // teacher delete from redis
+    const keys = await this.redis.keys('teachers:page:*');
+    if (keys.length) {
+      await this.redis.del(...keys);
+    }
+
     return {
       status: HttpStatus.CREATED,
       message: 'created',
@@ -34,12 +46,18 @@ export class TeacherService {
   }
 
   async findAll(page: number, limit: number) {
+    const key = `teachers:page:${page}:limit:${limit}`;
+    const allTeacher = await this.redis.get(key);
+    if (allTeacher) {
+      return JSON.parse(allTeacher);
+    }
     const skip = (page - 1) * limit;
     const teachers = await this.prismaService.user.findMany({
       where: { role: 'TEACHER' },
       take: limit,
       skip: skip,
     });
+    await this.redis.set(key, JSON.stringify(teachers));
     return {
       status: HttpStatus.OK,
       message: 'success',
@@ -83,6 +101,11 @@ export class TeacherService {
       where: { user_id: id },
       data: { full_name: updateTeacherDto.full_name },
     });
+    // teacher delete from redis
+    const keys = await this.redis.keys('teachers:page:*');
+    if (keys.length) {
+      await this.redis.del(...keys);
+    }
     return {
       status: HttpStatus.OK,
       message: 'success',
@@ -95,6 +118,11 @@ export class TeacherService {
     });
     if (!currentTeacher) {
       throw new NotFoundException(`Teacher with id ${id} not found.`);
+    }
+    // teacher delete from redis
+    const keys = await this.redis.keys('teachers:page:*');
+    if (keys.length) {
+      await this.redis.del(...keys);
     }
     await this.prismaService.user.delete({ where: { user_id: id } });
     return {
