@@ -1,0 +1,25 @@
+[Nest] 87655  - 04/10/2025, 6:25:57 PM     LOG [NestApplication] Nest application successfully started +313ms
+prisma:query SELECT 1
+prisma:query SELECT "public"."User"."user_id", "public"."User"."full_name", "public"."User"."username", "public"."User"."password", "public"."User"."role"::text, "public"."User"."created_at", "public"."User"."updated_at" FROM "public"."User" WHERE ("public"."User"."username" = $1 AND 1=1) LIMIT $2 OFFSET $3
+nodiriy
+prisma:query SELECT 1
+prisma:query SELECT "public"."User"."user_id", "public"."User"."full_name", "public"."User"."username", "public"."User"."password", "public"."User"."role"::text, "public"."User"."created_at", "public"."User"."updated_at" FROM "public"."User" WHERE ("public"."User"."username" = $1 AND 1=1) LIMIT $2 OFFSET $3
+nodiriy
+[Nest] 87655  - 04/10/2025, 6:31:20 PM   ERROR [ExceptionsHandler] Unknown authentication strategy "jwt"
+Error: Unknown authentication strategy "jwt"
+    at attempt (/home/xorazm/Documents/lms-backend-admin/node_modules/passport/lib/middleware/authenticate.js:193:39)
+    at authenticate (/home/xorazm/Documents/lms-backend-admin/node_modules/passport/lib/middleware/authenticate.js:379:7)
+    at /home/xorazm/Documents/lms-backend-admin/node_modules/@nestjs/passport/dist/auth.guard.js:88:3
+    at new Promise (<anonymous>)
+    at /home/xorazm/Documents/lms-backend-admin/node_modules/@nestjs/passport/dist/auth.guard.js:80:83
+    at JwtAuthGuard.canActivate (/home/xorazm/Documents/lms-backend-admin/node_modules/@nestjs/passport/dist/auth.guard.js:44:32)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+[Nest] 87655  - 04/10/2025, 6:31:28 PM   ERROR [ExceptionsHandler] Unknown authentication strategy "jwt"
+Error: Unknown authentication strategy "jwt"
+    at attempt (/home/xorazm/Documents/lms-backend-admin/node_modules/passport/lib/middleware/authenticate.js:193:39)
+    at authenticate (/home/xorazm/Documents/lms-backend-admin/node_modules/passport/lib/middleware/authenticate.js:379:7)
+    at /home/xorazm/Documents/lms-backend-admin/node_modules/@nestjs/passport/dist/auth.guard.js:88:3
+    at new Promise (<anonymous>)
+    at /home/xorazm/Documents/lms-backend-admin/node_modules/@nestjs/passport/dist/auth.guard.js:80:83
+    at JwtAuthGuard.canActivate (/home/xorazm/Documents/lms-backend-admin/node_modules/@nestjs/passport/dist/auth.guard.js:44:32)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)

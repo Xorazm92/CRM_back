@@ -1,3 +1,4 @@
+
 import {
   ConflictException,
   HttpStatus,
@@ -20,7 +21,7 @@ export class TeacherService {
     if (currentTeacher) {
       throw new ConflictException('A user with this username already exists');
     }
-    createTeacherDto.password = await BcryptEncryption.encrypt(
+    createTeacherDto.password = await BcryptEncryption.hashPassword(
       createTeacherDto.password,
     );
     const teacher = await this.prismaService.user.create({
@@ -37,8 +38,8 @@ export class TeacherService {
     page = (page - 1) * limit;
     const teachers = await this.prismaService.user.findMany({
       where: { role: 'TEACHER' },
-      take: page,
-      skip: limit,
+      take: limit,
+      skip: page,
     });
     return {
       status: HttpStatus.OK,
@@ -46,6 +47,7 @@ export class TeacherService {
       data: teachers,
     };
   }
+
   async getProfile(id: string) {
     const teacher = await this.prismaService.user.findUnique({
       where: { user_id: id, role: 'TEACHER' },
@@ -74,7 +76,7 @@ export class TeacherService {
 
   async update(id: string, updateTeacherDto: UpdateTeacherDto) {
     const currentTeacher = await this.prismaService.user.findUnique({
-      where: { user_id: id },
+      where: { user_id: id, role: 'TEACHER' },
     });
     if (!currentTeacher) {
       throw new NotFoundException(`Teacher with id ${id} not found.`);
@@ -91,7 +93,7 @@ export class TeacherService {
 
   async remove(id: string) {
     const currentTeacher = await this.prismaService.user.findUnique({
-      where: { user_id: id },
+      where: { user_id: id, role: 'TEACHER' },
     });
     if (!currentTeacher) {
       throw new NotFoundException(`Teacher with id ${id} not found.`);

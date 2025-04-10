@@ -35,6 +35,12 @@ import { DashboardModule } from './dashboard/dashboard.module';
     StudentModule,
     CourseModule,
     DashboardModule,
+    UserModule,
+    AttendanceModule,
+    AssignmentsModule,
+    SubmissionsModule,
+    FileuploadModule,
+    LessonModule,
   ],
   providers: [
     {

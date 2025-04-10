@@ -18,4 +18,17 @@ mode = "sequential"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "npm run start:dev"
+args = "pnpm install"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "pnpm run start:dev"
+
+[[workflows.workflow]]
+name = "Client Dev"
+author = 41345533
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd src/client && npm run dev"
