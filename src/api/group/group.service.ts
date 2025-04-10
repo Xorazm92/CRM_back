@@ -12,16 +12,44 @@ export class GroupService {
       where: { name: createGroupDto.name },
     });
     if (isBeenGroup) {
-      throw new AlreadyExistsException('Group already exist!');
+      throw new AlreadyExistsException('Group with this name already exists');
     }
-    const newGroup = await this.prismaService.groups.create({
-      data: createGroupDto,
+
+    // Verify that the course exists
+    const course = await this.prismaService.course.findUnique({
+      where: { course_id: createGroupDto.course_id }
     });
-    return {
-      status: HttpStatus.CREATED,
-      message: 'New group created',
-      data: newGroup,
-    };
+    if (!course) {
+      throw new NotFoundException('Course not found');
+    }
+
+    try {
+      const newGroup = await this.prismaService.groups.create({
+        data: {
+          name: createGroupDto.name,
+          description: createGroupDto.description,
+          course: {
+            connect: {
+              course_id: createGroupDto.course_id
+            }
+          }
+        },
+        include: {
+          course: true
+        }
+      });
+
+      return {
+        status: HttpStatus.CREATED,
+        message: 'New group created',
+        data: newGroup,
+      };
+    } catch (error) {
+      if (error.code === 'P2025') {
+        throw new NotFoundException('Course not found');
+      }
+      throw error;
+    }
   }
 
   async findAllGroup() {

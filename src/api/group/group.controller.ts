@@ -18,21 +18,38 @@ import { UpdateGroupDto } from './dto/update.group.dto';
 @ApiBearerAuth()
 @Controller('groups')
 export class GroupController {
-  constructor(private readonly groupServer: GroupService) {}
+  constructor(private readonly groupService: GroupService) {}
 
   @Post()
   @ApiOperation({ summary: 'Create new group' })
   @ApiResponse({
     status: HttpStatus.CREATED,
     description: 'New group created successfully',
-    type: CreateGroupDto,
+    schema: {
+      example: {
+        status: HttpStatus.CREATED,
+        message: 'New group created',
+        data: {
+          group_id: 'uuid-example',
+          name: 'N14',
+          description: 'Advanced programming group',
+          course_id: 'course-uuid-example',
+          created_at: '2025-04-10T05:42:33.401Z',
+          updated_at: '2025-04-10T05:42:33.401Z'
+        }
+      }
+    }
   })
   @ApiResponse({
     status: HttpStatus.CONFLICT,
-    description: 'Group already exists!',
+    description: 'Group with this name already exists'
   })
-  createGroup(@Body() createGroupDto: CreateGroupDto) {
-    return this.groupServer.createGroup(createGroupDto);
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Invalid input data'
+  })
+  async createGroup(@Body() createGroupDto: CreateGroupDto) {
+    return this.groupService.createGroup(createGroupDto);
   }
 
   @Get()
@@ -47,7 +64,7 @@ export class GroupController {
     description: 'No groups found for this admin',
   })
   getAllGroups() {
-    return this.groupServer.findAllGroup();
+    return this.groupService.findAllGroup();
   }
 
   @Get(':id')
@@ -62,7 +79,7 @@ export class GroupController {
     description: 'Group not found',
   })
   getOneGroup(@Param('id') groupId: string) {
-    return this.groupServer.findOneGroup(groupId);
+    return this.groupService.findOneGroup(groupId);
   }
 
   @Put(':id')
@@ -84,7 +101,7 @@ export class GroupController {
     @Param('id') groupId: string,
     @Body() updateGroupDto: UpdateGroupDto,
   ) {
-    return this.groupServer.updateOne(groupId, updateGroupDto);
+    return this.groupService.updateOne(groupId, updateGroupDto);
   }
 
   @Delete(':id')
@@ -98,6 +115,6 @@ export class GroupController {
     description: 'Group not found',
   })
   deleteOne(@Param('id') groupId: string) {
-    return this.groupServer.remove(groupId);
+    return this.groupService.remove(groupId);
   }
 }

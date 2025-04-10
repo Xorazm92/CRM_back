@@ -26,13 +26,13 @@ model Groups {
   group_id      String         @id @default(uuid())
   name          String         @unique
   description   String
+  course        Course         @relation(fields: [course_id], references: [course_id])
   course_id     String
   status        GroupStatus    @default(ACTIVE)
   created_at    DateTime       @default(now())
   updated_at    DateTime       @updatedAt
   group_members GroupMembers[]
   lessons       Lessons[]
-  course        Course         @relation(fields: [course_id], references: [course_id])
   schedules     Schedule[]
 }
 
@@ -98,14 +98,14 @@ model Submissions {
 }
 
 model Course {
-  course_id     String   @id @default(uuid())
-  name          String   @unique
-  description   String
-  duration      Int
-  status        CourseStatus @default(ACTIVE)
+  course_id    String   @id @default(uuid())
+  name         String   @unique
+  description  String
+  duration     Int
+  status       CourseStatus @default(ACTIVE)
   created_at    DateTime @default(now())
   updated_at    DateTime @updatedAt
-  groups        Groups[]
+  groups       Groups[]
 }
 
 model Schedule {
@@ -130,13 +130,13 @@ enum UserRole {
 enum CourseStatus {
   ACTIVE
   INACTIVE
-  ARCHIVED
+  DRAFT
 }
 
 enum GroupStatus {
   ACTIVE
+  INACTIVE
   COMPLETED
-  CANCELLED
 }
 
 enum Gender {

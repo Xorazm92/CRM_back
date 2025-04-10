@@ -26,10 +26,32 @@ async function main() {
     }
   }
 
+  // Create default course
+  const course = await prisma.course.create({
+    data: {
+      name: 'Web Development',
+      description: 'Learn web development from scratch',
+      duration: 3,
+      status: 'ACTIVE',
+    },
+  });
+
   const groupData = [
-    { name: 'Group Alpha', description: 'Frontend Developers Group' },
-    { name: 'Group Beta', description: 'Backend Developers Group' },
-    { name: 'Group Gamma', description: 'FullStack Developers Group' },
+    { 
+      name: 'Group Alpha', 
+      description: 'Frontend Developers Group', 
+      course_id: course.course_id 
+    },
+    { 
+      name: 'Group Beta', 
+      description: 'Backend Developers Group', 
+      course_id: course.course_id 
+    },
+    { 
+      name: 'Group Gamma', 
+      description: 'FullStack Developers Group', 
+      course_id: course.course_id 
+    },
   ];
 
   const groups = await Promise.all(
