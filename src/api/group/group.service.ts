@@ -7,6 +7,15 @@ import { UpdateGroupDto } from './dto/update.group.dto';
 @Injectable()
 export class GroupService {
   constructor(private readonly prismaService: PrismaService) {}
+
+  private formatResponse<T>(status: HttpStatus, message: string, data: T) {
+    return {
+      status,
+      message,
+      data
+    };
+  }
+
   async createGroup(createGroupDto: CreateGroupDto) {
     const isBeenGroup = await this.prismaService.groups.findFirst({
       where: { name: createGroupDto.name },
@@ -39,11 +48,11 @@ export class GroupService {
         }
       });
 
-      return {
-        status: HttpStatus.CREATED,
-        message: 'New group created',
-        data: newGroup,
-      };
+      return this.formatResponse(
+        HttpStatus.CREATED,
+        'New group created successfully',
+        newGroup
+      );
     } catch (error) {
       if (error.code === 'P2025') {
         throw new NotFoundException('Course not found');
@@ -54,40 +63,48 @@ export class GroupService {
 
   async findAllGroup() {
     const allGroups = await this.prismaService.groups.findMany({
-      include: { group_members: true },
+      include: { 
+        group_members: true,
+        course: true 
+      },
     });
 
-    return {
-      status: HttpStatus.OK,
-      message: 'success',
-      data: allGroups,
-    };
+    return this.formatResponse(
+      HttpStatus.OK,
+      'Groups retrieved successfully',
+      allGroups
+    );
   }
 
   async findOneGroup(groupId: string) {
-    const groupMember = await this.prismaService.groups.findFirst({
+    const group = await this.prismaService.groups.findFirst({
       where: { group_id: groupId },
-      include: { group_members: true },
+      include: { 
+        group_members: true,
+        course: true 
+      },
     });
-    if (!groupMember) {
-      throw new NotFoundException('Group not found!');
+    
+    if (!group) {
+      throw new NotFoundException('Group not found');
     }
-    return {
-      status: HttpStatus.OK,
-      message: 'success',
-      data: groupMember,
-    };
+
+    return this.formatResponse(
+      HttpStatus.OK,
+      'Group retrieved successfully',
+      group
+    );
   }
+
   async updateOne(groupId: string, updateGroupDto: UpdateGroupDto) {
     const currentGroup = await this.prismaService.groups.findUnique({
       where: { group_id: groupId },
     });
 
     if (!currentGroup) {
-      throw new NotFoundException('Group not found!');
+      throw new NotFoundException('Group not found');
     }
 
-    // Check if the new name already exists for a different group
     if (updateGroupDto.name) {
       const existingGroupWithName = await this.prismaService.groups.findFirst({
         where: {
@@ -96,37 +113,47 @@ export class GroupService {
       });
 
       if (existingGroupWithName) {
-        throw new AlreadyExistsException('Name already exist!');
+        throw new AlreadyExistsException('Group with this name already exists');
       }
     }
 
-    // Proceed to update the group
     const updatedGroup = await this.prismaService.groups.update({
       where: { group_id: groupId },
       data: updateGroupDto,
+      include: {
+        course: true,
+        group_members: true
+      }
     });
 
-    return {
-      status: HttpStatus.OK,
-      message: 'success',
-      data: updatedGroup,
-    };
+    return this.formatResponse(
+      HttpStatus.OK,
+      'Group updated successfully',
+      updatedGroup
+    );
   }
+
   async remove(groupId: string) {
     const currentGroup = await this.prismaService.groups.findUnique({
       where: { group_id: groupId },
     });
 
     if (!currentGroup) {
-      throw new NotFoundException('Group not found!');
+      throw new NotFoundException('Group not found');
     }
-    const deletedUser = await this.prismaService.groups.delete({
+
+    const deletedGroup = await this.prismaService.groups.delete({
       where: { group_id: groupId },
+      include: {
+        course: true,
+        group_members: true
+      }
     });
-    return {
-      status: HttpStatus.OK,
-      message: 'success',
-      data: deletedUser,
-    };
+
+    return this.formatResponse(
+      HttpStatus.OK,
+      'Group deleted successfully',
+      deletedGroup
+    );
   }
 }

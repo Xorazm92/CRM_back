@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, MaxLength, MinLength, IsNotEmpty, Matches } from 'class-validator';
+import { IsString, MaxLength, MinLength, IsNotEmpty, Matches, IsUUID } from 'class-validator';
 
 export class CreateGroupDto {
   @ApiProperty({
@@ -33,10 +33,10 @@ export class CreateGroupDto {
 
   @ApiProperty({
     description: 'Course ID that this group belongs to',
-    example: 'course-123',
+    example: '123e4567-e89b-12d3-a456-426614174000',
     required: true
   })
-  @IsString()
+  @IsUUID()
   @IsNotEmpty()
   course_id: string;
 }
