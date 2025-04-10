@@ -8,6 +8,7 @@ export class CustomJwtService {
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
   ) {}
+
   async generateRefreshToken(payload: any): Promise<string> {
     try {
       const refreshToken = this.jwtService.sign(payload, {
@@ -50,7 +51,7 @@ export class CustomJwtService {
       });
       return data;
     } catch (error) {
-      throw new BadRequestException(`Error on refresh token: ${error}`);
+      throw new BadRequestException(`Error on access token: ${error}`);
     }
   }
 }
