@@ -16,6 +16,7 @@ import { GroupService } from './group.service';
 import {
   ApiBearerAuth,
   ApiOperation,
+  ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
@@ -53,6 +54,8 @@ export class GroupController {
     status: HttpStatus.NOT_FOUND,
     description: 'No groups found for this admin',
   })
+  @ApiQuery({ name: 'page', required: true, type: 'number' })
+  @ApiQuery({ name: 'limit', required: true, type: 'number' })
   getAllGroups(
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,

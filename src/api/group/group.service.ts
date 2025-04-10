@@ -108,6 +108,12 @@ export class GroupService {
       data: updateGroupDto,
     });
 
+    // group delete from redis
+    const keys = await this.redis.keys('groups:page:*');
+    if (keys.length) {
+      await this.redis.del(...keys);
+    }
+
     return {
       status: HttpStatus.OK,
       message: 'success',
@@ -125,6 +131,13 @@ export class GroupService {
     const deletedUser = await this.prismaService.groups.delete({
       where: { group_id: groupId },
     });
+
+    // group delete from redis
+    const keys = await this.redis.keys('groups:page:*');
+    if (keys.length) {
+      await this.redis.del(...keys);
+    }
+
     return {
       status: HttpStatus.OK,
       message: 'success',
