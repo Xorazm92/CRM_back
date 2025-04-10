@@ -1,4 +1,5 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Put, Query, UseGuards } from '@nestjs/common';
+import { DefaultValuePipe, ParseIntPipe } from '@nestjs/common';
 import { CourseService } from './course.service';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
@@ -7,7 +8,7 @@ import { JwtAuthGuard } from '../../infrastructure/guards/jwt-auth.guard';
 import { RolesGuard } from '../../infrastructure/guards/roles.guard';
 import { Roles } from '../../infrastructure/decorators/roles.decorator';
 import { UserRole } from '@prisma/client';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 
 @ApiTags('Courses')
 @ApiBearerAuth()
@@ -28,15 +29,20 @@ export class CourseController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Get all courses' })
+  @ApiOperation({ summary: 'Get all courses with pagination' })
+  @ApiQuery({ name: 'page', required: false, type: Number })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
   @ApiResponse({ status: 200, description: 'Return all courses.' })
   @ApiResponse({ status: 401, description: 'Unauthorized.' })
-  findAll(@Query() query: FindCoursesQueryDto) {
-    return this.courseService.findAll(query);
+  findAll(
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
+  ) {
+    return this.courseService.findAll(page, limit);
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Get a course by id' })
+  @ApiOperation({ summary: 'Get course by ID' })
   @ApiResponse({ status: 200, description: 'Return the course.' })
   @ApiResponse({ status: 404, description: 'Course not found.' })
   @ApiResponse({ status: 401, description: 'Unauthorized.' })
@@ -44,9 +50,9 @@ export class CourseController {
     return this.courseService.findOne(id);
   }
 
-  @Put(':id')
+  @Patch(':id')
   @Roles(UserRole.ADMIN)
-  @ApiOperation({ summary: 'Update a course' })
+  @ApiOperation({ summary: 'Update course' })
   @ApiResponse({ status: 200, description: 'Course has been successfully updated.' })
   @ApiResponse({ status: 404, description: 'Course not found.' })
   @ApiResponse({ status: 401, description: 'Unauthorized.' })
@@ -57,7 +63,7 @@ export class CourseController {
 
   @Delete(':id')
   @Roles(UserRole.ADMIN)
-  @ApiOperation({ summary: 'Delete a course' })
+  @ApiOperation({ summary: 'Delete course' })
   @ApiResponse({ status: 200, description: 'Course has been successfully deleted.' })
   @ApiResponse({ status: 404, description: 'Course not found.' })
   @ApiResponse({ status: 401, description: 'Unauthorized.' })
@@ -67,7 +73,7 @@ export class CourseController {
   }
 
   @Get(':id/groups')
-  @ApiOperation({ summary: 'Get all groups for a course' })
+  @ApiOperation({ summary: 'Get course groups' })
   @ApiResponse({ status: 200, description: 'Return all groups for the course.' })
   @ApiResponse({ status: 404, description: 'Course not found.' })
   @ApiResponse({ status: 401, description: 'Unauthorized.' })
