@@ -24,13 +24,15 @@ export class AdminService {
   ) {}
 
   //! SIGNIN ADMIN
-  async signin(signinAdminDto: SignInAdminDto) {
+  async signin(signinAdminDto: SignInAdminDto) {    
     const currentAdmin = await this.prismaService.user.findUnique({
       where: { username: signinAdminDto.username },
     });
+    
     if (!currentAdmin) {
       throw new BadRequestException('Username or password invalid');
     }
+    
     const isMatchPassword = await BcryptEncryption.compare(
       signinAdminDto.password,
       currentAdmin.password,
@@ -123,12 +125,12 @@ export class AdminService {
 
   //! FIND ALL ADMIN
   async findAll(page: number, limit: number) {
-    page = (page - 1) * limit;
+    const skip = (page - 1) * limit;
     const admins = await this.prismaService.user.findMany({
       where: {
         role: 'ADMIN',
       },
-      skip: page,
+      skip,
       take: limit,
     });
     return {

@@ -13,6 +13,9 @@ import { StudentModule } from './student/student.module';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { CourseModule } from './course/course.module';
 import { DashboardModule } from './dashboard/dashboard.module';
+import { RedisModule } from './redis/redis.module';
+import { GroupMembersModule } from './group-members/group-members.module';
+
 
 @Module({
   imports: [
@@ -35,6 +38,9 @@ import { DashboardModule } from './dashboard/dashboard.module';
     StudentModule,
     CourseModule,
     DashboardModule,
+    RedisModule,
+    GroupMembersModule,
+
   ],
   providers: [
     {

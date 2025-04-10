@@ -1,17 +1,25 @@
 import {
   Body,
   Controller,
+  DefaultValuePipe,
   Delete,
   Get,
   HttpStatus,
   Param,
+  ParseIntPipe,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
 import { CreateGroupDto } from './dto/create.group.dto';
 import { GroupService } from './group.service';
-import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { UserID } from 'src/common/decorator/user-id.decorator';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiQuery,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { UpdateGroupDto } from './dto/update.group.dto';
 
 @ApiTags('Groups') // Group API documentation tag
@@ -63,8 +71,17 @@ export class GroupController {
     status: HttpStatus.NOT_FOUND,
     description: 'No groups found for this admin',
   })
-  getAllGroups() {
-    return this.groupService.findAllGroup();
+
+
+
+  @ApiQuery({ name: 'page', required: true, type: 'number' })
+  @ApiQuery({ name: 'limit', required: true, type: 'number' })
+  getAllGroups(
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
+  ) {
+    return this.groupService.findAllGroup(page, limit);
+
   }
 
   @Get(':id')
