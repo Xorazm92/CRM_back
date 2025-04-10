@@ -20,8 +20,17 @@ async function bootstrap() {
   // Swagger configuration
   const config = new DocumentBuilder()
     .setTitle('LMS Backend API')
-    .setDescription('Learning Management System API documentation')
+    .setDescription(`
+      Learning Management System API documentation.
+      This API provides endpoints for managing:
+      - Users (Admin, Teachers, Students)
+      - Courses and Groups
+      - Lessons and Assignments
+      - Attendance and Grades
+      - File Uploads
+    `)
     .setVersion('1.0')
+    .addServer('http://localhost:3000', 'Development')
     .addBearerAuth({
       type: 'http',
       scheme: 'bearer',
