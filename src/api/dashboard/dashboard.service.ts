@@ -23,11 +23,17 @@ export class DashboardService {
   }
 
   async getAttendanceStats() {
-    const totalLessons = await this.prisma.lessons.count();
-    const attendanceStats = await this.prisma.attendance.groupBy({
-      by: ['status'],
-      _count: true,
-    });
+    const [totalLessons, attendanceStats, monthlyAttendance] = await Promise.all([
+      this.prisma.lessons.count(),
+      this.prisma.attendance.groupBy({
+        by: ['status'],
+        _count: true,
+      }),
+      this.prisma.attendance.groupBy({
+        by: ['status', 'date'],
+        _count: true,
+      })
+    ]);
 
     const presentCount = attendanceStats.find(stat => stat.status === 'PRESENT')?._count ?? 0;
     const totalAttendance = attendanceStats.reduce((acc, stat) => acc + stat._count, 0);
@@ -36,7 +42,54 @@ export class DashboardService {
       totalLessons,
       attendance: totalAttendance > 0 ? (presentCount / totalAttendance) * 100 : 0,
       details: attendanceStats,
+      monthlyStats: monthlyAttendance,
+      averageAttendance: totalLessons > 0 ? (totalAttendance / totalLessons) : 0
     };
+  }
+
+  async getDetailedStats() {
+    const [assignments, submissions, activeGroups] = await Promise.all([
+      this.prisma.assignment.count(),
+      this.prisma.submission.count(),
+      this.prisma.groups.count({
+        where: { status: 'ACTIVE' }
+      })
+    ]);
+
+    return {
+      assignments: {
+        total: assignments,
+        submissionRate: assignments > 0 ? (submissions / assignments) * 100 : 0
+      },
+      groups: {
+        active: activeGroups,
+        totalStudents: await this.prisma.user.count({ where: { role: 'STUDENT' } }),
+        averageSize: activeGroups > 0 ? await this.getAverageGroupSize() : 0
+      },
+      performance: await this.getOverallPerformance()
+    };
+  }
+
+  private async getAverageGroupSize() {
+    const groups = await this.prisma.groups.findMany({
+      include: {
+        _count: {
+          select: { group_members: true }
+        }
+      }
+    });
+    
+    return groups.reduce((acc, group) => acc + group._count.group_members, 0) / groups.length;
+  }
+
+  private async getOverallPerformance() {
+    const submissions = await this.prisma.submission.findMany({
+      select: { grade: true }
+    });
+
+    if (submissions.length === 0) return 0;
+
+    return submissions.reduce((acc, sub) => acc + (sub.grade || 0), 0) / submissions.length;
   }
 
   async getGroupsStats() {
