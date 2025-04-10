@@ -12,6 +12,7 @@ import { CustomJwtModule } from 'src/infrastructure/lib/custom-jwt';
 import { StudentModule } from './student/student.module';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { RedisModule } from './redis/redis.module';
+import { GroupMembersModule } from './group-members/group-members.module';
 
 @Module({
   imports: [
@@ -32,7 +33,8 @@ import { RedisModule } from './redis/redis.module';
     GroupModule,
     TeacherModule,
     StudentModule,
-    RedisModule
+    RedisModule,
+    GroupMembersModule,
   ],
   providers: [
     {
