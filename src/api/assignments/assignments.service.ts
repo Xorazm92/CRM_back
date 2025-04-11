@@ -1,4 +1,3 @@
-
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../common/prisma/prisma.service';
 
@@ -7,7 +6,7 @@ export class AssignmentsService {
   constructor(private prisma: PrismaService) {}
 
   async create(createAssignmentDto: any) {
-    return this.prisma.assignment.create({
+    return this.prisma.assignments.create({
       data: {
         ...createAssignmentDto,
         deadline: new Date(createAssignmentDto.deadline),
@@ -20,7 +19,7 @@ export class AssignmentsService {
   }
 
   async findAll(groupId?: string) {
-    return this.prisma.assignment.findMany({
+    return this.prisma.assignments.findMany({
       where: groupId ? { group_id: groupId } : {},
       include: {
         lesson: true,
@@ -35,7 +34,7 @@ export class AssignmentsService {
   }
 
   async findOne(id: string) {
-    const assignment = await this.prisma.assignment.findUnique({
+    const assignment = await this.prisma.assignments.findUnique({
       where: { id },
       include: {
         lesson: true,
@@ -58,7 +57,7 @@ export class AssignmentsService {
   async update(id: string, updateAssignmentDto: any) {
     await this.findOne(id);
 
-    return this.prisma.assignment.update({
+    return this.prisma.assignments.update({
       where: { id },
       data: updateAssignmentDto,
       include: {
@@ -70,11 +69,11 @@ export class AssignmentsService {
 
   async remove(id: string) {
     await this.findOne(id);
-    return this.prisma.assignment.delete({ where: { id } });
+    return this.prisma.assignments.delete({ where: { id } });
   }
 
   async getSubmissions(assignmentId: string) {
-    return this.prisma.submission.findMany({
+    return this.prisma.submissions.findMany({
       where: { assignment_id: assignmentId },
       include: {
         student: true,

@@ -1,7 +1,6 @@
-
 import { Controller, Post, UseInterceptors, UploadedFile, Get, Param, Delete, UseGuards } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { FileuploadService } from './fileupload.service';
+import { FileUploadService } from './fileupload.service';
 import { JwtAuthGuard } from '../../infrastructure/guards/jwt-auth.guard';
 import { ApiTags, ApiOperation, ApiConsumes, ApiBody } from '@nestjs/swagger';
 
@@ -9,7 +8,7 @@ import { ApiTags, ApiOperation, ApiConsumes, ApiBody } from '@nestjs/swagger';
 @Controller('files')
 @UseGuards(JwtAuthGuard)
 export class FileuploadController {
-  constructor(private readonly fileuploadService: FileuploadService) {}
+  constructor(private readonly fileuploadService: FileUploadService) {}
 
   @Post('upload')
   @ApiOperation({ summary: 'Upload file' })
