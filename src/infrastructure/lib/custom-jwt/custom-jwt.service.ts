@@ -50,7 +50,7 @@ export class CustomJwtService {
       });
       return data;
     } catch (error) {
-      throw new BadRequestException(`Error on refresh token: ${error}`);
+      throw new BadRequestException(`Error on access token: ${error}`);
     }
   }
 }

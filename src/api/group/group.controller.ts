@@ -100,11 +100,10 @@ export class GroupController {
   }
 
   @Put(':id')
-  @ApiOperation({ summary: 'Update group details' })
+  @ApiOperation({ summary: 'Update a group' })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Group updated successfully',
-    type: UpdateGroupDto,
   })
   @ApiResponse({
     status: HttpStatus.NOT_FOUND,
@@ -118,7 +117,7 @@ export class GroupController {
     @Param('id') groupId: string,
     @Body() updateGroupDto: UpdateGroupDto,
   ) {
-    return this.groupService.updateOne(groupId, updateGroupDto);
+    return this.groupService.updateGroup(groupId, updateGroupDto);
   }
 
   @Delete(':id')

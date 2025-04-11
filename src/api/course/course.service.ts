@@ -21,39 +21,42 @@ export class CourseService {
     return course;
   }
 
-  async findAll(page: number = 1, limit: number = 10) {
-    const cacheKey = 'courses';
-    const cachedData = await this.redis.get(cacheKey);
+  async findAll(
+    page: number,
+    limit: number,
+    search?: string,
+    status?: string
+  ) {
+    const skip = (page - 1) * limit;
     
-    if (cachedData) {
-      const courses = JSON.parse(cachedData);
-      const start = (page - 1) * limit;
-      const end = start + limit;
-      
-      return {
-        data: courses.slice(start, end),
-        total: courses.length,
-        page,
-        limit,
-        totalPages: Math.ceil(courses.length / limit)
-      };
-    }
-
-    const courses = await this.prisma.course.findMany({
-      orderBy: { created_at: 'desc' },
-    });
-
-    await this.redis.set(cacheKey, JSON.stringify(courses), 'EX', config.REDIS_EX_TIME);
-
-    const start = (page - 1) * limit;
-    const end = start + limit;
+    const [courses, total] = await Promise.all([
+      this.prisma.course.findMany({
+        skip,
+        take: limit,
+        where: {
+          name: search ? {
+            contains: search,
+            mode: 'insensitive'
+          } : undefined,
+          status: status ? {
+            equals: status as any
+          } : undefined
+        },
+        orderBy: {
+          created_at: 'desc'
+        }
+      }),
+      this.prisma.course.count()
+    ]);
 
     return {
-      data: courses.slice(start, end),
-      total: courses.length,
-      page,
-      limit,
-      totalPages: Math.ceil(courses.length / limit)
+      data: courses,
+      meta: {
+        total,
+        page,
+        limit,
+        pages: Math.ceil(total / limit)
+      }
     };
   }
 

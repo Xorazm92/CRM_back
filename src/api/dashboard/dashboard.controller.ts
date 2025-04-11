@@ -5,6 +5,7 @@ import { RolesGuard } from '../../infrastructure/guards/roles.guard';
 import { Roles } from '../../infrastructure/decorators/roles.decorator';
 import { UserRole } from '@prisma/client';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { DashboardStats, AttendanceStats, GroupStats, TeacherStats } from './dashboard.service';
 
 @ApiTags('Dashboard')
 @ApiBearerAuth()
@@ -21,9 +22,8 @@ export class DashboardController {
     description: 'Returns general statistics including total students, teachers, groups, and courses.'
   })
   @ApiResponse({ status: 401, description: 'Unauthorized.' })
-  @ApiResponse({ status: 403, description: 'Forbidden. Admin/Manager access required.' })
-  getGeneralStats() {
-    return this.dashboardService.getGeneralStats();
+  async getGeneralStats(): Promise<DashboardStats> {
+    return await this.dashboardService.getGeneralStats();
   }
 
   @Get('attendance-stats')
@@ -34,8 +34,8 @@ export class DashboardController {
   })
   @ApiResponse({ status: 401, description: 'Unauthorized.' })
   @ApiResponse({ status: 403, description: 'Forbidden. Admin/Manager access required.' })
-  getAttendanceStats() {
-    return this.dashboardService.getAttendanceStats();
+  async getAttendanceStats(): Promise<AttendanceStats> {
+    return await this.dashboardService.getAttendanceStats();
   }
 
   @Get('groups-stats')
@@ -46,8 +46,8 @@ export class DashboardController {
   })
   @ApiResponse({ status: 401, description: 'Unauthorized.' })
   @ApiResponse({ status: 403, description: 'Forbidden. Admin/Manager access required.' })
-  getGroupsStats() {
-    return this.dashboardService.getGroupsStats();
+  async getGroupsStats(): Promise<GroupStats> {
+    return await this.dashboardService.getGroupsStats();
   }
 
   @Get('teachers-stats')
@@ -58,7 +58,7 @@ export class DashboardController {
   })
   @ApiResponse({ status: 401, description: 'Unauthorized.' })
   @ApiResponse({ status: 403, description: 'Forbidden. Admin/Manager access required.' })
-  getTeachersStats() {
-    return this.dashboardService.getTeachersStats();
+  async getTeachersStats(): Promise<TeacherStats> {
+    return await this.dashboardService.getTeachersStats();
   }
 }

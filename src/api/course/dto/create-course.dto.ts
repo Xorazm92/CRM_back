@@ -4,8 +4,8 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateCourseDto {
   @ApiProperty({
-    description: 'The name of the course',
-    example: 'Web Development'
+    description: 'Name of the course',
+    example: 'Web Development',
   })
   @IsNotEmpty()
   @IsString()
@@ -13,26 +13,24 @@ export class CreateCourseDto {
 
   @ApiProperty({
     description: 'Detailed description of the course',
-    example: 'Learn web development from scratch'
+    example: 'Learn web development from scratch',
   })
   @IsNotEmpty()
   @IsString()
   description: string;
 
   @ApiProperty({
-    description: 'Duration of the course in months',
-    example: 3,
-    minimum: 1
+    description: 'Duration of the course in hours',
+    example: 120,
   })
-  @IsNotEmpty()
   @IsInt()
   @Min(1)
   duration: number;
 
   @ApiProperty({
-    description: 'Current status of the course',
+    description: 'Status of the course',
     enum: CourseStatus,
-    example: 'ACTIVE'
+    example: 'ACTIVE',
   })
   @IsEnum(CourseStatus)
   status: CourseStatus;

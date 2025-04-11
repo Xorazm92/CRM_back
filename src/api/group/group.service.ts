@@ -10,6 +10,8 @@ import { AlreadyExistsException } from 'src/common/exceptions/already-exists.exc
 import { UpdateGroupDto } from './dto/update.group.dto';
 import Redis from 'ioredis';
 import { config } from 'src/config';
+import { Prisma } from '@prisma/client';
+import { GroupStatus } from '@prisma/client';
 
 @Injectable()
 export class GroupService {
@@ -17,6 +19,35 @@ export class GroupService {
     private readonly prismaService: PrismaService,
     @Inject('REDIS_CLIENT') private readonly redis: Redis,
   ) {}
+
+  private transformCreateDtoToPrisma(createGroupDto: CreateGroupDto): Prisma.GroupsCreateInput {
+    return {
+      name: createGroupDto.name,
+      description: createGroupDto.description,
+      status: createGroupDto.status as GroupStatus,
+      course: {
+        connect: {
+          course_id: createGroupDto.course_id,
+        },
+      },
+    };
+  }
+
+  private transformUpdateDtoToPrisma(updateGroupDto: UpdateGroupDto): Prisma.GroupsUpdateInput {
+    const updateData: Prisma.GroupsUpdateInput = {};
+    if (updateGroupDto.name) updateData.name = updateGroupDto.name;
+    if (updateGroupDto.description) updateData.description = updateGroupDto.description;
+    if (updateGroupDto.status) updateData.status = updateGroupDto.status as GroupStatus;
+    if (updateGroupDto.course_id) {
+      updateData.course = {
+        connect: {
+          course_id: updateGroupDto.course_id,
+        },
+      };
+    }
+    return updateData;
+  }
+
   async createGroup(createGroupDto: CreateGroupDto) { 
     const isBeenGroup = await this.prismaService.groups.findFirst({
       where: { name: createGroupDto.name },
@@ -32,9 +63,12 @@ export class GroupService {
     if (!course) {
       throw new NotFoundException('Course not found');
     }
+    
+    const prismaData = this.transformCreateDtoToPrisma(createGroupDto);
     const newGroup = await this.prismaService.groups.create({
-      data: createGroupDto,
+      data: prismaData,
     });
+    
     return {
       status: HttpStatus.CREATED,
       message: 'New group created',
@@ -81,32 +115,20 @@ export class GroupService {
       data: groupMember,
     };
   }
-  async updateOne(groupId: string, updateGroupDto: UpdateGroupDto) {
-    const currentGroup = await this.prismaService.groups.findUnique({
+
+  async updateGroup(groupId: string, updateGroupDto: UpdateGroupDto) {
+    const group = await this.prismaService.groups.findUnique({
       where: { group_id: groupId },
     });
-
-    if (!currentGroup) {
-      throw new NotFoundException('Group not found!');
+    
+    if (!group) {
+      throw new NotFoundException('Group not found');
     }
 
-    // Check if the new name already exists for a different group
-    if (updateGroupDto.name) {
-      const existingGroupWithName = await this.prismaService.groups.findFirst({
-        where: {
-          AND: [{ name: updateGroupDto.name }, { NOT: { group_id: groupId } }],
-        },
-      });
-
-      if (existingGroupWithName) {
-        throw new AlreadyExistsException('Name already exist!');
-      }
-    }
-
-    // Proceed to update the group
+    const prismaData = this.transformUpdateDtoToPrisma(updateGroupDto);
     const updatedGroup = await this.prismaService.groups.update({
       where: { group_id: groupId },
-      data: updateGroupDto,
+      data: prismaData,
     });
 
     // group delete from redis
@@ -117,10 +139,11 @@ export class GroupService {
 
     return {
       status: HttpStatus.OK,
-      message: 'success',
+      message: 'Group updated successfully',
       data: updatedGroup,
     };
   }
+
   async remove(groupId: string) {
     const currentGroup = await this.prismaService.groups.findUnique({
       where: { group_id: groupId },
