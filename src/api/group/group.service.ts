@@ -30,6 +30,11 @@ export class GroupService {
           course_id: createGroupDto.course_id,
         },
       },
+      teacher: {
+        connect: {
+          user_id: createGroupDto.teacher_id,
+        },
+      },
     };
   }
 
@@ -42,6 +47,13 @@ export class GroupService {
       updateData.course = {
         connect: {
           course_id: updateGroupDto.course_id,
+        },
+      };
+    }
+    if (updateGroupDto.teacher_id) {
+      updateData.teacher = {
+        connect: {
+          user_id: updateGroupDto.teacher_id,
         },
       };
     }

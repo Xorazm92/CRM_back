@@ -40,17 +40,20 @@ async function main() {
     { 
       name: 'Group Alpha', 
       description: 'Frontend Developers Group', 
-      course_id: course.course_id 
+      course: { connect: { course_id: course.course_id } }, // course_id o'rniga course bilan bog'lanish
+      teacher: { connect: { user_id: users[0].user_id } }, // Assign a teacher
     },
     { 
       name: 'Group Beta', 
       description: 'Backend Developers Group', 
-      course_id: course.course_id 
+      course: { connect: { course_id: course.course_id } }, // course_id o'rniga course bilan bog'lanish
+      teacher: { connect: { user_id: users[1].user_id } }, // Assign a teacher
     },
     { 
       name: 'Group Gamma', 
       description: 'FullStack Developers Group', 
-      course_id: course.course_id 
+      course: { connect: { course_id: course.course_id } }, // course_id o'rniga course bilan bog'lanish
+      teacher: { connect: { user_id: users[2].user_id } }, // Assign a teacher
     },
   ];
 

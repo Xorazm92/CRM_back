@@ -33,62 +33,28 @@ import { UserID } from 'src/common/decorator';
 export class TeacherController {
   constructor(private readonly teacherService: TeacherService) {}
 
-  @ApiOperation({
-    summary: 'Create Teacher ',
-  })
+  @Post()
+  @UseGuards(AdminGuard)
+  @ApiOperation({ summary: 'Create Teacher' })
   @ApiResponse({
     status: HttpStatus.CREATED,
-    description: 'Teacher created',
-    schema: {
-      example: {
-        status: HttpStatus.CREATED,
-        message: 'CREATED',
-      },
-    },
+    description: 'Teacher created successfully',
   })
   @ApiResponse({
     status: HttpStatus.BAD_REQUEST,
     description: 'A user with this username already exists',
-    schema: {
-      example: {
-        status: HttpStatus.BAD_REQUEST,
-        message: 'A user with this username already exists',
-      },
-    },
   })
-  @UseGuards(AdminGuard)
-  @Post('createTeacher')
   create(@Body() createTeacherDto: CreateTeacherDto) {
     return this.teacherService.create(createTeacherDto);
   }
 
-  @ApiOperation({
-    summary: 'Get all Teacher ',
-  })
+  @Get()
+  @UseGuards(AdminGuard)
+  @ApiOperation({ summary: 'Get all teachers' })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'All Teacher fetched successfully',
-    schema: {
-      example: {
-        status: HttpStatus.OK,
-        message: 'success',
-        data: [
-          {
-            user_id: 'f6bb055d-8b0b-4503-b53b-67c1230993f7',
-            full_name: 'Jhon Doe',
-            username: 'jhondoe007',
-            password:
-              '$2b$10$D01/2P0O1TI5Jg4hRglByOEwavU3cfLcLAbimHCgIn1VUXo0ZKN4W',
-            role: 'TEACHER',
-            created_at: '2025-04-06T15:25:06.746Z',
-            updated_at: '2025-04-06T15:25:06.746Z',
-          },
-        ],
-      },
-    },
+    description: 'Teachers retrieved successfully',
   })
-  @UseGuards(AdminGuard)
-  @Get()
   findAll(
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page?: number,
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit?: number,
@@ -96,132 +62,84 @@ export class TeacherController {
     return this.teacherService.findAll(page, limit);
   }
 
-  @ApiOperation({
-    summary: 'Get Profile Teacher ',
-  })
+  @Get(':id')
+  @UseGuards(AdminGuard)
+  @ApiOperation({ summary: 'Get teacher by ID' })
+  @ApiParam({ name: 'id', description: 'Teacher ID' })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'Profile Teacher fetched successfully',
-    schema: {
-      example: {
-        status: HttpStatus.OK,
-        message: 'success',
-        data: [
-          {
-            user_id: 'f6bb055d-8b0b-4503-b53b-67c1230993f7',
-            full_name: 'Jhon Doe',
-            username: 'jhondoe007',
-          },
-        ],
-      },
-    },
-  })
-  @UseGuards(TeacherGuard)
-  @Get('getProfile')
-  getProfile(@UserID() id: string) {
-    return this.teacherService.getProfile(id);
-  }
-
-  @ApiOperation({
-    summary: 'Get Teacher by ID',
-  })
-  @ApiParam({
-    name: 'id',
-    description: 'ID of the Teacher',
-    type: String,
-    example: 'ws783241-213dsbzcxfdsh0329-ljdsk',
-  })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'Teacher fetched by id successfully',
-    schema: {
-      example: {
-        status: HttpStatus.OK,
-        message: 'success',
-        data: {
-          user_id: 'f6bb055d-8b0b-4503-b53b-67c1230993f7',
-          full_name: 'Jhon Doe',
-          username: 'jhondoe007',
-          password:
-            '$2b$10$D01/2P0O1TI5Jg4hRglByOEwavU3cfLcLAbimHCgIn1VUXo0ZKN4W',
-          role: 'TEACHER',
-          created_at: '2025-04-06T15:25:06.746Z',
-          updated_at: '2025-04-06T15:25:06.746Z',
-        },
-      },
-    },
+    description: 'Teacher retrieved successfully',
   })
   @ApiResponse({
     status: HttpStatus.NOT_FOUND,
-    description: 'Teacher Not Found',
-    schema: {
-      example: {
-        status: HttpStatus.NOT_FOUND,
-        message: 'Teacher with id 2378askjdh-23498sjkdafh not found.',
-      },
-    },
+    description: 'Teacher not found',
   })
-  @UseGuards(AdminGuard)
-  @Get(':id')
   findOne(@Param('id') id: string) {
     return this.teacherService.findOne(id);
   }
 
-  @ApiOperation({
-    summary: 'Edit Profile Teacher ',
-  })
+  @Patch(':id')
+  @UseGuards(AdminGuard)
+  @ApiOperation({ summary: 'Update teacher' })
+  @ApiParam({ name: 'id', description: 'Teacher ID' })
   @ApiResponse({
-    status: HttpStatus.CREATED,
-    description: 'Teacher Updated successfully',
-    schema: {
-      example: {
-        status: HttpStatus.OK,
-        message: 'success',
-      },
-    },
+    status: HttpStatus.OK,
+    description: 'Teacher updated successfully',
   })
   @ApiResponse({
     status: HttpStatus.NOT_FOUND,
-    description: 'Teacher Not Found',
-    schema: {
-      example: {
-        status: HttpStatus.NOT_FOUND,
-        message: 'Teacher with id 2378askjdh-23498sjkdafh not found.',
-      },
-    },
+    description: 'Teacher not found',
   })
-  @UseGuards(TeacherGuard)
-  @Patch(':id')
   update(@Param('id') id: string, @Body() updateTeacherDto: UpdateTeacherDto) {
     return this.teacherService.update(id, updateTeacherDto);
   }
 
-  @ApiOperation({
-    summary: 'Delete Teacher ',
-  })
+  @Delete(':id')
+  @UseGuards(AdminGuard)
+  @ApiOperation({ summary: 'Delete teacher' })
+  @ApiParam({ name: 'id', description: 'Teacher ID' })
   @ApiResponse({
-    status: HttpStatus.CREATED,
-    description: 'Teacher delete successfully',
-    schema: {
-      example: {
-        status: HttpStatus.OK,
-        message: 'success',
-      },
-    },
+    status: HttpStatus.OK,
+    description: 'Teacher deleted successfully',
   })
   @ApiResponse({
     status: HttpStatus.NOT_FOUND,
-    description: 'Teacher Not Found',
-    schema: {
-      example: {
-        status: HttpStatus.NOT_FOUND,
-        message: 'Teacher with id 2378askjdh-23498sjkdafh not found.',
-      },
-    },
+    description: 'Teacher not found',
   })
-  @UseGuards(AdminGuard)
-  @Delete(':id')
   remove(@Param('id') id: string) {
     return this.teacherService.remove(id);
+  }
+
+  @Get('getProfile')
+  @UseGuards(TeacherGuard)
+  @ApiOperation({ summary: 'Get Profile Teacher ' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Profile Teacher fetched successfully',
+  })
+  getProfile(@UserID() id: string) {
+    return this.teacherService.getProfile(id);
+  }
+
+  @Get('groups')
+  @UseGuards(TeacherGuard)
+  @ApiOperation({ summary: 'Get teacher groups' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Teacher groups retrieved successfully',
+  })
+  getTeacherGroups(@UserID() userId: string) {
+    return this.teacherService.getTeacherGroups(userId);
+  }
+
+  @Get('lessons')
+  @UseGuards(TeacherGuard)
+  @ApiOperation({ summary: 'Get teacher lessons' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Teacher lessons retrieved successfully',
+  })
+  getTeacherLessons(@UserID() userId: string) {
+    return this.teacherService.getTeacherLessons(userId);
   }
 }

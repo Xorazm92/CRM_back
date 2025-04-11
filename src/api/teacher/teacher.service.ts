@@ -1,133 +1,202 @@
 import {
-  ConflictException,
-  HttpStatus,
-  Inject,
   Injectable,
   NotFoundException,
+  BadRequestException,
 } from '@nestjs/common';
+import { PrismaService } from 'src/common/prisma/prisma.service';
 import { CreateTeacherDto } from './dto/create-teacher.dto';
 import { UpdateTeacherDto } from './dto/update-teacher.dto';
-import { PrismaService } from 'src/common/prisma/prisma.service';
-import { BcryptEncryption } from 'src/infrastructure/lib/bcrypt/bcrypt';
-import Redis from 'ioredis';
 
 @Injectable()
 export class TeacherService {
-  constructor(
-    private readonly prismaService: PrismaService,
-    @Inject('REDIS_CLIENT') private readonly redis: Redis,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async create(createTeacherDto: CreateTeacherDto) {
-    const currentTeacher = await this.prismaService.user.findUnique({
-      where: { username: createTeacherDto.username },
-    });
-    if (currentTeacher) {
-      throw new ConflictException('A user with this username already exists');
+    try {
+      return await this.prisma.user.create({
+        data: {
+          ...createTeacherDto,
+          role: 'TEACHER',
+        },
+      });
+    } catch (error) {
+      throw new BadRequestException('Failed to create teacher');
     }
-    createTeacherDto.password = await BcryptEncryption.encrypt(
-      createTeacherDto.password,
-    );
-    const teacher = await this.prismaService.user.create({
-      data: { ...createTeacherDto, role: 'TEACHER' },
-    });
-
-    // teacher delete from redis
-    const keys = await this.redis.keys('teachers:page:*');
-    if (keys.length) {
-      await this.redis.del(...keys);
-    }
-
-    return {
-      status: HttpStatus.CREATED,
-      message: 'created',
-      data: teacher,
-    };
   }
 
   async findAll(page: number, limit: number) {
-    const key = `teachers:page:${page}:limit:${limit}`;
-    const allTeacher = await this.redis.get(key);
-    if (allTeacher) {
-      return JSON.parse(allTeacher);
-    }
     const skip = (page - 1) * limit;
-    const teachers = await this.prismaService.user.findMany({
-      where: { role: 'TEACHER' },
-      take: limit,
-      skip: skip,
-    });
-    await this.redis.set(key, JSON.stringify(teachers));
+    const [teachers, total] = await Promise.all([
+      this.prisma.user.findMany({
+        skip,
+        take: limit,
+        where: { role: 'TEACHER' },
+        include: {
+          groups: {
+            include: {
+              course: true,
+              group_members: {
+                include: {
+                  user: {
+                    select: {
+                      user_id: true,
+                      full_name: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      }),
+      this.prisma.user.count({ where: { role: 'TEACHER' } }),
+    ]);
+
     return {
-      status: HttpStatus.OK,
-      message: 'success',
       data: teachers,
-    };
-  }
-  async getProfile(id: string) {
-    const teacher = await this.prismaService.user.findUnique({
-      where: { user_id: id, role: 'TEACHER' },
-      select: { user_id: true, full_name: true, username: true, role: true },
-    });
-    return {
-      status: HttpStatus.OK,
-      message: 'success',
-      data: teacher,
+      meta: {
+        total,
+        page,
+        limit,
+      },
     };
   }
 
   async findOne(id: string) {
-    const teacher = await this.prismaService.user.findUnique({
-      where: { user_id: id, role: 'TEACHER' },
+    const teacher = await this.prisma.user.findUnique({
+      where: { user_id: id },
+      include: {
+        groups: {
+          include: {
+            course: true,
+            group_members: {
+              include: {
+                user: {
+                  select: {
+                    user_id: true,
+                    full_name: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
     });
+
     if (!teacher) {
-      throw new NotFoundException(`Teacher with id ${id} not found.`);
+      throw new NotFoundException('Teacher not found');
     }
-    return {
-      status: HttpStatus.OK,
-      message: 'success',
-      data: teacher,
-    };
+
+    return teacher;
   }
 
   async update(id: string, updateTeacherDto: UpdateTeacherDto) {
-    const currentTeacher = await this.prismaService.user.findUnique({
+    const teacher = await this.prisma.user.findUnique({
       where: { user_id: id },
     });
-    if (!currentTeacher) {
-      throw new NotFoundException(`Teacher with id ${id} not found.`);
+
+    if (!teacher) {
+      throw new NotFoundException('Teacher not found');
     }
-    await this.prismaService.user.update({
+
+    return await this.prisma.user.update({
       where: { user_id: id },
-      data: { full_name: updateTeacherDto.full_name },
+      data: updateTeacherDto,
     });
-    // teacher delete from redis
-    const keys = await this.redis.keys('teachers:page:*');
-    if (keys.length) {
-      await this.redis.del(...keys);
-    }
-    return {
-      status: HttpStatus.OK,
-      message: 'success',
-    };
   }
 
   async remove(id: string) {
-    const currentTeacher = await this.prismaService.user.findUnique({
+    const teacher = await this.prisma.user.findUnique({
       where: { user_id: id },
     });
-    if (!currentTeacher) {
-      throw new NotFoundException(`Teacher with id ${id} not found.`);
+
+    if (!teacher) {
+      throw new NotFoundException('Teacher not found');
     }
-    // teacher delete from redis
-    const keys = await this.redis.keys('teachers:page:*');
-    if (keys.length) {
-      await this.redis.del(...keys);
+
+    return await this.prisma.user.delete({
+      where: { user_id: id },
+    });
+  }
+
+  async getProfile(userId: string) {
+    const teacher = await this.prisma.user.findUnique({
+      where: { user_id: userId },
+      include: {
+        groups: {
+          include: {
+            course: true,
+            group_members: {
+              include: {
+                user: {
+                  select: {
+                    user_id: true,
+                    full_name: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!teacher) {
+      throw new NotFoundException('Teacher not found');
     }
-    await this.prismaService.user.delete({ where: { user_id: id } });
-    return {
-      status: HttpStatus.OK,
-      message: 'success',
-    };
+
+    return teacher;
+  }
+
+  async getTeacherGroups(userId: string) {
+    const groups = await this.prisma.groups.findMany({
+      where: {
+        teacher_id: userId,
+      },
+      include: {
+        course: true,
+        group_members: {
+          include: {
+            user: {
+              select: {
+                user_id: true,
+                full_name: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    return groups;
+  }
+
+  async getTeacherLessons(userId: string) {
+    const lessons = await this.prisma.lessons.findMany({
+      where: {
+        group: {
+          teacher_id: userId,
+        },
+      },
+      include: {
+        group: {
+          include: {
+            course: true,
+            teacher: {
+              select: {
+                user_id: true,
+                full_name: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: {
+        lesson_date: 'asc',
+      },
+    });
+
+    return lessons;
   }
 }

@@ -5,7 +5,7 @@ import { RolesGuard } from '../../infrastructure/guards/roles.guard';
 import { Roles } from '../../infrastructure/decorators/roles.decorator';
 import { UserRole } from '@prisma/client';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
-import { DashboardStats, AttendanceStats, GroupStats, TeacherStats } from './dashboard.service';
+import { DashboardStats, GroupStats, TeacherStats} from './dashboard.service';
 
 @ApiTags('Dashboard')
 @ApiBearerAuth()
@@ -26,17 +26,17 @@ export class DashboardController {
     return await this.dashboardService.getGeneralStats();
   }
 
-  @Get('attendance-stats')
-  @ApiOperation({ summary: 'Get attendance statistics' })
-  @ApiResponse({
-    status: 200,
-    description: 'Returns attendance statistics including total lessons, average attendance, and attendance by group/date.'
-  })
-  @ApiResponse({ status: 401, description: 'Unauthorized.' })
-  @ApiResponse({ status: 403, description: 'Forbidden. Admin/Manager access required.' })
-  async getAttendanceStats(): Promise<AttendanceStats> {
-    return await this.dashboardService.getAttendanceStats();
-  }
+  // @Get('attendance-stats')
+  // @ApiOperation({ summary: 'Get attendance statistics' })
+  // @ApiResponse({
+  //   status: 200,
+  //   description: 'Returns attendance statistics including total lessons, average attendance, and attendance by group/date.'
+  // })
+  // @ApiResponse({ status: 401, description: 'Unauthorized.' })
+  // @ApiResponse({ status: 403, description: 'Forbidden. Admin/Manager access required.' })
+  // async getAttendanceStats(): Promise<AttendanceStats> {
+  //   return await this.dashboardService.getAttendanceStats();
+  // }
 
   @Get('groups-stats')
   @ApiOperation({ summary: 'Get groups statistics' })

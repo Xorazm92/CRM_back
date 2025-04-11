@@ -15,54 +15,95 @@ export class GroupMembersService {
     private readonly prisma: PrismaService,
     @Inject('REDIS_CLIENT') private readonly redis: Redis,
   ) {}
-  async create(CreateGroupMemberDto: CreateGroupMemberDto) {
-    const odlUser = this.prisma.user.findUnique({
-      where: { user_id: CreateGroupMemberDto.userId },
+
+  async create(createGroupMemberDto: CreateGroupMemberDto) {
+    const user = await this.prisma.user.findUnique({
+      where: { user_id: createGroupMemberDto.userId },
     });
-    if (!odlUser) {
+    
+    if (!user) {
       throw new NotFoundException('User not found!');
     }
-    const oldGroup = this.prisma.groups.findUnique({
-      where: { group_id: CreateGroupMemberDto.groupId },
+
+    const group = await this.prisma.groups.findUnique({
+      where: { group_id: createGroupMemberDto.groupId },
     });
-    if (!oldGroup) {
+    
+    if (!group) {
       throw new NotFoundException('Group not found!');
     }
-    const createdGroupMember = this.prisma.groupMembers.create({
-      data: {
-        group_id: CreateGroupMemberDto.groupId,
-        user_id: CreateGroupMemberDto.userId,
+
+    const existingMember = await this.prisma.groupMembers.findFirst({
+      where: {
+        user_id: createGroupMemberDto.userId,
+        group_id: createGroupMemberDto.groupId,
       },
     });
+
+    if (existingMember) {
+      throw new NotFoundException('User is already a member of this group');
+    }
+
+    const createdGroupMember = await this.prisma.groupMembers.create({
+      data: {
+        group_id: createGroupMemberDto.groupId,
+        user_id: createGroupMemberDto.userId,
+      },
+    });
+
+    // Clear Redis cache
     const keys = await this.redis.keys('groupMembers:page:*');
     if (keys.length) {
       await this.redis.del(...keys);
     }
+
     return {
       status: HttpStatus.CREATED,
       message: 'New group member created',
       data: createdGroupMember,
     };
   }
+
   async findAll(page: number, limit: number) {
     const redisKey = `groupMembers:page:${page}:limit:${limit}`;
     const cachedGroupMembers = await this.redis.get(redisKey);
+    
     if (cachedGroupMembers) {
       return JSON.parse(cachedGroupMembers);
     }
-    const skip = (page - 1) * limit;
-    const allGroupMembers = this.prisma.groupMembers.findMany({
-      skip,
-      take: limit,
-    });
-    this.redis.set(redisKey, JSON.stringify(allGroupMembers), 'EX', 60 * 60);
 
-    return {
+    const skip = (page - 1) * limit;
+    const [groupMembers, total] = await Promise.all([
+      this.prisma.groupMembers.findMany({
+        skip,
+        take: limit,
+        include: {
+          user: true,
+          group: {
+            include: {
+              course: true,
+            },
+          },
+        },
+      }),
+      this.prisma.groupMembers.count(),
+    ]);
+
+    const response = {
       status: HttpStatus.OK,
-      message: 'All group members',
-      data: allGroupMembers,
+      message: 'Group members retrieved successfully',
+      data: groupMembers,
+      meta: {
+        total,
+        page,
+        limit,
+      },
     };
+
+    await this.redis.set(redisKey, JSON.stringify(response), 'EX', 300);
+    return response;
   }
+
   async findOne(id: string) {
     const groupMember = await this.prisma.groupMembers.findFirst({
       where: { group_members_id: id },
@@ -109,13 +150,13 @@ export class GroupMembersService {
   }
 
   async remove(id: string) {
-    const groupMember = this.prisma.groupMembers.findUnique({
+    const groupMember = await this.prisma.groupMembers.findUnique({
       where: { group_members_id: id },
     });
     if (!groupMember) {
       throw new NotFoundException('Group member not found!');
     }
-    const deletedGroupMember = this.prisma.groupMembers.delete({
+    const deletedGroupMember = await this.prisma.groupMembers.delete({
       where: { group_members_id: id },
     });
     const keys = await this.redis.keys('groupMembers:page:*');

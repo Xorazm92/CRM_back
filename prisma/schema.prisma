@@ -16,8 +16,8 @@ model User {
   created_at        DateTime       @default(now())
   updated_at        DateTime       @updatedAt
   user_id           String         @id @default(uuid())
-  attendance        Attendance[]
   group_members     GroupMembers[]
+  groups            Groups[]       @relation("TeacherGroups")
   gradedSubmissions Submissions[]  @relation("GraderSubmissions")
   submissions       Submissions[]  @relation("StudentSubmissions")
 }
@@ -28,6 +28,8 @@ model Groups {
   description   String
   course        Course         @relation(fields: [course_id], references: [course_id])
   course_id     String
+  teacher_id    String
+  teacher       User           @relation("TeacherGroups", fields: [teacher_id], references: [user_id])
   status        GroupStatus    @default(ACTIVE)
   created_at    DateTime       @default(now())
   updated_at    DateTime       @updatedAt
@@ -54,21 +56,8 @@ model Lessons {
   recording_path String
   created_at     DateTime      @default(now())
   updated_at     DateTime      @updatedAt
-  assignments    Assignments[]
-  attendance     Attendance[]
   group          Groups        @relation(fields: [group_id], references: [group_id])
-}
-
-model Attendance {
-  attendance_id String   @id @default(uuid())
-  lesson_id     String
-  student_id    String
-  status        AttendanceStatus
-  remarks       String
-  created_at    DateTime @default(now())
-  updated_at    DateTime @updatedAt
-  lesson        Lessons  @relation(fields: [lesson_id], references: [lesson_id])
-  student       User     @relation(fields: [student_id], references: [user_id])
+  assignments    Assignments[]
 }
 
 model Assignments {

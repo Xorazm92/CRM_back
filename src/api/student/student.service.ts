@@ -1,155 +1,206 @@
 import {
-  ConflictException,
-  HttpStatus,
-  Inject,
   Injectable,
   NotFoundException,
+  BadRequestException,
 } from '@nestjs/common';
+import { PrismaService } from 'src/common/prisma/prisma.service';
 import { CreateStudentDto } from './dto/create-student.dto';
 import { UpdateStudentDto } from './dto/update-student.dto';
-import { PrismaService } from 'src/common/prisma/prisma.service';
-import { BcryptEncryption } from 'src/infrastructure/lib/bcrypt/bcrypt';
-import { Redis } from 'ioredis';
-import { config } from 'src/config';
 
 @Injectable()
 export class StudentService {
-  constructor(
-    private readonly prismaService: PrismaService,
-    @Inject('REDIS_CLIENT') private readonly redis: Redis,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async create(createStudentDto: CreateStudentDto) {
-    const currentStudent = await this.prismaService.user.findUnique({
-      where: { username: createStudentDto.username },
-    });
-    if (currentStudent) {
-      throw new ConflictException('A user with this username already exists');
+    try {
+      return await this.prisma.user.create({
+        data: {
+          ...createStudentDto,
+          role: 'STUDENT',
+        },
+      });
+    } catch (error) {
+      throw new BadRequestException('Failed to create student');
     }
-
-    createStudentDto.password = await BcryptEncryption.hashPassword(
-      createStudentDto.password,
-    );
-
-    const student = await this.prismaService.user.create({
-      data: { ...createStudentDto, role: 'STUDENT' },
-    });
-
-    // Redisni tozalash (pagination keshlarini)
-    const keys = await this.redis.keys('students:page:*');
-    if (keys.length) {
-      await this.redis.del(...keys);
-    }
-
-    return {
-      status: HttpStatus.CREATED,
-      message: 'created',
-      data: student,
-    };
   }
 
   async findAll(page: number, limit: number) {
-    const redisKey = `students:page:${page}:limit:${limit}`;
-    const cachedStudents = await this.redis.get(redisKey);
-    if (cachedStudents) {
-      return JSON.parse(cachedStudents);
-    }
-
     const skip = (page - 1) * limit;
-    const students = await this.prismaService.user.findMany({
-      where: { role: 'STUDENT' },
-      skip,
-      take: limit,
-    });
-
-    await this.redis.set(
-      redisKey,
-      JSON.stringify({
-        status: HttpStatus.OK,
-        message: 'success',
-        data: students,
+    const [students, total] = await Promise.all([
+      this.prisma.user.findMany({
+        skip,
+        take: limit,
+        where: { role: 'STUDENT' },
+        include: {
+          group_members: {
+            include: {
+              group: {
+                include: {
+                  course: true,
+                  teacher: {
+                    select: {
+                      user_id: true,
+                      full_name: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
       }),
-      'EX',
-      config.REDIS_EX_TIME,
-    );
+      this.prisma.user.count({ where: { role: 'STUDENT' } }),
+    ]);
 
     return {
-      status: HttpStatus.OK,
-      message: 'success',
       data: students,
-    };
-  }
-
-  async getProfile(id: string) {
-    const student = await this.prismaService.user.findUnique({
-      where: { user_id: id, role: 'STUDENT' },
-      select: { user_id: true, full_name: true, username: true, role: true },
-    });
-    return {
-      status: HttpStatus.OK,
-      message: 'success',
-      data: student,
+      meta: {
+        total,
+        page,
+        limit,
+      },
     };
   }
 
   async findOne(id: string) {
-    const student = await this.prismaService.user.findUnique({
+    const student = await this.prisma.user.findUnique({
       where: { user_id: id },
+      include: {
+        group_members: {
+          include: {
+            group: {
+              include: {
+                course: true,
+                teacher: {
+                  select: {
+                    user_id: true,
+                    full_name: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
     });
+
     if (!student) {
-      throw new NotFoundException(`Student with id ${id} not found.`);
+      throw new NotFoundException('Student not found');
     }
-    return {
-      status: HttpStatus.OK,
-      message: 'success',
-      data: student,
-    };
+
+    return student;
+  }
+
+  async getProfile(userId: string) {
+    const student = await this.prisma.user.findUnique({
+      where: { user_id: userId },
+      include: {
+        group_members: {
+          include: {
+            group: {
+              include: {
+                course: true,
+                teacher: {
+                  select: {
+                    user_id: true,
+                    full_name: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!student) {
+      throw new NotFoundException('Student not found');
+    }
+
+    return student;
   }
 
   async update(id: string, updateStudentDto: UpdateStudentDto) {
-    const currentStudent = await this.prismaService.user.findUnique({
+    const student = await this.prisma.user.findUnique({
       where: { user_id: id },
     });
-    if (!currentStudent) {
-      throw new NotFoundException(`Student with id ${id} not found.`);
+
+    if (!student) {
+      throw new NotFoundException('Student not found');
     }
 
-    await this.prismaService.user.update({
+    return await this.prisma.user.update({
       where: { user_id: id },
-      data: { full_name: updateStudentDto.full_name },
+      data: updateStudentDto,
     });
-
-    // Redisni tozalash
-    const keys = await this.redis.keys('students:page:*');
-    if (keys.length) {
-      await this.redis.del(...keys);
-    }
-
-    return {
-      status: HttpStatus.OK,
-      message: 'success',
-    };
   }
 
   async remove(id: string) {
-    const currentStudent = await this.prismaService.user.findUnique({
+    const student = await this.prisma.user.findUnique({
       where: { user_id: id },
     });
-    if (!currentStudent) {
-      throw new NotFoundException(`Student with id ${id} not found.`);
+
+    if (!student) {
+      throw new NotFoundException('Student not found');
     }
 
-    await this.prismaService.user.delete({ where: { user_id: id } });
+    return await this.prisma.user.delete({
+      where: { user_id: id },
+    });
+  }
 
-    // Redisni tozalash
-    const keys = await this.redis.keys('students:page:*');
-    if (keys.length) {
-      await this.redis.del(...keys);
-    }
+  async getStudentGroups(userId: string) {
+    const groups = await this.prisma.groups.findMany({
+      where: {
+        group_members: {
+          some: {
+            user_id: userId,
+          },
+        },
+      },
+      include: {
+        course: true,
+        teacher: {
+          select: {
+            user_id: true,
+            full_name: true,
+          },
+        },
+      },
+    });
 
-    return {
-      status: HttpStatus.OK,
-      message: 'success',
-    };
+    return groups;
+  }
+
+  async getStudentLessons(userId: string) {
+    const lessons = await this.prisma.lessons.findMany({
+      where: {
+        group: {
+          group_members: {
+            some: {
+              user_id: userId,
+            },
+          },
+        },
+      },
+      include: {
+        group: {
+          include: {
+            course: true,
+            teacher: {
+              select: {
+                user_id: true,
+                full_name: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: {
+        lesson_date: 'asc',
+      },
+    });
+
+    return lessons;
   }
 }

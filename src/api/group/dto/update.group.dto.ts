@@ -23,6 +23,15 @@ export class UpdateGroupDto {
   description?: string;
 
   @ApiProperty({
+    description: 'Teacher ID that this group belongs to',
+    example: '123e4567-e89b-12d3-a456-426614174000',
+  })
+  @IsString()
+  @IsOptional()
+  @IsUUID()
+  teacher_id?: string;
+
+  @ApiProperty({
     description: 'Status of the group',
     enum: ['ACTIVE', 'INACTIVE', 'COMPLETED'],
     example: 'ACTIVE',

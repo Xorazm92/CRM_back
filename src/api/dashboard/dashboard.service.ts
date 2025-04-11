@@ -11,11 +11,11 @@ export interface DashboardStats {
   courses: number;
 }
 
-export interface AttendanceStats {
-  totalLessons: number;
-  attendance: number;
-  details: Array<{ status: string; _count: number }>;
-}
+// export interface AttendanceStats {
+//   totalLessons: number;
+//   attendance: number;
+//   details: Array<{ status: string; _count: number }>;
+// }
 
 export interface GroupStats {
   totalGroups: number;
@@ -82,24 +82,24 @@ export class DashboardService {
     });
   }
 
-  async getAttendanceStats(): Promise<AttendanceStats> {
-    return this.getCachedData(this.getCacheKey('attendance'), async () => {
-      const totalLessons = await this.prisma.lessons.count();
-      const attendanceStats = await this.prisma.attendance.groupBy({
-        by: ['status'],
-        _count: true,
-      });
+  // async getAttendanceStats(): Promise<AttendanceStats> {
+  //   return this.getCachedData(this.getCacheKey('attendance'), async () => {
+  //     const totalLessons = await this.prisma.lessons.count();
+  //     const attendanceStats = await this.prisma.attendance.groupBy({
+  //       by: ['status'],
+  //       _count: true,
+  //     });
 
-      const presentCount = attendanceStats.find(stat => stat.status === 'PRESENT')?._count ?? 0;
-      const totalAttendance = attendanceStats.reduce((acc, stat) => acc + stat._count, 0);
+  //     const presentCount = attendanceStats.find(stat => stat.status === 'PRESENT')?._count ?? 0;
+  //     const totalAttendance = attendanceStats.reduce((acc, stat) => acc + stat._count, 0);
 
-      return {
-        totalLessons,
-        attendance: totalAttendance > 0 ? (presentCount / totalAttendance) * 100 : 0,
-        details: attendanceStats,
-      };
-    });
-  }
+  //     return {
+  //       totalLessons,
+  //       attendance: totalAttendance > 0 ? (presentCount / totalAttendance) * 100 : 0,
+  //       details: attendanceStats,
+  //     };
+  //   });
+  // }
 
   async getGroupsStats(): Promise<GroupStats> {
     return this.getCachedData(this.getCacheKey('groups'), async () => {
