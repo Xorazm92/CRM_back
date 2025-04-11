@@ -1,0 +1,382 @@
+[10:07:38 AM] Starting compilation in watch mode...
+
+eslint.config.mjs:5:22 - error TS2307: Cannot find module 'typescript-eslint' or its corresponding type declarations.
+
+5 import tseslint from 'typescript-eslint';
+                       ~~~~~~~~~~~~~~~~~~~
+
+src/api/assignments/assignments.service.ts:10:24 - error TS2551: Property 'assignment' does not exist on type 'PrismaService'. Did you mean 'assignments'?
+
+10     return this.prisma.assignment.create({
+                          ~~~~~~~~~~
+
+  node_modules/.pnpm/@prisma+client@6.5.0_prisma@6.5.0_typescript@5.6.2__typescript@5.6.2/node_modules/.prisma/client/index.d.ts:316:7
+    316   get assignments(): Prisma.AssignmentsDelegate<ExtArgs, ClientOptions>;
+              ~~~~~~~~~~~
+    'assignments' is declared here.
+
+src/api/assignments/assignments.service.ts:23:24 - error TS2551: Property 'assignment' does not exist on type 'PrismaService'. Did you mean 'assignments'?
+
+23     return this.prisma.assignment.findMany({
+                          ~~~~~~~~~~
+
+  node_modules/.pnpm/@prisma+client@6.5.0_prisma@6.5.0_typescript@5.6.2__typescript@5.6.2/node_modules/.prisma/client/index.d.ts:316:7
+    316   get assignments(): Prisma.AssignmentsDelegate<ExtArgs, ClientOptions>;
+              ~~~~~~~~~~~
+    'assignments' is declared here.
+
+src/api/assignments/assignments.service.ts:38:42 - error TS2551: Property 'assignment' does not exist on type 'PrismaService'. Did you mean 'assignments'?
+
+38     const assignment = await this.prisma.assignment.findUnique({
+                                            ~~~~~~~~~~
+
+  node_modules/.pnpm/@prisma+client@6.5.0_prisma@6.5.0_typescript@5.6.2__typescript@5.6.2/node_modules/.prisma/client/index.d.ts:316:7
+    316   get assignments(): Prisma.AssignmentsDelegate<ExtArgs, ClientOptions>;
+              ~~~~~~~~~~~
+    'assignments' is declared here.
+
+src/api/assignments/assignments.service.ts:61:24 - error TS2551: Property 'assignment' does not exist on type 'PrismaService'. Did you mean 'assignments'?
+
+61     return this.prisma.assignment.update({
+                          ~~~~~~~~~~
+
+  node_modules/.pnpm/@prisma+client@6.5.0_prisma@6.5.0_typescript@5.6.2__typescript@5.6.2/node_modules/.prisma/client/index.d.ts:316:7
+    316   get assignments(): Prisma.AssignmentsDelegate<ExtArgs, ClientOptions>;
+              ~~~~~~~~~~~
+    'assignments' is declared here.
+
+src/api/assignments/assignments.service.ts:73:24 - error TS2551: Property 'assignment' does not exist on type 'PrismaService'. Did you mean 'assignments'?
+
+73     return this.prisma.assignment.delete({ where: { id } });
+                          ~~~~~~~~~~
+
+  node_modules/.pnpm/@prisma+client@6.5.0_prisma@6.5.0_typescript@5.6.2__typescript@5.6.2/node_modules/.prisma/client/index.d.ts:316:7
+    316   get assignments(): Prisma.AssignmentsDelegate<ExtArgs, ClientOptions>;
+              ~~~~~~~~~~~
+    'assignments' is declared here.
+
+src/api/assignments/assignments.service.ts:77:24 - error TS2551: Property 'submission' does not exist on type 'PrismaService'. Did you mean 'submissions'?
+
+77     return this.prisma.submission.findMany({
+                          ~~~~~~~~~~
+
+  node_modules/.pnpm/@prisma+client@6.5.0_prisma@6.5.0_typescript@5.6.2__typescript@5.6.2/node_modules/.prisma/client/index.d.ts:326:7
+    326   get submissions(): Prisma.SubmissionsDelegate<ExtArgs, ClientOptions>;
+              ~~~~~~~~~~~
+    'submissions' is declared here.
+
+src/api/attendance/attendance.service.ts:22:9 - error TS2353: Object literal may only specify known properties, and 'group_id' does not exist in type 'AttendanceWhereInput'.
+
+22         group_id: groupId,
+           ~~~~~~~~
+
+  node_modules/.pnpm/@prisma+client@6.5.0_prisma@6.5.0_typescript@5.6.2__typescript@5.6.2/node_modules/.prisma/client/index.d.ts:7286:5
+    7286     where?: AttendanceWhereInput
+             ~~~~~
+    The expected type comes from property 'where' which is declared here on type '{ select?: AttendanceSelect<DefaultArgs>; omit?: AttendanceOmit<DefaultArgs>; include?: AttendanceInclude<DefaultArgs>; ... 5 more ...; distinct?: AttendanceScalarFieldEnum | AttendanceScalarFieldEnum[]; }'
+
+src/api/attendance/attendance.service.ts:28:9 - error TS2353: Object literal may only specify known properties, and 'group' does not exist in type 'AttendanceInclude<DefaultArgs>'.
+
+28         group: true
+           ~~~~~
+
+  node_modules/.pnpm/@prisma+client@6.5.0_prisma@6.5.0_typescript@5.6.2__typescript@5.6.2/node_modules/.prisma/client/index.d.ts:7282:5
+    7282     include?: AttendanceInclude<ExtArgs> | null
+             ~~~~~~~
+    The expected type comes from property 'include' which is declared here on type '{ select?: AttendanceSelect<DefaultArgs>; omit?: AttendanceOmit<DefaultArgs>; include?: AttendanceInclude<DefaultArgs>; ... 5 more ...; distinct?: AttendanceScalarFieldEnum | AttendanceScalarFieldEnum[]; }'
+
+src/api/attendance/attendance.service.ts:38:9 - error TS2353: Object literal may only specify known properties, and 'group' does not exist in type 'AttendanceInclude<DefaultArgs>'.
+
+38         group: true
+           ~~~~~
+
+  node_modules/.pnpm/@prisma+client@6.5.0_prisma@6.5.0_typescript@5.6.2__typescript@5.6.2/node_modules/.prisma/client/index.d.ts:7282:5
+    7282     include?: AttendanceInclude<ExtArgs> | null
+             ~~~~~~~
+    The expected type comes from property 'include' which is declared here on type '{ select?: AttendanceSelect<DefaultArgs>; omit?: AttendanceOmit<DefaultArgs>; include?: AttendanceInclude<DefaultArgs>; ... 5 more ...; distinct?: AttendanceScalarFieldEnum | AttendanceScalarFieldEnum[]; }'
+
+src/api/attendance/attendance.service.ts:45:16 - error TS2353: Object literal may only specify known properties, and 'group_id' does not exist in type 'AttendanceWhereInput'.
+
+45       where: { group_id: groupId }
+                  ~~~~~~~~
+
+  node_modules/.pnpm/@prisma+client@6.5.0_prisma@6.5.0_typescript@5.6.2__typescript@5.6.2/node_modules/.prisma/client/index.d.ts:7286:5
+    7286     where?: AttendanceWhereInput
+             ~~~~~
+    The expected type comes from property 'where' which is declared here on type '{ select?: AttendanceSelect<DefaultArgs>; omit?: AttendanceOmit<DefaultArgs>; include?: AttendanceInclude<DefaultArgs>; ... 5 more ...; distinct?: AttendanceScalarFieldEnum | AttendanceScalarFieldEnum[]; }'
+
+src/api/attendance/attendance.service.ts:63:16 - error TS2353: Object literal may only specify known properties, and 'id' does not exist in type 'AttendanceWhereUniqueInput'.
+
+63       where: { id },
+                  ~~
+
+  node_modules/.pnpm/@prisma+client@6.5.0_prisma@6.5.0_typescript@5.6.2__typescript@5.6.2/node_modules/.prisma/client/index.d.ts:7138:5
+    7138     where: AttendanceWhereUniqueInput
+             ~~~~~
+    The expected type comes from property 'where' which is declared here on type '{ select?: AttendanceSelect<DefaultArgs>; omit?: AttendanceOmit<DefaultArgs>; include?: AttendanceInclude<DefaultArgs>; where: AttendanceWhereUniqueInput; }'
+
+src/api/attendance/attendance.service.ts:67:9 - error TS2353: Object literal may only specify known properties, and 'group' does not exist in type 'AttendanceInclude<DefaultArgs>'.
+
+67         group: true
+           ~~~~~
+
+  node_modules/.pnpm/@prisma+client@6.5.0_prisma@6.5.0_typescript@5.6.2__typescript@5.6.2/node_modules/.prisma/client/index.d.ts:7134:5
+    7134     include?: AttendanceInclude<ExtArgs> | null
+             ~~~~~~~
+    The expected type comes from property 'include' which is declared here on type '{ select?: AttendanceSelect<DefaultArgs>; omit?: AttendanceOmit<DefaultArgs>; include?: AttendanceInclude<DefaultArgs>; where: AttendanceWhereUniqueInput; }'
+
+src/api/attendance/attendance.service.ts:82:16 - error TS2353: Object literal may only specify known properties, and 'id' does not exist in type 'AttendanceWhereUniqueInput'.
+
+82       where: { id },
+                  ~~
+
+  node_modules/.pnpm/@prisma+client@6.5.0_prisma@6.5.0_typescript@5.6.2__typescript@5.6.2/node_modules/.prisma/client/index.d.ts:7393:5
+    7393     where: AttendanceWhereUniqueInput
+             ~~~~~
+    The expected type comes from property 'where' which is declared here on type '{ select?: AttendanceSelect<DefaultArgs>; omit?: AttendanceOmit<DefaultArgs>; include?: AttendanceInclude<DefaultArgs>; data: (Without<...> & AttendanceUncheckedUpdateInput) | (Without<...> & AttendanceUpdateInput); where: AttendanceWhereUniqueInput; }'
+
+src/api/attendance/attendance.service.ts:93:53 - error TS2353: Object literal may only specify known properties, and 'id' does not exist in type 'AttendanceWhereUniqueInput'.
+
+93     return this.prisma.attendance.delete({ where: { id } });
+                                                       ~~
+
+  node_modules/.pnpm/@prisma+client@6.5.0_prisma@6.5.0_typescript@5.6.2__typescript@5.6.2/node_modules/.prisma/client/index.d.ts:7493:5
+    7493     where: AttendanceWhereUniqueInput
+             ~~~~~
+    The expected type comes from property 'where' which is declared here on type '{ select?: AttendanceSelect<DefaultArgs>; omit?: AttendanceOmit<DefaultArgs>; include?: AttendanceInclude<DefaultArgs>; where: AttendanceWhereUniqueInput; }'
+
+src/api/dashboard/dashboard.service.ts:32:7 - error TS2615: Type of property 'AND' circularly references itself in mapped type '{ [K in keyof { AND?: AttendanceScalarWhereWithAggregatesInput | AttendanceScalarWhereWithAggregatesInput[]; ... 8 more ...; updated_at?: string | ... 1 more ... | DateTimeWithAggregatesFilter<...>; }]: Or<...> extends 1 ? { ...; }[K] extends infer TK ? GetHavingFields<...> : never : {} extends FieldPaths<...> ? nev...'.
+
+32       this.prisma.attendance.groupBy({
+         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+33         by: ['status', 'date'],
+   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+34         _count: true,
+   ~~~~~~~~~~~~~~~~~~~~~
+35       })
+   ~~~~~~~~
+
+src/api/dashboard/dashboard.service.ts:32:7 - error TS2615: Type of property 'NOT' circularly references itself in mapped type '{ [K in keyof { AND?: AttendanceScalarWhereWithAggregatesInput | AttendanceScalarWhereWithAggregatesInput[]; ... 8 more ...; updated_at?: string | ... 1 more ... | DateTimeWithAggregatesFilter<...>; }]: Or<...> extends 1 ? { ...; }[K] extends infer TK ? GetHavingFields<...> : never : {} extends FieldPaths<...> ? nev...'.
+
+32       this.prisma.attendance.groupBy({
+         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+33         by: ['status', 'date'],
+   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+34         _count: true,
+   ~~~~~~~~~~~~~~~~~~~~~
+35       })
+   ~~~~~~~~
+
+src/api/dashboard/dashboard.service.ts:32:7 - error TS2615: Type of property 'OR' circularly references itself in mapped type '{ [K in keyof { AND?: AttendanceScalarWhereWithAggregatesInput | AttendanceScalarWhereWithAggregatesInput[]; ... 8 more ...; updated_at?: string | ... 1 more ... | DateTimeWithAggregatesFilter<...>; }]: Or<...> extends 1 ? { ...; }[K] extends infer TK ? GetHavingFields<...> : never : {} extends FieldPaths<...> ? nev...'.
+
+32       this.prisma.attendance.groupBy({
+         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+33         by: ['status', 'date'],
+   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+34         _count: true,
+   ~~~~~~~~~~~~~~~~~~~~~
+35       })
+   ~~~~~~~~
+
+src/api/dashboard/dashboard.service.ts:52:19 - error TS2551: Property 'assignment' does not exist on type 'PrismaService'. Did you mean 'assignments'?
+
+52       this.prisma.assignment.count(),
+                     ~~~~~~~~~~
+
+  node_modules/.pnpm/@prisma+client@6.5.0_prisma@6.5.0_typescript@5.6.2__typescript@5.6.2/node_modules/.prisma/client/index.d.ts:316:7
+    316   get assignments(): Prisma.AssignmentsDelegate<ExtArgs, ClientOptions>;
+              ~~~~~~~~~~~
+    'assignments' is declared here.
+
+src/api/dashboard/dashboard.service.ts:53:19 - error TS2551: Property 'submission' does not exist on type 'PrismaService'. Did you mean 'submissions'?
+
+53       this.prisma.submission.count(),
+                     ~~~~~~~~~~
+
+  node_modules/.pnpm/@prisma+client@6.5.0_prisma@6.5.0_typescript@5.6.2__typescript@5.6.2/node_modules/.prisma/client/index.d.ts:326:7
+    326   get submissions(): Prisma.SubmissionsDelegate<ExtArgs, ClientOptions>;
+              ~~~~~~~~~~~
+    'submissions' is declared here.
+
+src/api/dashboard/dashboard.service.ts:86:43 - error TS2551: Property 'submission' does not exist on type 'PrismaService'. Did you mean 'submissions'?
+
+86     const submissions = await this.prisma.submission.findMany({
+                                             ~~~~~~~~~~
+
+  node_modules/.pnpm/@prisma+client@6.5.0_prisma@6.5.0_typescript@5.6.2__typescript@5.6.2/node_modules/.prisma/client/index.d.ts:326:7
+    326   get submissions(): Prisma.SubmissionsDelegate<ExtArgs, ClientOptions>;
+              ~~~~~~~~~~~
+    'submissions' is declared here.
+
+src/api/fileupload/fileupload.controller.ts:4:10 - error TS2724: '"./fileupload.service"' has no exported member named 'FileuploadService'. Did you mean 'FileUploadService'?
+
+4 import { FileuploadService } from './fileupload.service';
+           ~~~~~~~~~~~~~~~~~
+
+  src/api/fileupload/fileupload.service.ts:8:14
+    8 export class FileUploadService {
+                   ~~~~~~~~~~~~~~~~~
+    'FileUploadService' is declared here.
+
+src/api/fileupload/fileupload.module.ts:4:10 - error TS2724: '"./fileupload.service"' has no exported member named 'FileuploadService'. Did you mean 'FileUploadService'?
+
+4 import { FileuploadService } from './fileupload.service';
+           ~~~~~~~~~~~~~~~~~
+
+  src/api/fileupload/fileupload.service.ts:8:14
+    8 export class FileUploadService {
+                   ~~~~~~~~~~~~~~~~~
+    'FileUploadService' is declared here.
+
+src/api/lesson/lesson.service.ts:10:24 - error TS2551: Property 'lesson' does not exist on type 'PrismaService'. Did you mean 'lessons'?
+
+10     return this.prisma.lesson.create({
+                          ~~~~~~
+
+  node_modules/.pnpm/@prisma+client@6.5.0_prisma@6.5.0_typescript@5.6.2__typescript@5.6.2/node_modules/.prisma/client/index.d.ts:296:7
+    296   get lessons(): Prisma.LessonsDelegate<ExtArgs, ClientOptions>;
+              ~~~~~~~
+    'lessons' is declared here.
+
+src/api/lesson/lesson.service.ts:16:24 - error TS2551: Property 'lesson' does not exist on type 'PrismaService'. Did you mean 'lessons'?
+
+16     return this.prisma.lesson.findMany();
+                          ~~~~~~
+
+  node_modules/.pnpm/@prisma+client@6.5.0_prisma@6.5.0_typescript@5.6.2__typescript@5.6.2/node_modules/.prisma/client/index.d.ts:296:7
+    296   get lessons(): Prisma.LessonsDelegate<ExtArgs, ClientOptions>;
+              ~~~~~~~
+    'lessons' is declared here.
+
+src/api/lesson/lesson.service.ts:20:24 - error TS2551: Property 'lesson' does not exist on type 'PrismaService'. Did you mean 'lessons'?
+
+20     return this.prisma.lesson.findUnique({
+                          ~~~~~~
+
+  node_modules/.pnpm/@prisma+client@6.5.0_prisma@6.5.0_typescript@5.6.2__typescript@5.6.2/node_modules/.prisma/client/index.d.ts:296:7
+    296   get lessons(): Prisma.LessonsDelegate<ExtArgs, ClientOptions>;
+              ~~~~~~~
+    'lessons' is declared here.
+
+src/api/lesson/lesson.service.ts:26:24 - error TS2551: Property 'lesson' does not exist on type 'PrismaService'. Did you mean 'lessons'?
+
+26     return this.prisma.lesson.update({
+                          ~~~~~~
+
+  node_modules/.pnpm/@prisma+client@6.5.0_prisma@6.5.0_typescript@5.6.2__typescript@5.6.2/node_modules/.prisma/client/index.d.ts:296:7
+    296   get lessons(): Prisma.LessonsDelegate<ExtArgs, ClientOptions>;
+              ~~~~~~~
+    'lessons' is declared here.
+
+src/api/lesson/lesson.service.ts:33:24 - error TS2551: Property 'lesson' does not exist on type 'PrismaService'. Did you mean 'lessons'?
+
+33     return this.prisma.lesson.delete({
+                          ~~~~~~
+
+  node_modules/.pnpm/@prisma+client@6.5.0_prisma@6.5.0_typescript@5.6.2__typescript@5.6.2/node_modules/.prisma/client/index.d.ts:296:7
+    296   get lessons(): Prisma.LessonsDelegate<ExtArgs, ClientOptions>;
+              ~~~~~~~
+    'lessons' is declared here.
+
+src/api/submissions/submissions.module.ts:3:39 - error TS2307: Cannot find module './submissions.controller' or its corresponding type declarations.
+
+3 import { SubmissionsController } from './submissions.controller';
+                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+src/api/submissions/submissions.module.ts:4:36 - error TS2307: Cannot find module './submissions.service' or its corresponding type declarations.
+
+4 import { SubmissionsService } from './submissions.service';
+                                     ~~~~~~~~~~~~~~~~~~~~~~~
+
+src/api/teacher/dto/create-teacher.dto.ts:1:10 - error TS2300: Duplicate identifier 'ApiProperty'.
+
+1 import { ApiProperty } from '@nestjs/swagger';
+           ~~~~~~~~~~~
+
+src/api/teacher/dto/create-teacher.dto.ts:2:10 - error TS2300: Duplicate identifier 'IsNotEmpty'.
+
+2 import { IsNotEmpty, IsString, IsStrongPassword } from 'class-validator';
+           ~~~~~~~~~~
+
+src/api/teacher/dto/create-teacher.dto.ts:2:22 - error TS2300: Duplicate identifier 'IsString'.
+
+2 import { IsNotEmpty, IsString, IsStrongPassword } from 'class-validator';
+                       ~~~~~~~~
+
+src/api/teacher/dto/create-teacher.dto.ts:2:32 - error TS2300: Duplicate identifier 'IsStrongPassword'.
+
+2 import { IsNotEmpty, IsString, IsStrongPassword } from 'class-validator';
+                                 ~~~~~~~~~~~~~~~~
+
+src/api/teacher/dto/create-teacher.dto.ts:4:14 - error TS2300: Duplicate identifier 'CreateTeacherDto'.
+
+4 export class CreateTeacherDto {
+               ~~~~~~~~~~~~~~~~
+
+src/api/teacher/dto/create-teacher.dto.ts:32:10 - error TS2300: Duplicate identifier 'ApiProperty'.
+
+32 import { ApiProperty } from '@nestjs/swagger';
+            ~~~~~~~~~~~
+
+src/api/teacher/dto/create-teacher.dto.ts:33:10 - error TS2300: Duplicate identifier 'IsNotEmpty'.
+
+33 import { IsNotEmpty, IsString, IsStrongPassword } from 'class-validator';
+            ~~~~~~~~~~
+
+src/api/teacher/dto/create-teacher.dto.ts:33:22 - error TS2300: Duplicate identifier 'IsString'.
+
+33 import { IsNotEmpty, IsString, IsStrongPassword } from 'class-validator';
+                        ~~~~~~~~
+
+src/api/teacher/dto/create-teacher.dto.ts:33:32 - error TS2300: Duplicate identifier 'IsStrongPassword'.
+
+33 import { IsNotEmpty, IsString, IsStrongPassword } from 'class-validator';
+                                  ~~~~~~~~~~~~~~~~
+
+src/api/teacher/dto/create-teacher.dto.ts:35:14 - error TS2300: Duplicate identifier 'CreateTeacherDto'.
+
+35 export class CreateTeacherDto {
+                ~~~~~~~~~~~~~~~~
+
+src/api/teacher/dto/update-teacher.dto.ts:1:10 - error TS2300: Duplicate identifier 'PartialType'.
+
+1 import { PartialType } from '@nestjs/swagger';
+           ~~~~~~~~~~~
+
+src/api/teacher/dto/update-teacher.dto.ts:2:10 - error TS2300: Duplicate identifier 'CreateTeacherDto'.
+
+2 import { CreateTeacherDto } from './create-teacher.dto';
+           ~~~~~~~~~~~~~~~~
+
+src/api/teacher/dto/update-teacher.dto.ts:4:14 - error TS2300: Duplicate identifier 'UpdateTeacherDto'.
+
+4 export class UpdateTeacherDto extends PartialType(CreateTeacherDto) {}
+               ~~~~~~~~~~~~~~~~
+
+src/api/teacher/dto/update-teacher.dto.ts:5:10 - error TS2300: Duplicate identifier 'PartialType'.
+
+5 import { PartialType } from '@nestjs/swagger';
+           ~~~~~~~~~~~
+
+src/api/teacher/dto/update-teacher.dto.ts:6:10 - error TS2300: Duplicate identifier 'CreateTeacherDto'.
+
+6 import { CreateTeacherDto } from './create-teacher.dto';
+           ~~~~~~~~~~~~~~~~
+
+src/api/teacher/dto/update-teacher.dto.ts:8:14 - error TS2300: Duplicate identifier 'UpdateTeacherDto'.
+
+8 export class UpdateTeacherDto extends PartialType(CreateTeacherDto) {}
+               ~~~~~~~~~~~~~~~~
+
+src/api/user/user.module.ts:3:32 - error TS2307: Cannot find module './user.controller' or its corresponding type declarations.
+
+3 import { UserController } from './user.controller';
+                                 ~~~~~~~~~~~~~~~~~~~
+
+src/api/user/user.module.ts:4:29 - error TS2307: Cannot find module './user.service' or its corresponding type declarations.
+
+4 import { UserService } from './user.service';
+                              ~~~~~~~~~~~~~~~~
+
+[10:07:41 AM] Found 48 errors. Watching for file changes.
+
