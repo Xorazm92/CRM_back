@@ -3,13 +3,13 @@ generator client {
 }
 
 model Assignments {
-  id        String   @id @default(uuid())
-  title     String
-  content   String
-  groupId   String   @map("group_id")
-  group     Groups   @relation(fields: [groupId], references: [id])
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  assignment_id String   @id @default(uuid())
+  title        String
+  content      String
+  groupId      String   @map("group_id") 
+  group        Groups   @relation(fields: [groupId], references: [id])
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
 }
 
 model Groups {
@@ -20,13 +20,13 @@ model Groups {
 }
 
 model Attendance {
-  id        String   @id @default(uuid())
-  date      DateTime
-  status    String
-  groupId   String   @map("group_id")
-  group     Groups   @relation(fields: [groupId], references: [id])
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  attendance_id String   @id @default(uuid())
+  date         DateTime
+  status       String
+  groupId      String   @map("group_id")
+  group        Groups   @relation(fields: [groupId], references: [id])
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
 }
 
 enum PaymentType {
