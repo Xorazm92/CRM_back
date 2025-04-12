@@ -3,7 +3,7 @@ generator client {
 }
 
 model Assignments {
-  assignment_id String   @id @default(uuid())
+  assignment_id String        @id @default(uuid())
   title        String
   content      String
   groupId      String   @map("group_id") 
@@ -136,6 +136,8 @@ model Assignments {
   updated_at   DateTime      @updatedAt
   lesson       Lessons       @relation(fields: [lesson_id], references: [lesson_id])
   submissions  Submissions[]
+  group        Groups        @relation(fields: [groupId], references: [group_id])
+  groupId      String        @map("group_id")
 }
 
 model Submissions {

@@ -1,3 +1,4 @@
+
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../common/prisma/prisma.service';
 import { CreateAssignmentDto } from './dto/create-assignment.dto';
@@ -10,6 +11,7 @@ export class AssignmentsService {
     return this.prisma.assignments.create({
       data: createAssignmentDto,
       include: {
+        lesson: true,
         group: true,
       },
     });
@@ -19,6 +21,7 @@ export class AssignmentsService {
     return this.prisma.assignments.findMany({
       where: groupId ? { groupId } : {},
       include: {
+        lesson: true,
         group: true,
       },
     });
@@ -28,6 +31,7 @@ export class AssignmentsService {
     return this.prisma.assignments.findUnique({
       where: { assignment_id },
       include: {
+        lesson: true,
         group: true,
       },
     });
@@ -38,14 +42,15 @@ export class AssignmentsService {
       where: { assignment_id },
       data: updateAssignmentDto,
       include: {
-        group: true
-      }
+        lesson: true,
+        group: true,
+      },
     });
   }
 
   async remove(assignment_id: string) {
-    return this.prisma.assignments.delete({ 
-      where: { assignment_id } 
+    return this.prisma.assignments.delete({
+      where: { assignment_id },
     });
   }
 }
