@@ -24,15 +24,16 @@ async function bootstrap() {
 
   // Swagger configuration
   const config = new DocumentBuilder()
-    .setTitle('LMS Backend API')
+    .setTitle('O\'quv Markazi CRM API')
     .setDescription(`
-      Learning Management System API documentation.
-      This API provides endpoints for managing:
-      - Users (Admin, Teachers, Students)
-      - Courses and Groups
-      - Lessons and Assignments
-      - Attendance and Grades
-      - File Uploads
+      O'quv markazi uchun CRM tizimi API dokumentatsiyasi.
+      Asosiy imkoniyatlar:
+      - Foydalanuvchilar boshqaruvi (Admin, O'qituvchi, O'quvchi)
+      - Kurslar va Guruhlar
+      - Darslar va Topshiriqlar
+      - Davomat va Baholash
+      - To'lovlar va Maoshlar
+      - Fayl yuklash
     `)
     .setVersion('1.0')
     .addServer('http://localhost:3000', 'Development')

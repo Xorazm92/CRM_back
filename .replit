@@ -5,10 +5,11 @@ run = "npm run start:dev"
 channel = "stable-24_05"
 
 [deployment]
-run = ["sh", "-c", "npm run start:dev"]
+run = ["sh", "-c", "npm run start:prod"]
+build = ["sh", "-c", "npm install && npx prisma generate"]
 
 [workflows]
-runButton = "Dev Server"
+runButton = "Production"
 
 [[workflows.workflow]]
 name = "Dev Server"
@@ -35,3 +36,20 @@ mode = "sequential"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "cd src/client && npm run dev"
+
+[[workflows.workflow]]
+name = "Production"
+author = 40545166
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm install"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npx prisma generate"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run start:prod"
