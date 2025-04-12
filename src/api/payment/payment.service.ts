@@ -1,9 +1,8 @@
-
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/common/prisma/prisma.service';
 import { CreateStudentPaymentDto } from './dto/create-student-payment.dto';
 import { CreateTeacherSalaryDto } from './dto/create-teacher-salary.dto';
-import { PaymentStatus } from '@prisma/client';
+import { PaymentType, PaymentStatus } from '@prisma/client';
 
 @Injectable()
 export class PaymentService {
@@ -19,7 +18,11 @@ export class PaymentService {
     }
 
     return this.prisma.studentPayment.create({
-      data: dto,
+      data: {
+        amount: dto.amount,
+        type: PaymentType.MONTHLY,
+        status: PaymentStatus.PENDING
+      }
     });
   }
 
@@ -33,34 +36,37 @@ export class PaymentService {
     }
 
     return this.prisma.teacherSalary.create({
-      data: dto,
+      data: {
+        amount: dto.amount,
+        status: PaymentStatus.PENDING
+      }
     });
   }
 
   async getStudentPayments(studentId: string) {
     return this.prisma.studentPayment.findMany({
-      where: { student_id: studentId },
-      orderBy: { payment_date: 'desc' },
+      where: { id: studentId },
+      orderBy: { createdAt: 'desc' }
     });
   }
 
   async getTeacherSalaries(teacherId: string) {
     return this.prisma.teacherSalary.findMany({
-      where: { teacher_id: teacherId },
-      orderBy: { month: 'desc' },
+      where: { id: teacherId },
+      orderBy: { createdAt: 'desc' }
     });
   }
 
   async updatePaymentStatus(paymentId: string, status: PaymentStatus) {
     return this.prisma.studentPayment.update({
-      where: { payment_id: paymentId },
+      where: { id: paymentId },
       data: { status },
     });
   }
 
   async updateSalaryStatus(salaryId: string, status: PaymentStatus) {
     return this.prisma.teacherSalary.update({
-      where: { salary_id: salaryId },
+      where: { id: salaryId },
       data: { status },
     });
   }

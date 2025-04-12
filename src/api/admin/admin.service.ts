@@ -12,7 +12,7 @@ import { SignInAdminDto } from './dto/signin-admin.dto';
 import { BcryptEncryption } from 'src/infrastructure/lib/bcrypt/bcrypt';
 import { CustomJwtService } from 'src/infrastructure/lib/custom-jwt';
 import { ConfigService } from '@nestjs/config';
-import { UserRole } from '@prisma/client';
+// Removed unused import of UserRole
 import { AddMemberDto } from './dto/add-memberdto';
 
 @Injectable()
@@ -70,7 +70,7 @@ export class AdminService {
       createAdminDto.password,
     );
     const admin = await this.prismaService.user.create({
-      data: { ...createAdminDto, role: UserRole.ADMIN },
+      data: { ...createAdminDto, role: 'ADMIN' },
     });
     return {
       status: HttpStatus.CREATED,

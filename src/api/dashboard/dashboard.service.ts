@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../infrastructure/prisma/prisma.service';
-import { UserRole } from '@prisma/client';
+import { UserRole, PaymentStatus } from '@prisma/client';
 
 @Injectable()
 export class DashboardService {
@@ -27,12 +27,12 @@ export class DashboardService {
       this.prisma.studentPayment.aggregate({
         _sum: { amount: true },
         _count: true,
-        where: { status: 'PAID' }
+        where: { status: PaymentStatus.COMPLETED }
       }),
       this.prisma.studentPayment.aggregate({
         _sum: { amount: true },
         _count: true,
-        where: { status: 'PENDING' }
+        where: { status: PaymentStatus.PENDING }
       })
     ]);
 
@@ -72,9 +72,13 @@ export class DashboardService {
   }
 
   async getDetailedStats() {
-    const [assignments, submissions, activeGroups] = await Promise.all([
-      this.prisma.assignment.count(),
-      this.prisma.submission.count(),
+    const [
+      assignmentsCount,
+      submissionsCount,
+      activeGroups
+    ] = await Promise.all([
+      this.prisma.assignments.count(),
+      this.prisma.submissions.count(),
       this.prisma.groups.count({
         where: { status: 'ACTIVE' }
       })
@@ -82,12 +86,12 @@ export class DashboardService {
 
     return {
       assignments: {
-        total: assignments,
-        submissionRate: assignments > 0 ? (submissions / assignments) * 100 : 0
+        total: assignmentsCount,
+        submissionRate: assignmentsCount > 0 ? (submissionsCount / assignmentsCount) * 100 : 0
       },
       groups: {
         active: activeGroups,
-        totalStudents: await this.prisma.user.count({ where: { role: 'STUDENT' } }),
+        totalStudents: await this.prisma.user.count({ where: { role: UserRole.STUDENT } }),
         averageSize: activeGroups > 0 ? await this.getAverageGroupSize() : 0
       },
       performance: await this.getOverallPerformance()
@@ -107,13 +111,13 @@ export class DashboardService {
   }
 
   private async getOverallPerformance() {
-    const submissions = await this.prisma.submission.findMany({
+    const submissions = await this.prisma.submissions.findMany({
       select: { grade: true }
     });
 
     if (submissions.length === 0) return 0;
 
-    return submissions.reduce((acc, sub) => acc + (sub.grade || 0), 0) / submissions.length;
+    return submissions.reduce((acc, sub) => acc + (Number(sub.grade) || 0), 0) / submissions.length;
   }
 
   async getGroupsStats() {

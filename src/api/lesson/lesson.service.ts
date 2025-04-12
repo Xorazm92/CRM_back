@@ -15,22 +15,32 @@ export class LessonService {
     return this.prisma.lessons.findMany();
   }
 
-  findOne(id: string) {
+  async findOne(lesson_id: string) {
     return this.prisma.lessons.findUnique({
-      where: { id },
+      where: { lesson_id },
+      include: {
+        group: true,
+        assignments: true,
+        attendance: true
+      }
     });
   }
 
-  update(id: string, updateLessonDto: any) {
+  async update(lesson_id: string, updateLessonDto: any) {
     return this.prisma.lessons.update({
-      where: { id },
+      where: { lesson_id },
       data: updateLessonDto,
+      include: {
+        group: true,
+        assignments: true,
+        attendance: true
+      }
     });
   }
 
-  remove(id: string) {
+  async remove(lesson_id: string) {
     return this.prisma.lessons.delete({
-      where: { id },
+      where: { lesson_id }
     });
   }
 }

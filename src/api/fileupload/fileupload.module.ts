@@ -1,10 +1,11 @@
-
 import { Module } from '@nestjs/common';
-import { FileuploadController } from './fileupload.controller';
-import { FileuploadService } from './fileupload.service';
+import { FileUploadController } from './fileupload.controller';
+import { FileUploadService } from './fileupload.service';
+import { PrismaModule } from '../../infrastructure/prisma/prisma.module';
 
 @Module({
-  controllers: [FileuploadController],
-  providers: [FileuploadService],
+  imports: [PrismaModule],
+  controllers: [FileUploadController],
+  providers: [FileUploadService],
 })
-export class FileuploadModule {}
+export class FileUploadModule {}

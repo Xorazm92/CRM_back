@@ -14,7 +14,7 @@ import { AttendanceModule } from './attendance/attendance.module';
 import { AssignmentsModule } from './assignments/assignments.module';
 import { SubmissionsModule } from './submissions/submissions.module';
 import { PaymentModule } from './payment/payment.module';
-import { FileuploadModule } from './fileupload/fileupload.module';
+import { FileUploadModule } from './fileupload/fileupload.module';
 import { CacheModule } from '@nestjs/cache-manager';
 
 @Module({
@@ -37,7 +37,7 @@ import { CacheModule } from '@nestjs/cache-manager';
     AssignmentsModule,
     SubmissionsModule,
     PaymentModule,
-    FileuploadModule,
+    FileUploadModule,
   ],
   providers: [AppService],
 })

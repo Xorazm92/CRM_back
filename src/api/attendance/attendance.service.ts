@@ -1,4 +1,3 @@
-
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../common/prisma/prisma.service';
 
@@ -8,7 +7,11 @@ export class AttendanceService {
 
   async create(createAttendanceDto: any) {
     return this.prisma.attendance.create({
-      data: createAttendanceDto,
+      data: {
+        ...createAttendanceDto,
+        group_id: createAttendanceDto.groupId,
+        student_id: createAttendanceDto.studentId
+      },
       include: {
         student: true,
         lesson: true
@@ -18,14 +21,14 @@ export class AttendanceService {
 
   async findAll(groupId?: string, date?: Date) {
     return this.prisma.attendance.findMany({
-      where: {
-        group_id: groupId,
-        date: date ? new Date(date) : undefined
-      },
+      where: groupId ? {
+        lesson: {
+          group_id: groupId
+        }
+      } : {},
       include: {
         student: true,
-        lesson: true,
-        group: true
+        lesson: true
       }
     });
   }
@@ -35,14 +38,22 @@ export class AttendanceService {
       where: { student_id: studentId },
       include: {
         lesson: true,
-        group: true
+        student: true
       }
     });
   }
 
   async getGroupAttendanceStats(groupId: string) {
     const attendances = await this.prisma.attendance.findMany({
-      where: { group_id: groupId }
+      where: {
+        lesson: {
+          group_id: groupId
+        }
+      },
+      include: {
+        lesson: true,
+        student: true
+      }
     });
 
     const total = attendances.length;
@@ -58,28 +69,27 @@ export class AttendanceService {
     };
   }
 
-  async findOne(id: string) {
+  async findOne(attendance_id: string) {
     const attendance = await this.prisma.attendance.findUnique({
-      where: { id },
+      where: { attendance_id },
       include: {
         student: true,
-        lesson: true,
-        group: true
+        lesson: true
       }
     });
 
     if (!attendance) {
-      throw new NotFoundException(`Attendance record with ID ${id} not found`);
+      throw new NotFoundException(`Attendance record with ID ${attendance_id} not found`);
     }
 
     return attendance;
   }
 
-  async update(id: string, updateAttendanceDto: any) {
-    await this.findOne(id);
+  async update(attendance_id: string, updateAttendanceDto: any) {
+    await this.findOne(attendance_id);
     
     return this.prisma.attendance.update({
-      where: { id },
+      where: { attendance_id },
       data: updateAttendanceDto,
       include: {
         student: true,
@@ -88,8 +98,8 @@ export class AttendanceService {
     });
   }
 
-  async remove(id: string) {
-    await this.findOne(id);
-    return this.prisma.attendance.delete({ where: { id } });
+  async remove(attendance_id: string) {
+    await this.findOne(attendance_id);
+    return this.prisma.attendance.delete({ where: { attendance_id } });
   }
 }
