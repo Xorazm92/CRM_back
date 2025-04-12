@@ -1,63 +1,39 @@
-
-import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString, IsNumber, IsEnum, Min, IsOptional } from 'class-validator';
+import { IsNotEmpty, IsString, IsInt, Min, IsEnum } from 'class-validator';
 import { CourseStatus } from '@prisma/client';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateCourseDto {
   @ApiProperty({
-    description: 'Kurs nomi',
-    example: 'Web dasturlash'
+    description: 'The name of the course',
+    example: 'Web Development'
   })
-  @IsString()
   @IsNotEmpty()
+  @IsString()
   name: string;
 
   @ApiProperty({
-    description: 'Kurs haqida ma\'lumot',
-    example: 'Frontend va Backend texnologiyalarini o\'rganish'
+    description: 'Detailed description of the course',
+    example: 'Learn web development from scratch'
   })
-  @IsString()
   @IsNotEmpty()
+  @IsString()
   description: string;
 
   @ApiProperty({
-    description: 'Kurs davomiyligi (oyda)',
-    example: 6,
+    description: 'Duration of the course in months',
+    example: 3,
     minimum: 1
   })
-  @IsNumber()
+  @IsNotEmpty()
+  @IsInt()
   @Min(1)
   duration: number;
 
   @ApiProperty({
-    description: 'Kurs narxi',
-    example: 1000000
-  })
-  @IsNumber()
-  @Min(0)
-  price: number;
-
-  @ApiProperty({
-    description: 'Kurs holati',
+    description: 'Current status of the course',
     enum: CourseStatus,
-    example: CourseStatus.ACTIVE
+    example: 'ACTIVE'
   })
   @IsEnum(CourseStatus)
   status: CourseStatus;
-
-  @ApiProperty({
-    description: 'O\'qituvchi ID',
-    example: 'uuid'
-  })
-  @IsString()
-  @IsNotEmpty() 
-  teacher_id: string;
-
-  @ApiProperty({
-    description: 'Qo\'shimcha ma\'lumot',
-    required: false
-  })
-  @IsString()
-  @IsOptional()
-  notes?: string;
 }
