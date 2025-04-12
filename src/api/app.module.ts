@@ -15,14 +15,11 @@ import { AssignmentsModule } from './assignments/assignments.module';
 import { SubmissionsModule } from './submissions/submissions.module';
 import { PaymentModule } from './payment/payment.module';
 import { FileuploadModule } from './fileupload/fileupload.module';
+import { CacheModule } from '@nestjs/cache-manager';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
-    import { CacheModule } from '@nestjs/cache-manager';
-
-@Module({
-  imports: [
     CacheModule.register({
       isGlobal: true,
       ttl: 60000
