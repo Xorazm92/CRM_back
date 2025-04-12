@@ -2,6 +2,62 @@ generator client {
   provider = "prisma-client-js"
 }
 
+model Assignments {
+  id        String   @id @default(uuid())
+  title     String
+  content   String
+  groupId   String   @map("group_id")
+  group     Groups   @relation(fields: [groupId], references: [id])
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+}
+
+model Groups {
+  id          String        @id @default(uuid())
+  name        String
+  assignments Assignments[]
+  attendance  Attendance[]
+}
+
+model Attendance {
+  id        String   @id @default(uuid())
+  date      DateTime
+  status    String
+  groupId   String   @map("group_id")
+  group     Groups   @relation(fields: [groupId], references: [id])
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+}
+
+enum PaymentType {
+  CASH
+  CARD
+  TRANSFER
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  CANCELLED
+}
+
+model StudentPayment {
+  id        String        @id @default(uuid())
+  amount    Float
+  type      PaymentType
+  status    PaymentStatus
+  createdAt DateTime      @default(now()) @map("created_at")
+  updatedAt DateTime      @updatedAt @map("updated_at")
+}
+
+model TeacherSalary {
+  id        String        @id @default(uuid())
+  amount    Float
+  status    PaymentStatus
+  createdAt DateTime      @default(now()) @map("created_at")
+  updatedAt DateTime      @updatedAt @map("updated_at")
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")

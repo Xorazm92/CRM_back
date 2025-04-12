@@ -19,6 +19,10 @@ import { FileuploadModule } from './fileupload/fileupload.module';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+    import { CacheModule } from '@nestjs/cache-manager';
+
+@Module({
+  imports: [
     CacheModule.register({
       isGlobal: true,
       ttl: 60000
