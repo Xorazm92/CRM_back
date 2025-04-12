@@ -71,14 +71,15 @@ model Attendance {
 }
 
 model Assignments {
-  id          String       @id @default(uuid())
-  title       String
-  description String
-  due_date    DateTime
-  groupId     String       @map("group_id")
-  group       Group        @relation(fields: [groupId], references: [id])
-  created_at  DateTime     @default(now())
-  updated_at  DateTime     @updatedAt
+  assignment_id String        @id @default(uuid())
+  lesson_id    String
+  title        String
+  description  String
+  due_date     DateTime
+  created_at   DateTime      @default(now())
+  updated_at   DateTime      @updatedAt
+  lesson       Lessons       @relation(fields: [lesson_id], references: [lesson_id])
+  submissions  Submissions[]
 }
 
 model Submissions {
