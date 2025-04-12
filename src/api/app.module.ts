@@ -19,6 +19,10 @@ import { FileuploadModule } from './fileupload/fileupload.module';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+    CacheModule.register({
+      isGlobal: true,
+      ttl: 60000
+    }),
     AuthModule,
     UserModule,
     AdminModule,
