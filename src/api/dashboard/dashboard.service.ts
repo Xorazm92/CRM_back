@@ -4,7 +4,7 @@ import { UserRole } from '@prisma/client';
 
 @Injectable()
 export class DashboardService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async getGeneralStats() {
     const [studentsCount, teachersCount, groupsCount, coursesCount] = await Promise.all([
@@ -22,16 +22,42 @@ export class DashboardService {
     };
   }
 
+  async getPaymentAnalytics() {
+    const [totalPayments, pendingPayments] = await Promise.all([
+      this.prisma.studentPayment.aggregate({
+        _sum: { amount: true },
+        _count: true,
+        where: { status: 'PAID' }
+      }),
+      this.prisma.studentPayment.aggregate({
+        _sum: { amount: true },
+        _count: true,
+        where: { status: 'PENDING' }
+      })
+    ]);
+
+    return {
+      totalPayments: totalPayments._sum.amount || 0,
+      totalCount: totalPayments._count || 0,
+      pendingAmount: pendingPayments._sum.amount || 0,
+      pendingCount: pendingPayments._count || 0
+    };
+  }
+
   async getAttendanceStats() {
-    const [totalLessons, attendanceStats, monthlyAttendance] = await Promise.all([
+    const today = new Date();
+    const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+
+    const [totalLessons, attendanceStats] = await Promise.all([
       this.prisma.lessons.count(),
       this.prisma.attendance.groupBy({
         by: ['status'],
         _count: true,
-      }),
-      this.prisma.attendance.groupBy({
-        by: ['status', 'date'],
-        _count: true,
+        where: {
+          created_at: {
+            gte: startOfMonth
+          }
+        }
       })
     ]);
 
@@ -41,9 +67,7 @@ export class DashboardService {
     return {
       totalLessons,
       attendance: totalAttendance > 0 ? (presentCount / totalAttendance) * 100 : 0,
-      details: attendanceStats,
-      monthlyStats: monthlyAttendance,
-      averageAttendance: totalLessons > 0 ? (totalAttendance / totalLessons) : 0
+      details: attendanceStats
     };
   }
 
@@ -96,22 +120,15 @@ export class DashboardService {
     const groups = await this.prisma.groups.findMany({
       include: {
         _count: {
-          select: {
-            group_members: true,
-          },
-        },
-      },
+          select: { group_members: true }
+        }
+      }
     });
 
     return {
       totalGroups: groups.length,
       activeGroups: groups.filter(group => group.status === 'ACTIVE').length,
-      averageStudents: groups.reduce((acc, group) => acc + group._count.group_members, 0) / groups.length,
-      groupsData: groups.map(group => ({
-        name: group.name,
-        status: group.status,
-        students: group._count.group_members,
-      })),
+      averageStudents: groups.reduce((acc, group) => acc + group._count.group_members, 0) / groups.length
     };
   }
 
