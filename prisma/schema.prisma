@@ -20,6 +20,8 @@ model User {
   group_members     GroupMembers[]
   gradedSubmissions Submissions[]  @relation("GraderSubmissions")
   submissions       Submissions[]  @relation("StudentSubmissions")
+  studentPayments   StudentPayment[] @relation("StudentPayments")
+  teacherSalaries   TeacherSalary[]  @relation("TeacherSalaries")
 }
 
 model Groups {
@@ -118,6 +120,43 @@ model Schedule {
   created_at    DateTime @default(now())
   updated_at    DateTime @updatedAt
   group         Groups   @relation(fields: [group_id], references: [group_id])
+}
+
+model StudentPayment {
+  payment_id    String   @id @default(uuid())
+  student_id    String
+  amount        Float
+  payment_date  DateTime @default(now())
+  payment_type  PaymentType
+  status        PaymentStatus @default(PENDING)
+  description   String?
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+  student       User     @relation("StudentPayments", fields: [student_id], references: [user_id])
+}
+
+model TeacherSalary {
+  salary_id     String   @id @default(uuid())
+  teacher_id    String
+  amount        Float
+  month         DateTime
+  status        PaymentStatus @default(PENDING)
+  description   String?
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+  teacher       User     @relation("TeacherSalaries", fields: [teacher_id], references: [user_id])
+}
+
+enum PaymentType {
+  CASH
+  CARD
+  TRANSFER
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  CANCELLED
 }
 
 enum UserRole {
