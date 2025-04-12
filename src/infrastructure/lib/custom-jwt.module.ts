@@ -1,4 +1,3 @@
-// filepath: /home/xorazm/imtixon/CRM_back/src/infrastructure/lib/custom-jwt/custom-jwt.module.ts
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { CustomJwtService } from './custom-jwt.service';
@@ -13,4 +12,4 @@ import { CustomJwtService } from './custom-jwt.service';
   providers: [CustomJwtService],
   exports: [CustomJwtService, JwtModule],
 })
-export class CustomJwtModule {}
+export class CustomJwtModule {} 

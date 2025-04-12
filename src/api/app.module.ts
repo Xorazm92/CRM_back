@@ -16,6 +16,7 @@ import { SubmissionsModule } from './submissions/submissions.module';
 import { PaymentModule } from './payment/payment.module';
 import { FileUploadModule } from './fileupload/fileupload.module';
 import { CacheModule } from '@nestjs/cache-manager';
+import { CustomJwtModule} from '../infrastructure/lib/custom-jwt';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { CacheModule } from '@nestjs/cache-manager';
       isGlobal: true,
       ttl: 60000
     }),
+    CustomJwtModule,
     AuthModule,
     UserModule,
     AdminModule,

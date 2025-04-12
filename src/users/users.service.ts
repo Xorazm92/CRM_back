@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -11,20 +13,45 @@ export class UsersService {
     private usersRepository: Repository<User>,
   ) {}
 
-  async findOne(username: string): Promise<User | undefined> {
+  async create(createUserDto: CreateUserDto): Promise<User> {
+    const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
+    const user = this.usersRepository.create({
+      ...createUserDto,
+      password: hashedPassword,
+    });
+    return this.usersRepository.save(user);
+  }
+
+  async findAll(): Promise<User[]> {
+    return this.usersRepository.find();
+  }
+
+  async findOne(id: number): Promise<User> {
+    return this.usersRepository.findOne({ where: { id } });
+  }
+
+  async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
+    const user = await this.findOne(id);
+    if (!user) {
+      throw new Error('User not found');
+    }
+    Object.assign(user, updateUserDto);
+    return this.usersRepository.save(user);
+  }
+
+  async remove(id: number): Promise<void> {
+    await this.usersRepository.delete(id);
+  }
+
+  async findByUsername(username: string): Promise<User | undefined> {
     return this.usersRepository.findOne({ where: { username } });
   }
 
-  async create(username: string, password: string): Promise<User> {
-    const user = this.usersRepository.create({ username, password });
-    return this.usersRepository.save(user);
+  async findByEmail(email: string): Promise<User | undefined> {
+    return this.usersRepository.findOne({ where: { email } });
   }
 
   async validatePassword(user: User, password: string): Promise<boolean> {
     return bcrypt.compare(password, user.password);
-  }
-
-  async findById(id: number): Promise<User | undefined> {
-    return this.usersRepository.findOne({ where: { id } });
   }
 } 
