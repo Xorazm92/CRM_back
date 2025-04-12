@@ -29,7 +29,7 @@ model Groups {
   name          String         @unique
   description   String
   course        Course         @relation(fields: [course_id], references: [course_id])
-  course_id     String
+  course_id     String         @index
   status        GroupStatus    @default(ACTIVE)
   created_at    DateTime       @default(now())
   updated_at    DateTime       @updatedAt
@@ -133,9 +133,9 @@ model Student {
 model StudentPayment {
   id         String        @id @default(uuid())
   amount     Float
-  status     PaymentStatus @default(PENDING)
-  type       PaymentType
-  studentId  String
+  status     PaymentStatus @default(PENDING) @index
+  type       PaymentType   @index
+  studentId  String        @index
   student    Student       @relation(fields: [studentId], references: [id])
   created_at DateTime      @default(now())
   updated_at DateTime      @updatedAt
