@@ -1,4 +1,3 @@
-
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './api/app.module';
 import { ValidationPipe } from '@nestjs/common';
@@ -6,7 +5,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  
+
   const config = new DocumentBuilder()
     .setTitle('LMS API')
     .setDescription('Learning Management System API documentation')
@@ -20,10 +19,10 @@ async function bootstrap() {
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
   });
-  
+
   // Enable CORS
   app.enableCors();
-  
+
   // Global validation pipe
   app.useGlobalPipes(new ValidationPipe({
     whitelist: true,
@@ -32,7 +31,7 @@ async function bootstrap() {
   }));
 
   // Swagger configuration
-  const config = new DocumentBuilder()
+  const configSwagger = new DocumentBuilder()
     .setTitle('O\'quv Markazi CRM API')
     .setDescription(`
       O'quv markazi uchun CRM tizimi API dokumentatsiyasi.
@@ -45,7 +44,7 @@ async function bootstrap() {
       - Fayl yuklash
     `)
     .setVersion('1.0')
-    .addServer('http://localhost:3000', 'Development')
+    .addServer('http://localhost:5000', 'Development') // Updated server address
     .addBearerAuth({
       type: 'http',
       scheme: 'bearer',
@@ -63,9 +62,9 @@ async function bootstrap() {
     .addTag('attendance', 'Attendance management endpoints')
     .build();
 
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api-docs', app, document);
+  const documentSwagger = SwaggerModule.createDocument(app, configSwagger);
+  SwaggerModule.setup('api-docs', app, documentSwagger);
 
-  await app.listen(process.env.PORT || 3000, '0.0.0.0');
+  await app.listen(process.env.PORT || 5000, '0.0.0.0'); // Updated port and host
 }
 bootstrap();

@@ -52,4 +52,8 @@ args = "npx prisma generate"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
+args = "npx prisma db push"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
 args = "npm run start:prod"
