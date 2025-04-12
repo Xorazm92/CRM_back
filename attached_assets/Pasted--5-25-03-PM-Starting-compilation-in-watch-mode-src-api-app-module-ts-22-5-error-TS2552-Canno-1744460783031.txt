@@ -1,0 +1,445 @@
+[5:25:03 PM] Starting compilation in watch mode...
+
+src/api/app.module.ts:22:5 - error TS2552: Cannot find name 'CacheModule'. Did you mean 'TeacherModule'?
+
+22     CacheModule.register({
+       ~~~~~~~~~~~
+
+src/api/assignments/assignments.service.ts:16:9 - error TS2353: Object literal may only specify known properties, and 'group' does not exist in type 'AssignmentsInclude<DefaultArgs>'.
+
+16         group: true,
+           ~~~~~
+
+  node_modules/.pnpm/@prisma+client@6.5.0_prisma@6.5.0_typescript@5.6.2__typescript@5.6.2/node_modules/.prisma/client/index.d.ts:8419:5
+    8419     include?: AssignmentsInclude<ExtArgs> | null
+             ~~~~~~~
+    The expected type comes from property 'include' which is declared here on type '{ select?: AssignmentsSelect<DefaultArgs>; omit?: AssignmentsOmit<DefaultArgs>; include?: AssignmentsInclude<DefaultArgs>; data: (Without<...> & AssignmentsUncheckedCreateInput) | (Without<...> & AssignmentsCreateInput); }'
+
+src/api/assignments/assignments.service.ts:23:26 - error TS2322: Type '{ group_id: string; } | {}' is not assignable to type 'AssignmentsWhereInput'.
+  Object literal may only specify known properties, and 'group_id' does not exist in type 'AssignmentsWhereInput'.
+
+23       where: groupId ? { group_id: groupId } : {},
+                            ~~~~~~~~
+
+  node_modules/.pnpm/@prisma+client@6.5.0_prisma@6.5.0_typescript@5.6.2__typescript@5.6.2/node_modules/.prisma/client/index.d.ts:8376:5
+    8376     where?: AssignmentsWhereInput
+             ~~~~~
+    The expected type comes from property 'where' which is declared here on type '{ select?: AssignmentsSelect<DefaultArgs>; omit?: AssignmentsOmit<DefaultArgs>; include?: AssignmentsInclude<DefaultArgs>; ... 5 more ...; distinct?: AssignmentsScalarFieldEnum | AssignmentsScalarFieldEnum[]; }'
+
+src/api/assignments/assignments.service.ts:26:9 - error TS2353: Object literal may only specify known properties, and 'group' does not exist in type 'AssignmentsInclude<DefaultArgs>'.
+
+26         group: true,
+           ~~~~~
+
+  node_modules/.pnpm/@prisma+client@6.5.0_prisma@6.5.0_typescript@5.6.2__typescript@5.6.2/node_modules/.prisma/client/index.d.ts:8372:5
+    8372     include?: AssignmentsInclude<ExtArgs> | null
+             ~~~~~~~
+    The expected type comes from property 'include' which is declared here on type '{ select?: AssignmentsSelect<DefaultArgs>; omit?: AssignmentsOmit<DefaultArgs>; include?: AssignmentsInclude<DefaultArgs>; ... 5 more ...; distinct?: AssignmentsScalarFieldEnum | AssignmentsScalarFieldEnum[]; }'
+
+src/api/assignments/assignments.service.ts:38:16 - error TS2353: Object literal may only specify known properties, and 'id' does not exist in type 'AssignmentsWhereUniqueInput'.
+
+38       where: { id },
+                  ~~
+
+  node_modules/.pnpm/@prisma+client@6.5.0_prisma@6.5.0_typescript@5.6.2__typescript@5.6.2/node_modules/.prisma/client/index.d.ts:8228:5
+    8228     where: AssignmentsWhereUniqueInput
+             ~~~~~
+    The expected type comes from property 'where' which is declared here on type '{ select?: AssignmentsSelect<DefaultArgs>; omit?: AssignmentsOmit<DefaultArgs>; include?: AssignmentsInclude<DefaultArgs>; where: AssignmentsWhereUniqueInput; }'
+
+src/api/assignments/assignments.service.ts:41:9 - error TS2353: Object literal may only specify known properties, and 'group' does not exist in type 'AssignmentsInclude<DefaultArgs>'.
+
+41         group: true,
+           ~~~~~
+
+  node_modules/.pnpm/@prisma+client@6.5.0_prisma@6.5.0_typescript@5.6.2__typescript@5.6.2/node_modules/.prisma/client/index.d.ts:8224:5
+    8224     include?: AssignmentsInclude<ExtArgs> | null
+             ~~~~~~~
+    The expected type comes from property 'include' which is declared here on type '{ select?: AssignmentsSelect<DefaultArgs>; omit?: AssignmentsOmit<DefaultArgs>; include?: AssignmentsInclude<DefaultArgs>; where: AssignmentsWhereUniqueInput; }'
+
+src/api/assignments/assignments.service.ts:61:16 - error TS2353: Object literal may only specify known properties, and 'id' does not exist in type 'AssignmentsWhereUniqueInput'.
+
+61       where: { id },
+                  ~~
+
+  node_modules/.pnpm/@prisma+client@6.5.0_prisma@6.5.0_typescript@5.6.2__typescript@5.6.2/node_modules/.prisma/client/index.d.ts:8483:5
+    8483     where: AssignmentsWhereUniqueInput
+             ~~~~~
+    The expected type comes from property 'where' which is declared here on type '{ select?: AssignmentsSelect<DefaultArgs>; omit?: AssignmentsOmit<DefaultArgs>; include?: AssignmentsInclude<DefaultArgs>; data: (Without<...> & AssignmentsUncheckedUpdateInput) | (Without<...> & AssignmentsUpdateInput); where: AssignmentsWhereUniqueInput; }'
+
+src/api/assignments/assignments.service.ts:65:9 - error TS2353: Object literal may only specify known properties, and 'group' does not exist in type 'AssignmentsInclude<DefaultArgs>'.
+
+65         group: true
+           ~~~~~
+
+  node_modules/.pnpm/@prisma+client@6.5.0_prisma@6.5.0_typescript@5.6.2__typescript@5.6.2/node_modules/.prisma/client/index.d.ts:8475:5
+    8475     include?: AssignmentsInclude<ExtArgs> | null
+             ~~~~~~~
+    The expected type comes from property 'include' which is declared here on type '{ select?: AssignmentsSelect<DefaultArgs>; omit?: AssignmentsOmit<DefaultArgs>; include?: AssignmentsInclude<DefaultArgs>; data: (Without<...> & AssignmentsUncheckedUpdateInput) | (Without<...> & AssignmentsUpdateInput); where: AssignmentsWhereUniqueInput; }'
+
+src/api/assignments/assignments.service.ts:72:54 - error TS2353: Object literal may only specify known properties, and 'id' does not exist in type 'AssignmentsWhereUniqueInput'.
+
+72     return this.prisma.assignments.delete({ where: { id } });
+                                                        ~~
+
+  node_modules/.pnpm/@prisma+client@6.5.0_prisma@6.5.0_typescript@5.6.2__typescript@5.6.2/node_modules/.prisma/client/index.d.ts:8583:5
+    8583     where: AssignmentsWhereUniqueInput
+             ~~~~~
+    The expected type comes from property 'where' which is declared here on type '{ select?: AssignmentsSelect<DefaultArgs>; omit?: AssignmentsOmit<DefaultArgs>; include?: AssignmentsInclude<DefaultArgs>; where: AssignmentsWhereUniqueInput; }'
+
+src/api/attendance/attendance.service.ts:22:9 - error TS2353: Object literal may only specify known properties, and 'group_id' does not exist in type 'AttendanceWhereInput'.
+
+22         group_id: groupId,
+           ~~~~~~~~
+
+  node_modules/.pnpm/@prisma+client@6.5.0_prisma@6.5.0_typescript@5.6.2__typescript@5.6.2/node_modules/.prisma/client/index.d.ts:7286:5
+    7286     where?: AttendanceWhereInput
+             ~~~~~
+    The expected type comes from property 'where' which is declared here on type '{ select?: AttendanceSelect<DefaultArgs>; omit?: AttendanceOmit<DefaultArgs>; include?: AttendanceInclude<DefaultArgs>; ... 5 more ...; distinct?: AttendanceScalarFieldEnum | AttendanceScalarFieldEnum[]; }'
+
+src/api/attendance/attendance.service.ts:28:9 - error TS2353: Object literal may only specify known properties, and 'group' does not exist in type 'AttendanceInclude<DefaultArgs>'.
+
+28         group: true
+           ~~~~~
+
+  node_modules/.pnpm/@prisma+client@6.5.0_prisma@6.5.0_typescript@5.6.2__typescript@5.6.2/node_modules/.prisma/client/index.d.ts:7282:5
+    7282     include?: AttendanceInclude<ExtArgs> | null
+             ~~~~~~~
+    The expected type comes from property 'include' which is declared here on type '{ select?: AttendanceSelect<DefaultArgs>; omit?: AttendanceOmit<DefaultArgs>; include?: AttendanceInclude<DefaultArgs>; ... 5 more ...; distinct?: AttendanceScalarFieldEnum | AttendanceScalarFieldEnum[]; }'
+
+src/api/attendance/attendance.service.ts:38:9 - error TS2353: Object literal may only specify known properties, and 'group' does not exist in type 'AttendanceInclude<DefaultArgs>'.
+
+38         group: true
+           ~~~~~
+
+  node_modules/.pnpm/@prisma+client@6.5.0_prisma@6.5.0_typescript@5.6.2__typescript@5.6.2/node_modules/.prisma/client/index.d.ts:7282:5
+    7282     include?: AttendanceInclude<ExtArgs> | null
+             ~~~~~~~
+    The expected type comes from property 'include' which is declared here on type '{ select?: AttendanceSelect<DefaultArgs>; omit?: AttendanceOmit<DefaultArgs>; include?: AttendanceInclude<DefaultArgs>; ... 5 more ...; distinct?: AttendanceScalarFieldEnum | AttendanceScalarFieldEnum[]; }'
+
+src/api/attendance/attendance.service.ts:45:16 - error TS2353: Object literal may only specify known properties, and 'group_id' does not exist in type 'AttendanceWhereInput'.
+
+45       where: { group_id: groupId }
+                  ~~~~~~~~
+
+  node_modules/.pnpm/@prisma+client@6.5.0_prisma@6.5.0_typescript@5.6.2__typescript@5.6.2/node_modules/.prisma/client/index.d.ts:7286:5
+    7286     where?: AttendanceWhereInput
+             ~~~~~
+    The expected type comes from property 'where' which is declared here on type '{ select?: AttendanceSelect<DefaultArgs>; omit?: AttendanceOmit<DefaultArgs>; include?: AttendanceInclude<DefaultArgs>; ... 5 more ...; distinct?: AttendanceScalarFieldEnum | AttendanceScalarFieldEnum[]; }'
+
+src/api/attendance/attendance.service.ts:63:16 - error TS2353: Object literal may only specify known properties, and 'id' does not exist in type 'AttendanceWhereUniqueInput'.
+
+63       where: { id },
+                  ~~
+
+  node_modules/.pnpm/@prisma+client@6.5.0_prisma@6.5.0_typescript@5.6.2__typescript@5.6.2/node_modules/.prisma/client/index.d.ts:7138:5
+    7138     where: AttendanceWhereUniqueInput
+             ~~~~~
+    The expected type comes from property 'where' which is declared here on type '{ select?: AttendanceSelect<DefaultArgs>; omit?: AttendanceOmit<DefaultArgs>; include?: AttendanceInclude<DefaultArgs>; where: AttendanceWhereUniqueInput; }'
+
+src/api/attendance/attendance.service.ts:67:9 - error TS2353: Object literal may only specify known properties, and 'group' does not exist in type 'AttendanceInclude<DefaultArgs>'.
+
+67         group: true
+           ~~~~~
+
+  node_modules/.pnpm/@prisma+client@6.5.0_prisma@6.5.0_typescript@5.6.2__typescript@5.6.2/node_modules/.prisma/client/index.d.ts:7134:5
+    7134     include?: AttendanceInclude<ExtArgs> | null
+             ~~~~~~~
+    The expected type comes from property 'include' which is declared here on type '{ select?: AttendanceSelect<DefaultArgs>; omit?: AttendanceOmit<DefaultArgs>; include?: AttendanceInclude<DefaultArgs>; where: AttendanceWhereUniqueInput; }'
+
+src/api/attendance/attendance.service.ts:82:16 - error TS2353: Object literal may only specify known properties, and 'id' does not exist in type 'AttendanceWhereUniqueInput'.
+
+82       where: { id },
+                  ~~
+
+  node_modules/.pnpm/@prisma+client@6.5.0_prisma@6.5.0_typescript@5.6.2__typescript@5.6.2/node_modules/.prisma/client/index.d.ts:7393:5
+    7393     where: AttendanceWhereUniqueInput
+             ~~~~~
+    The expected type comes from property 'where' which is declared here on type '{ select?: AttendanceSelect<DefaultArgs>; omit?: AttendanceOmit<DefaultArgs>; include?: AttendanceInclude<DefaultArgs>; data: (Without<...> & AttendanceUncheckedUpdateInput) | (Without<...> & AttendanceUpdateInput); where: AttendanceWhereUniqueInput; }'
+
+src/api/attendance/attendance.service.ts:93:53 - error TS2353: Object literal may only specify known properties, and 'id' does not exist in type 'AttendanceWhereUniqueInput'.
+
+93     return this.prisma.attendance.delete({ where: { id } });
+                                                       ~~
+
+  node_modules/.pnpm/@prisma+client@6.5.0_prisma@6.5.0_typescript@5.6.2__typescript@5.6.2/node_modules/.prisma/client/index.d.ts:7493:5
+    7493     where: AttendanceWhereUniqueInput
+             ~~~~~
+    The expected type comes from property 'where' which is declared here on type '{ select?: AttendanceSelect<DefaultArgs>; omit?: AttendanceOmit<DefaultArgs>; include?: AttendanceInclude<DefaultArgs>; where: AttendanceWhereUniqueInput; }'
+
+src/api/dashboard/dashboard.service.ts:27:19 - error TS2339: Property 'studentPayment' does not exist on type 'PrismaService'.
+
+27       this.prisma.studentPayment.aggregate({
+                     ~~~~~~~~~~~~~~
+
+src/api/dashboard/dashboard.service.ts:32:19 - error TS2339: Property 'studentPayment' does not exist on type 'PrismaService'.
+
+32       this.prisma.studentPayment.aggregate({
+                     ~~~~~~~~~~~~~~
+
+src/api/dashboard/dashboard.service.ts:76:19 - error TS2551: Property 'assignment' does not exist on type 'PrismaService'. Did you mean 'assignments'?
+
+76       this.prisma.assignment.count(),
+                     ~~~~~~~~~~
+
+  node_modules/.pnpm/@prisma+client@6.5.0_prisma@6.5.0_typescript@5.6.2__typescript@5.6.2/node_modules/.prisma/client/index.d.ts:316:7
+    316   get assignments(): Prisma.AssignmentsDelegate<ExtArgs, ClientOptions>;
+              ~~~~~~~~~~~
+    'assignments' is declared here.
+
+src/api/dashboard/dashboard.service.ts:77:19 - error TS2551: Property 'submission' does not exist on type 'PrismaService'. Did you mean 'submissions'?
+
+77       this.prisma.submission.count(),
+                     ~~~~~~~~~~
+
+  node_modules/.pnpm/@prisma+client@6.5.0_prisma@6.5.0_typescript@5.6.2__typescript@5.6.2/node_modules/.prisma/client/index.d.ts:326:7
+    326   get submissions(): Prisma.SubmissionsDelegate<ExtArgs, ClientOptions>;
+              ~~~~~~~~~~~
+    'submissions' is declared here.
+
+src/api/dashboard/dashboard.service.ts:110:43 - error TS2551: Property 'submission' does not exist on type 'PrismaService'. Did you mean 'submissions'?
+
+110     const submissions = await this.prisma.submission.findMany({
+                                              ~~~~~~~~~~
+
+  node_modules/.pnpm/@prisma+client@6.5.0_prisma@6.5.0_typescript@5.6.2__typescript@5.6.2/node_modules/.prisma/client/index.d.ts:326:7
+    326   get submissions(): Prisma.SubmissionsDelegate<ExtArgs, ClientOptions>;
+              ~~~~~~~~~~~
+    'submissions' is declared here.
+
+src/api/fileupload/fileupload.controller.ts:28:44 - error TS2694: Namespace 'global.Express' has no exported member 'Multer'.
+
+28   uploadFile(@UploadedFile() file: Express.Multer.File) {
+                                              ~~~~~~
+
+src/api/fileupload/fileupload.controller.ts:29:35 - error TS2554: Expected 2 arguments, but got 1.
+
+29     return this.fileuploadService.uploadFile(file);
+                                     ~~~~~~~~~~
+
+  src/api/fileupload/fileupload.service.ts:15:47
+    15   async uploadFile(file: Express.Multer.File, userId: string) {
+                                                     ~~~~~~~~~~~~~~
+    An argument for 'userId' was not provided.
+
+src/api/fileupload/fileupload.controller.ts:35:35 - error TS2339: Property 'getFile' does not exist on type 'FileUploadService'.
+
+35     return this.fileuploadService.getFile(filename);
+                                     ~~~~~~~
+
+src/api/fileupload/fileupload.controller.ts:41:35 - error TS2339: Property 'deleteFile' does not exist on type 'FileUploadService'.
+
+41     return this.fileuploadService.deleteFile(filename);
+                                     ~~~~~~~~~~
+
+src/api/fileupload/fileupload.module.ts:4:10 - error TS2724: '"./fileupload.service"' has no exported member named 'FileuploadService'. Did you mean 'FileUploadService'?
+
+4 import { FileuploadService } from './fileupload.service';
+           ~~~~~~~~~~~~~~~~~
+
+  src/api/fileupload/fileupload.service.ts:8:14
+    8 export class FileUploadService {
+                   ~~~~~~~~~~~~~~~~~
+    'FileUploadService' is declared here.
+
+src/api/fileupload/fileupload.service.ts:15:34 - error TS2694: Namespace 'global.Express' has no exported member 'Multer'.
+
+15   async uploadFile(file: Express.Multer.File, userId: string) {
+                                    ~~~~~~
+
+src/api/fileupload/fileupload.service.ts:33:38 - error TS2694: Namespace 'global.Express' has no exported member 'Multer'.
+
+33   private validateFile(file: Express.Multer.File) {
+                                        ~~~~~~
+
+src/api/lesson/lesson.service.ts:20:16 - error TS2353: Object literal may only specify known properties, and 'id' does not exist in type 'LessonsWhereUniqueInput'.
+
+20       where: { id },
+                  ~~
+
+  node_modules/.pnpm/@prisma+client@6.5.0_prisma@6.5.0_typescript@5.6.2__typescript@5.6.2/node_modules/.prisma/client/index.d.ts:5998:5
+    5998     where: LessonsWhereUniqueInput
+             ~~~~~
+    The expected type comes from property 'where' which is declared here on type '{ select?: LessonsSelect<DefaultArgs>; omit?: LessonsOmit<DefaultArgs>; include?: LessonsInclude<DefaultArgs>; where: LessonsWhereUniqueInput; }'
+
+src/api/lesson/lesson.service.ts:26:16 - error TS2353: Object literal may only specify known properties, and 'id' does not exist in type 'LessonsWhereUniqueInput'.
+
+26       where: { id },
+                  ~~
+
+  node_modules/.pnpm/@prisma+client@6.5.0_prisma@6.5.0_typescript@5.6.2__typescript@5.6.2/node_modules/.prisma/client/index.d.ts:6253:5
+    6253     where: LessonsWhereUniqueInput
+             ~~~~~
+    The expected type comes from property 'where' which is declared here on type '{ select?: LessonsSelect<DefaultArgs>; omit?: LessonsOmit<DefaultArgs>; include?: LessonsInclude<DefaultArgs>; data: (Without<...> & LessonsUncheckedUpdateInput) | (Without<...> & LessonsUpdateInput); where: LessonsWhereUniqueInput; }'
+
+src/api/lesson/lesson.service.ts:33:16 - error TS2353: Object literal may only specify known properties, and 'id' does not exist in type 'LessonsWhereUniqueInput'.
+
+33       where: { id },
+                  ~~
+
+  node_modules/.pnpm/@prisma+client@6.5.0_prisma@6.5.0_typescript@5.6.2__typescript@5.6.2/node_modules/.prisma/client/index.d.ts:6353:5
+    6353     where: LessonsWhereUniqueInput
+             ~~~~~
+    The expected type comes from property 'where' which is declared here on type '{ select?: LessonsSelect<DefaultArgs>; omit?: LessonsOmit<DefaultArgs>; include?: LessonsInclude<DefaultArgs>; where: LessonsWhereUniqueInput; }'
+
+src/api/payment/dto/create-student-payment.dto.ts:3:10 - error TS2305: Module '"@prisma/client"' has no exported member 'PaymentType'.
+
+3 import { PaymentType } from '@prisma/client';
+           ~~~~~~~~~~~
+
+src/api/payment/payment.controller.ts:6:10 - error TS2305: Module '"@prisma/client"' has no exported member 'PaymentStatus'.
+
+6 import { PaymentStatus } from '@prisma/client';
+           ~~~~~~~~~~~~~
+
+src/api/payment/payment.service.ts:6:10 - error TS2305: Module '"@prisma/client"' has no exported member 'PaymentStatus'.
+
+6 import { PaymentStatus } from '@prisma/client';
+           ~~~~~~~~~~~~~
+
+src/api/payment/payment.service.ts:21:24 - error TS2339: Property 'studentPayment' does not exist on type 'PrismaService'.
+
+21     return this.prisma.studentPayment.create({
+                          ~~~~~~~~~~~~~~
+
+src/api/payment/payment.service.ts:35:24 - error TS2339: Property 'teacherSalary' does not exist on type 'PrismaService'.
+
+35     return this.prisma.teacherSalary.create({
+                          ~~~~~~~~~~~~~
+
+src/api/payment/payment.service.ts:41:24 - error TS2339: Property 'studentPayment' does not exist on type 'PrismaService'.
+
+41     return this.prisma.studentPayment.findMany({
+                          ~~~~~~~~~~~~~~
+
+src/api/payment/payment.service.ts:48:24 - error TS2339: Property 'teacherSalary' does not exist on type 'PrismaService'.
+
+48     return this.prisma.teacherSalary.findMany({
+                          ~~~~~~~~~~~~~
+
+src/api/payment/payment.service.ts:55:24 - error TS2339: Property 'studentPayment' does not exist on type 'PrismaService'.
+
+55     return this.prisma.studentPayment.update({
+                          ~~~~~~~~~~~~~~
+
+src/api/payment/payment.service.ts:62:24 - error TS2339: Property 'teacherSalary' does not exist on type 'PrismaService'.
+
+62     return this.prisma.teacherSalary.update({
+                          ~~~~~~~~~~~~~
+
+src/api/teacher/dto/update-teacher.dto.ts:1:10 - error TS2300: Duplicate identifier 'PartialType'.
+
+1 import { PartialType } from '@nestjs/swagger';
+           ~~~~~~~~~~~
+
+src/api/teacher/dto/update-teacher.dto.ts:2:10 - error TS2300: Duplicate identifier 'CreateTeacherDto'.
+
+2 import { CreateTeacherDto } from './create-teacher.dto';
+           ~~~~~~~~~~~~~~~~
+
+src/api/teacher/dto/update-teacher.dto.ts:4:14 - error TS2300: Duplicate identifier 'UpdateTeacherDto'.
+
+4 export class UpdateTeacherDto extends PartialType(CreateTeacherDto) {}
+               ~~~~~~~~~~~~~~~~
+
+src/api/teacher/dto/update-teacher.dto.ts:5:10 - error TS2300: Duplicate identifier 'PartialType'.
+
+5 import { PartialType } from '@nestjs/swagger';
+           ~~~~~~~~~~~
+
+src/api/teacher/dto/update-teacher.dto.ts:6:10 - error TS2300: Duplicate identifier 'CreateTeacherDto'.
+
+6 import { CreateTeacherDto } from './create-teacher.dto';
+           ~~~~~~~~~~~~~~~~
+
+src/api/teacher/dto/update-teacher.dto.ts:8:14 - error TS2300: Duplicate identifier 'UpdateTeacherDto'.
+
+8 export class UpdateTeacherDto extends PartialType(CreateTeacherDto) {}
+               ~~~~~~~~~~~~~~~~
+
+src/api/user/user.module.ts:3:32 - error TS2307: Cannot find module './user.controller' or its corresponding type declarations.
+
+3 import { UserController } from './user.controller';
+                                 ~~~~~~~~~~~~~~~~~~~
+
+src/api/user/user.module.ts:4:29 - error TS2307: Cannot find module './user.service' or its corresponding type declarations.
+
+4 import { UserService } from './user.service';
+                              ~~~~~~~~~~~~~~~~
+
+src/common/interface/base-service.interface.ts:1:33 - error TS2307: Cannot find module 'typeorm' or its corresponding type declarations.
+
+1 import { FindManyOptions } from 'typeorm';
+                                  ~~~~~~~~~
+
+src/infrastructure/lib/base-service/base.service.ts:2:28 - error TS2307: Cannot find module 'typeorm' or its corresponding type declarations.
+
+2 import { Repository } from 'typeorm';
+                             ~~~~~~~~~
+
+src/infrastructure/lib/base-service/base.service.ts:46:23 - error TS2339: Property 'select' does not exist on type 'IFindOptions<Entity>'.
+
+46       select: options.select || {},
+                         ~~~~~~
+
+src/infrastructure/lib/base-service/base.service.ts:47:26 - error TS2339: Property 'relations' does not exist on type 'IFindOptions<Entity>'.
+
+47       relations: options.relations || [],
+                            ~~~~~~~~~
+
+src/infrastructure/lib/base-service/base.service.ts:48:22 - error TS2339: Property 'where' does not exist on type 'IFindOptions<Entity>'.
+
+48       where: options.where,
+                        ~~~~~
+
+src/infrastructure/lib/base-service/base.service.ts:62:24 - error TS2339: Property 'select' does not exist on type 'IFindOptions<Entity>'.
+
+62       select: options?.select || {},
+                          ~~~~~~
+
+src/infrastructure/lib/base-service/base.service.ts:63:27 - error TS2339: Property 'relations' does not exist on type 'IFindOptions<Entity>'.
+
+63       relations: options?.relations || [],
+                             ~~~~~~~~~
+
+src/infrastructure/lib/base-service/base.service.ts:64:32 - error TS2339: Property 'where' does not exist on type 'IFindOptions<Entity>'.
+
+64       where: { id, ...options?.where },
+                                  ~~~~~
+
+src/infrastructure/lib/bcrypt/bcrypt.ts:2:25 - error TS2307: Cannot find module 'bcryptjs' or its corresponding type declarations.
+
+2 import * as bcrypt from 'bcryptjs';
+                          ~~~~~~~~~~
+
+src/infrastructure/lib/pagination/page.repostiory.ts:1:60 - error TS2307: Cannot find module 'typeorm' or its corresponding type declarations.
+
+1 import { FindManyOptions, ObjectLiteral, Repository } from 'typeorm';
+                                                             ~~~~~~~~~
+
+src/infrastructure/lib/pagination/page.repostiory.ts:20:16 - error TS2339: Property 'take' does not exist on type 'IFindOptions<T>'.
+
+20       options?.take ?? this.DEFAULT_PAGE_SIZE,
+                  ~~~~
+
+src/infrastructure/lib/pagination/page.repostiory.ts:21:16 - error TS2339: Property 'skip' does not exist on type 'IFindOptions<T>'.
+
+21       options?.skip ?? this.DEFAULT_PAGE,
+                  ~~~~
+
+src/infrastructure/lib/pagination/page.repostiory.ts:30:28 - error TS2339: Property 'skip' does not exist on type 'IFindOptions<T>'.
+
+30     const page = (options?.skip ?? RepositoryPager.DEFAULT_PAGE) - 1; // pagination is 1 indexed, convert into 0 indexed
+                              ~~~~
+
+src/infrastructure/lib/pagination/page.repostiory.ts:33:22 - error TS2339: Property 'take' does not exist on type 'IFindOptions<T>'.
+
+33       take: options?.take,
+                        ~~~~
+
+src/infrastructure/lib/pagination/page.repostiory.ts:34:30 - error TS2339: Property 'take' does not exist on type 'IFindOptions<T>'.
+
+34       skip: page * (options?.take ?? RepositoryPager.DEFAULT_PAGE_SIZE),
+                                ~~~~
+
+[5:25:06 PM] Found 64 errors. Watching for file changes.
+
