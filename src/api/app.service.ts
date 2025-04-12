@@ -6,6 +6,15 @@ import { CustomLogger } from '../infrastructure/lib/custom-logger/logger.service
 // import { AllExceptionsFilter } from '../infrastructure';
 // import { config } from '../config';
 
+import { Injectable } from '@nestjs/common';
+
+@Injectable()
+export class AppService {
+  getHello(): string {
+    return 'Hello World!';
+  }
+}
+
 export default class Application {
   public static async main(): Promise<void> {
     const app = await NestFactory.create(AppModule);

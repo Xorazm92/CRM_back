@@ -62,27 +62,23 @@ model Lessons {
 }
 
 model Attendance {
-  attendance_id String   @id @default(uuid())
-  lesson_id     String
-  student_id    String
-  status        AttendanceStatus
-  remarks       String
-  created_at    DateTime @default(now())
-  updated_at    DateTime @updatedAt
-  lesson        Lessons  @relation(fields: [lesson_id], references: [lesson_id])
-  student       User     @relation(fields: [student_id], references: [user_id])
+  id         String   @id @default(uuid())
+  groupId    String   @map("group_id")
+  group      Group    @relation(fields: [groupId], references: [id])
+  date       DateTime
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 }
 
 model Assignments {
-  assignment_id String        @id @default(uuid())
-  lesson_id     String
-  title         String
-  description   String
-  due_date      DateTime
-  created_at    DateTime      @default(now())
-  updated_at    DateTime      @updatedAt
-  lesson        Lessons       @relation(fields: [lesson_id], references: [lesson_id])
-  submissions   Submissions[]
+  id          String       @id @default(uuid())
+  title       String
+  description String
+  due_date    DateTime
+  groupId     String       @map("group_id")
+  group       Group        @relation(fields: [groupId], references: [id])
+  created_at  DateTime     @default(now())
+  updated_at  DateTime     @updatedAt
 }
 
 model Submissions {
@@ -122,41 +118,60 @@ model Schedule {
   group         Groups   @relation(fields: [group_id], references: [group_id])
 }
 
+model Student {
+  id             String           @id @default(uuid())
+  first_name     String
+  last_name      String
+  email          String           @unique
+  password       String
+  created_at     DateTime         @default(now())
+  updated_at     DateTime         @updatedAt
+  studentPayment StudentPayment[]
+}
+
 model StudentPayment {
-  payment_id    String   @id @default(uuid())
-  student_id    String
-  amount        Float
-  payment_date  DateTime @default(now())
-  payment_type  PaymentType
-  status        PaymentStatus @default(PENDING)
-  description   String?
-  created_at    DateTime @default(now())
-  updated_at    DateTime @updatedAt
-  student       User     @relation("StudentPayments", fields: [student_id], references: [user_id])
+  id         String        @id @default(uuid())
+  amount     Float
+  status     PaymentStatus @default(PENDING)
+  type       PaymentType
+  studentId  String
+  student    Student       @relation(fields: [studentId], references: [id])
+  created_at DateTime      @default(now())
+  updated_at DateTime      @updatedAt
+}
+
+model Teacher {
+  id            String          @id @default(uuid())
+  first_name    String
+  last_name     String
+  email         String          @unique
+  password      String
+  created_at    DateTime        @default(now())
+  updated_at    DateTime        @updatedAt
+  teacherSalary TeacherSalary[]
 }
 
 model TeacherSalary {
-  salary_id     String   @id @default(uuid())
-  teacher_id    String
-  amount        Float
-  month         DateTime
-  status        PaymentStatus @default(PENDING)
-  description   String?
-  created_at    DateTime @default(now())
-  updated_at    DateTime @updatedAt
-  teacher       User     @relation("TeacherSalaries", fields: [teacher_id], references: [user_id])
+  id         String        @id @default(uuid())
+  amount     Float
+  status     PaymentStatus @default(PENDING)
+  teacherId  String
+  teacher    Teacher       @relation(fields: [teacherId], references: [id])
+  created_at DateTime      @default(now())
+  updated_at DateTime      @updatedAt
 }
 
-enum PaymentType {
-  CASH
-  CARD
-  TRANSFER
-}
 
 enum PaymentStatus {
   PENDING
-  PAID
+  COMPLETED
   CANCELLED
+}
+
+enum PaymentType {
+  MONTHLY
+  COURSE
+  OTHER
 }
 
 enum UserRole {
