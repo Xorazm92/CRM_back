@@ -1,0 +1,48 @@
+[7:46:37 PM] Starting compilation in watch mode...
+
+src/common/index.ts:4:15 - error TS2307: Cannot find module './exceptions' or its corresponding type declarations.
+
+4 export * from './exceptions';
+                ~~~~~~~~~~~~~~
+
+src/common/index.ts:5:15 - error TS2306: File '/home/runner/workspace/src/common/guard/index.ts' is not a module.
+
+5 export * from './guard';
+                ~~~~~~~~~
+
+src/common/index.ts:7:15 - error TS2307: Cannot find module './logger' or its corresponding type declarations.
+
+7 export * from './logger';
+                ~~~~~~~~~~
+
+src/common/index.ts:8:15 - error TS2307: Cannot find module './prisma' or its corresponding type declarations.
+
+8 export * from './prisma';
+                ~~~~~~~~~~
+
+src/core/auth/auth.module.ts:4:29 - error TS2307: Cannot find module './auth.service' or its corresponding type declarations.
+
+4 import { AuthService } from './auth.service';
+                              ~~~~~~~~~~~~~~~~
+
+src/core/auth/auth.module.ts:5:32 - error TS2307: Cannot find module './auth.controller' or its corresponding type declarations.
+
+5 import { AuthController } from './auth.controller';
+                                 ~~~~~~~~~~~~~~~~~~~
+
+src/core/auth/auth.module.ts:6:29 - error TS2307: Cannot find module '../users/users.module' or its corresponding type declarations.
+
+6 import { UsersModule } from '../users/users.module';
+                              ~~~~~~~~~~~~~~~~~~~~~~~
+
+src/core/auth/auth.module.ts:8:33 - error TS2307: Cannot find module '../infrastructure/lib/custom-jwt' or its corresponding type declarations.
+
+8 import { CustomJwtModule } from '../infrastructure/lib/custom-jwt';
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+src/core/auth/strategies/jwt.strategy.ts:6:30 - error TS2307: Cannot find module '../../users/users.service' or its corresponding type declarations.
+
+6 import { UsersService } from '../../users/users.service';
+                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+[7:46:48 PM] Found 9 errors. Watching for file changes.
