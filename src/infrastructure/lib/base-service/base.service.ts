@@ -9,7 +9,7 @@ export class BaseService<T> {
     private readonly modelName: string
   ) {}
 
-  async findAll(page = 1, limit = 10): Promise<Pager<T>> {
+  async findAll(page = 1, limit = 10): Promise<IResponsePagination<T>> {
     const skip = (page - 1) * limit;
     const [data, total] = await Promise.all([
       this.prisma[this.modelName].findMany({
@@ -19,12 +19,14 @@ export class BaseService<T> {
       this.prisma[this.modelName].count(),
     ]);
 
-    return {
+    return Pager.of(
       data,
-      total_elements: total,
-      total_pages: Math.ceil(total / limit),
-      page_size: limit
-    };
+      total,
+      limit,
+      page,
+      200,
+      'Data retrieved successfully'
+    );
   }
 
   async findOne(id: string): Promise<T> {
