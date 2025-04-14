@@ -55,4 +55,16 @@ export class CustomJwtService {
       throw new BadRequestException(`Error on access token: ${error}`);
     }
   }
+
+  async generateTokens(user: any) {
+    const [accessToken, refreshToken] = await Promise.all([
+      this.generateAccessToken({ sub: user.user_id, username: user.username, role: user.role }),
+      this.generateRefreshToken({ sub: user.user_id })
+    ]);
+
+    return {
+      access_token: accessToken,
+      refresh_token: refreshToken
+    };
+  }
 }
