@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { Page } from '../pagination/page';
+import { Pager } from '../pagination/page';
 
 @Injectable()
 export class BaseService<T> {
@@ -9,7 +9,7 @@ export class BaseService<T> {
     private readonly modelName: string
   ) {}
 
-  async findAll(page = 1, limit = 10): Promise<Page<T>> {
+  async findAll(page = 1, limit = 10): Promise<Pager<T>> {
     const skip = (page - 1) * limit;
     const [data, total] = await Promise.all([
       this.prisma[this.modelName].findMany({
