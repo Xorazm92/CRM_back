@@ -6,5 +6,9 @@ import { PrismaService } from '../../common/prisma/prisma.service';
 export class UsersService {
   constructor(private readonly prisma: PrismaService) {}
 
-  // Add your user service methods here
+  async findOne(id: number) {
+    return this.prisma.user.findUnique({
+      where: { id }
+    });
+  }
 }
