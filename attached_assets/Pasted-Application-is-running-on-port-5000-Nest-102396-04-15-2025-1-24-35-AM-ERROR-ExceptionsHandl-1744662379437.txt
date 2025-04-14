@@ -1,0 +1,72 @@
+Application is running on port 5000
+[Nest] 102396  - 04/15/2025, 1:24:35 AM   ERROR [ExceptionsHandler] Unknown authentication strategy "jwt"
+Error: Unknown authentication strategy "jwt"
+    at attempt (/home/xorazm/imtixon/CRM_back/node_modules/passport/lib/middleware/authenticate.js:193:39)
+    at authenticate (/home/xorazm/imtixon/CRM_back/node_modules/passport/lib/middleware/authenticate.js:379:7)
+    at /home/xorazm/imtixon/CRM_back/node_modules/@nestjs/passport/dist/auth.guard.js:88:3
+    at new Promise (<anonymous>)
+    at /home/xorazm/imtixon/CRM_back/node_modules/@nestjs/passport/dist/auth.guard.js:80:83
+    at MixinAuthGuard.canActivate (/home/xorazm/imtixon/CRM_back/node_modules/@nestjs/passport/dist/auth.guard.js:44:32)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+prisma:query SELECT 1
+prisma:query SELECT "public"."User"."user_id", "public"."User"."full_name", "public"."User"."username", "public"."User"."password", "public"."User"."role"::text, "public"."User"."created_at", "public"."User"."updated_at" FROM "public"."User" WHERE ("public"."User"."username" = $1 AND 1=1) LIMIT $2 OFFSET $3
+johndoe
+[Nest] 102396  - 04/15/2025, 1:25:18 AM   ERROR [ExceptionsHandler] Unknown authentication strategy "jwt"
+Error: Unknown authentication strategy "jwt"
+    at attempt (/home/xorazm/imtixon/CRM_back/node_modules/passport/lib/middleware/authenticate.js:193:39)
+    at authenticate (/home/xorazm/imtixon/CRM_back/node_modules/passport/lib/middleware/authenticate.js:379:7)
+    at /home/xorazm/imtixon/CRM_back/node_modules/@nestjs/passport/dist/auth.guard.js:88:3
+    at new Promise (<anonymous>)
+    at /home/xorazm/imtixon/CRM_back/node_modules/@nestjs/passport/dist/auth.guard.js:80:83
+    at MixinAuthGuard.canActivate (/home/xorazm/imtixon/CRM_back/node_modules/@nestjs/passport/dist/auth.guard.js:44:32)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+prisma:query SELECT 1
+prisma:error 
+Invalid `this.prisma.lessons.create()` invocation in
+/home/xorazm/imtixon/CRM_back/src/api/lesson/lesson.service.ts:9:32
+
+  6 constructor(private prisma: PrismaService) {}
+  7 
+  8 create(createLessonDto: any) {
+→ 9   return this.prisma.lessons.create({
+        data: {
+      +   topic: String
+        }
+      })
+
+Argument `topic` is missing.
+[Nest] 102396  - 04/15/2025, 1:25:52 AM   ERROR [ExceptionsHandler] 
+Invalid `this.prisma.lessons.create()` invocation in
+/home/xorazm/imtixon/CRM_back/src/api/lesson/lesson.service.ts:9:32
+
+  6 constructor(private prisma: PrismaService) {}
+  7 
+  8 create(createLessonDto: any) {
+→ 9   return this.prisma.lessons.create({
+        data: {
+      +   topic: String
+        }
+      })
+
+Argument `topic` is missing.
+PrismaClientValidationError: 
+Invalid `this.prisma.lessons.create()` invocation in
+/home/xorazm/imtixon/CRM_back/src/api/lesson/lesson.service.ts:9:32
+
+  6 constructor(private prisma: PrismaService) {}
+  7 
+  8 create(createLessonDto: any) {
+→ 9   return this.prisma.lessons.create({
+        data: {
+      +   topic: String
+        }
+      })
+
+Argument `topic` is missing.
+    at Cn (/home/xorazm/imtixon/CRM_back/node_modules/@prisma/client/runtime/library.js:29:1363)
+    at Wn.handleRequestError (/home/xorazm/imtixon/CRM_back/node_modules/@prisma/client/runtime/library.js:121:7177)
+    at Wn.handleAndLogRequestError (/home/xorazm/imtixon/CRM_back/node_modules/@prisma/client/runtime/library.js:121:6858)
+    at Wn.request (/home/xorazm/imtixon/CRM_back/node_modules/@prisma/client/runtime/library.js:121:6565)
+    at async l (/home/xorazm/imtixon/CRM_back/node_modules/@prisma/client/runtime/library.js:130:10067)
+    at async /home/xorazm/imtixon/CRM_back/node_modules/@nestjs/core/router/router-execution-context.js:46:28
+    at async /home/xorazm/imtixon/CRM_back/node_modules/@nestjs/core/router/router-proxy.js:9:17
