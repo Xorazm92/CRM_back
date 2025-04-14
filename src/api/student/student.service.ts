@@ -1,104 +1,94 @@
-import {
-  ConflictException,
-  HttpStatus,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { PrismaService } from '../../infrastructure/prisma/prisma.service';
 import { CreateStudentDto } from './dto/create-student.dto';
 import { UpdateStudentDto } from './dto/update-student.dto';
-import { PrismaService } from 'src/common/prisma/prisma.service';
-import { BcryptEncryption } from 'src/infrastructure/lib/bcrypt/bcrypt';
+import { BcryptEncryption } from '../../infrastructure/lib/bcrypt';
 
 @Injectable()
 export class StudentService {
-  constructor(private readonly prismaService: PrismaService) {}
-  async create(createStudentDto: CreateStudentDto) {
-    const currentStudent = await this.prismaService.user.findUnique({
-      where: { username: createStudentDto.username },
+  constructor(private readonly prisma: PrismaService) {}
+
+  async create(dto: CreateStudentDto) {
+    const hashedPassword = await BcryptEncryption.hashPassword(dto.password);
+
+    return this.prisma.user.create({
+      data: {
+        ...dto,
+        password: hashedPassword,
+        role: 'STUDENT'
+      },
+      select: {
+        user_id: true,
+        username: true,
+        full_name: true,
+        role: true
+      }
     });
-    if (currentStudent) {
-      throw new ConflictException('A user with this username already exists');
-    }
-    createStudentDto.password = await BcryptEncryption.hashPassword(
-      createStudentDto.password,
-    );
-    const student = await this.prismaService.user.create({
-      data: { ...createStudentDto, role: 'STUDENT' },
-    });
-    return {
-      status: HttpStatus.CREATED,
-      message: 'created',
-      data: student,
-    };
   }
 
-  async findAll(page: number, limit: number) {
-    page = (page - 1) * limit;
-    const students = await this.prismaService.user.findMany({
-      where: { role: 'STUDENT' },
-      take: page,
-      skip: limit,
-    });
+  async findAll(page = 1, limit = 10) {
+    const skip = (page - 1) * limit;
+    const [total, students] = await Promise.all([
+      this.prisma.user.count({ where: { role: 'STUDENT' } }),
+      this.prisma.user.findMany({
+        where: { role: 'STUDENT' },
+        skip,
+        take: limit,
+        select: {
+          user_id: true,
+          username: true,
+          full_name: true,
+          role: true
+        }
+      })
+    ]);
+
     return {
-      status: HttpStatus.OK,
-      message: 'success',
       data: students,
-    };
-  }
-  async getProfile(id: string) {
-    const student = await this.prismaService.user.findUnique({
-      where: { user_id: id, role: 'STUDENT' },
-      select: { user_id: true, full_name: true, username: true, role: true },
-    });
-    return {
-      status: HttpStatus.OK,
-      message: 'success',
-      data: student,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit)
+      }
     };
   }
 
   async findOne(id: string) {
-    const student = await this.prismaService.user.findUnique({
-      where: { user_id: id },
+    const student = await this.prisma.user.findUnique({
+      where: { user_id: id, role: 'STUDENT' },
+      select: {
+        user_id: true,
+        username: true,
+        full_name: true,
+        role: true
+      }
     });
-    if (!student) {
-      throw new NotFoundException(`Student with id ${id} not found.`);
-    }
-    return {
-      status: HttpStatus.OK,
-      message: 'success',
-      data: student,
-    };
+
+    if (!student) throw new NotFoundException(`Student not found`);
+    return student;
   }
 
   async update(id: string, updateStudentDto: UpdateStudentDto) {
-    const currentStudent = await this.prismaService.user.findUnique({
-      where: { user_id: id },
-    });
-    if (!currentStudent) {
-      throw new NotFoundException(`Student with id ${id} not found.`);
-    }
-    await this.prismaService.user.update({
+    const student = await this.prisma.user.update({
       where: { user_id: id },
       data: { full_name: updateStudentDto.full_name },
+      select: {
+        user_id: true,
+        username: true,
+        full_name: true,
+        role: true
+      }
     });
-    return {
-      status: HttpStatus.OK,
-      message: 'success',
-    };
+    if (!student) throw new NotFoundException(`Student not found`);
+    return student;
   }
 
   async remove(id: string) {
-    const currentStudent = await this.prismaService.user.findUnique({
-      where: { user_id: id },
+    const student = await this.prisma.user.delete({
+      where: { user_id: id }
     });
-    if (!currentStudent) {
-      throw new NotFoundException(`Student with id ${id} not found.`);
-    }
-    await this.prismaService.user.delete({ where: { user_id: id } });
-    return {
-      status: HttpStatus.OK,
-      message: 'success',
-    };
+    if (!student) throw new NotFoundException(`Student not found`);
+    return student;
   }
 }
