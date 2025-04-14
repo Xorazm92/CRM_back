@@ -1,98 +1,62 @@
-import { HttpException } from '@nestjs/common';
-import { Repository } from 'typeorm';
-import { IFindOptions } from 'src/common/interface';
-import { RepositoryPager } from 'src/infrastructure/lib/pagination';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { PrismaService } from '../../prisma/prisma.service';
+import { Page } from '../pagination/page';
 
-export class BaseService<CreateDto, Entity> {
-  constructor(private readonly repository: Repository<any>) {}
+@Injectable()
+export class BaseService<T> {
+  constructor(
+    protected readonly prisma: PrismaService,
+    private readonly modelName: string
+  ) {}
 
-  get getRepository() {
-    return this.repository;
-  }
+  async findAll(page = 1, limit = 10): Promise<Page<T>> {
+    const skip = (page - 1) * limit;
+    const [data, total] = await Promise.all([
+      this.prisma[this.modelName].findMany({
+        skip,
+        take: limit,
+      }),
+      this.prisma[this.modelName].count(),
+    ]);
 
-  async create(dto: CreateDto) {
-    let created_data = this.repository.create({
-      ...dto,
-    }) as unknown as Entity;
-    created_data = await this.repository.save(created_data);
     return {
-      status_code: 201,
-      message: 'sucess',
-      data: created_data,
-    };
-  }
-
-  async findAll(options?: IFindOptions<Entity>) {
-    const data = (await this.repository.find({
-      ...options,
-    })) as Entity[];
-    return {
-      status_code: 200,
-      message: 'success',
-      data: data,
-    };
-  }
-
-  async findAllWithPagination(options?: IFindOptions<Entity>) {
-    return await RepositoryPager.findAll(
-      this.getRepository,
-      'success',
-      options,
-    );
-  }
-
-  async findOneBy(options: IFindOptions<Entity>) {
-    const data = (await this.repository.findOne({
-      select: options.select || {},
-      relations: options.relations || [],
-      where: options.where,
-    })) as Entity;
-    if (!data) {
-      throw new HttpException('not found', 404);
-    }
-    return {
-      status_code: 200,
-      message: 'success',
-      data: data,
-    };
-  }
-
-  async findOneById(id: string, options?: IFindOptions<Entity>) {
-    const data = (await this.repository.findOne({
-      select: options?.select || {},
-      relations: options?.relations || [],
-      where: { id, ...options?.where },
-    })) as unknown as Entity;
-    if (!data) {
-      throw new HttpException('not found', 404);
-    }
-    return {
-      status_code: 200,
-      message: 'success',
       data,
+      total_elements: total,
+      total_pages: Math.ceil(total / limit),
+      page_size: limit
     };
   }
 
-  async updateProfile(id: string, dto: Partial<CreateDto>) {
-    await this.findOneById(id);
-    await this.repository.update(id, {
-      ...dto,
-      updated_at: Date.now(),
+  async findOne(id: string): Promise<T> {
+    const item = await this.prisma[this.modelName].findUnique({
+      where: { id },
     });
-    return {
-      status_code: 200,
-      message: 'success',
-      data: {},
-    };
+
+    if (!item) {
+      throw new NotFoundException(`${this.modelName} with ID ${id} not found`);
+    }
+
+    return item;
   }
 
-  async delete(id: string) {
-    await this.findOneById(id);
-    (await this.repository.delete(id)) as unknown as Entity;
-    return {
-      status_code: 200,
-      message: 'success',
-      data: {},
-    };
+  async create(data: any): Promise<T> {
+    return this.prisma[this.modelName].create({
+      data,
+    });
+  }
+
+  async update(id: string, data: any): Promise<T> {
+    await this.findOne(id);
+    return this.prisma[this.modelName].update({
+      where: { id },
+      data,
+    });
+  }
+
+  async remove(id: string): Promise<T> {
+    await this.findOne(id);
+    return this.prisma[this.modelName].delete({
+      where: { id },
+    });
   }
 }

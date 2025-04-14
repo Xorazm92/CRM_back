@@ -32,34 +32,23 @@ async function bootstrap() {
 
   // Swagger configuration
   const configSwagger = new DocumentBuilder()
-    .setTitle('O\'quv Markazi CRM API')
-    .setDescription(`
-      O'quv markazi uchun CRM tizimi API dokumentatsiyasi.
-      Asosiy imkoniyatlar:
-      - Foydalanuvchilar boshqaruvi (Admin, O'qituvchi, O'quvchi)
-      - Kurslar va Guruhlar
-      - Darslar va Topshiriqlar
-      - Davomat va Baholash
-      - To'lovlar va Maoshlar
-      - Fayl yuklash
-    `)
+    .setTitle('LMS API')
+    .setDescription('Learning Management System API')
     .setVersion('1.0')
-    .addServer('http://localhost:5000', 'Development') // Updated server address
-    .addBearerAuth({
-      type: 'http',
-      scheme: 'bearer',
-      bearerFormat: 'JWT',
-      in: 'header',
-    })
+    .addServer('https://' + process.env.REPL_SLUG + '.' + process.env.REPL_OWNER + '.repl.co')
+    .addBearerAuth()
     .addTag('auth', 'Authentication endpoints')
-    .addTag('admin', 'Admin management endpoints')
-    .addTag('teachers', 'Teacher management endpoints')
-    .addTag('students', 'Student management endpoints')
-    .addTag('courses', 'Course management endpoints')
-    .addTag('groups', 'Group management endpoints')
-    .addTag('lessons', 'Lesson management endpoints')
-    .addTag('assignments', 'Assignment management endpoints')
-    .addTag('attendance', 'Attendance management endpoints')
+    .addTag('users', 'User management')
+    .addTag('admin', 'Admin operations')
+    .addTag('teachers', 'Teacher management')
+    .addTag('students', 'Student management') 
+    .addTag('courses', 'Course management')
+    .addTag('groups', 'Group management')
+    .addTag('lessons', 'Lesson management')
+    .addTag('assignments', 'Assignment management')
+    .addTag('attendance', 'Attendance tracking')
+    .addTag('payments', 'Payment management')
+    .addTag('files', 'File management')
     .build();
 
   const documentSwagger = SwaggerModule.createDocument(app, configSwagger);
