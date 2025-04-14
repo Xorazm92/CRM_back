@@ -5,11 +5,11 @@ import { CustomJwtService } from './custom-jwt.service';
 @Module({
   imports: [
     JwtModule.register({
-      secret: process.env.ACCESS_TOKEN_KEY,
-      signOptions: { expiresIn: process.env.ACCESS_TOKEN_TIME },
+      secret: 'your-secret-key',
+      signOptions: { expiresIn: '1h' },
     }),
   ],
   providers: [CustomJwtService],
-  exports: [CustomJwtService, JwtModule],
+  exports: [CustomJwtService],
 })
-export class CustomJwtModule {} 
+export class CustomJwtModule {}

@@ -82,9 +82,9 @@ export class AuthService {
     }
 
     const payload = {
-      id: user.user_id,
-      sub: user.username,
-      role: user.role,
+      id: user.user_id.toString(), // id qo‘shamiz
+      sub: user.user_id.toString(),
+      role: user.role as UserRole, // enum bo'lishi kerak
     };
     const accessToken =
       await this.customJwtService.generateAccessToken(payload);

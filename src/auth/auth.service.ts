@@ -4,14 +4,13 @@ import { JwtService } from '@nestjs/jwt';
 import { LoginDto } from './dto/login.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import * as bcrypt from 'bcrypt';
-import { CustomJwtService } from '../infrastructure/lib/custom-jwt.service';
+import { UserRole } from '../users/user-role.enum';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
-    private readonly customJwtService: CustomJwtService,
   ) {}
 
   async login(loginDto: LoginDto) {
@@ -25,9 +24,14 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const payload = { sub: user.id, email: user.email, role: user.role };
-    const accessToken = await this.customJwtService.generateAccessToken(payload);
-    const refreshToken = await this.customJwtService.generateRefreshToken(payload);
+    const payload = { 
+      sub: user.id.toString(), 
+      email: user.email, 
+      role: user.role as UserRole 
+    };
+    
+    const accessToken = await this.jwtService.sign(payload);
+    const refreshToken = await this.jwtService.sign(payload);
 
     return {
       accessToken,
@@ -42,16 +46,26 @@ export class AuthService {
 
   async refreshToken(refreshTokenDto: RefreshTokenDto) {
     try {
-      const payload = await this.customJwtService.verifyRefreshToken(refreshTokenDto.refreshToken);
-      const user = await this.usersService.findOne(payload.sub);
+      const payload = await this.jwtService.verify(refreshTokenDto.refreshToken);
+      
+      if (!payload || typeof payload !== 'object' || !('sub' in payload)) {
+        throw new UnauthorizedException('Invalid refresh token');
+      }
+
+      const user = await this.usersService.findOne(parseInt(payload.sub));
       
       if (!user) {
         throw new UnauthorizedException('Invalid refresh token');
       }
 
-      const newPayload = { sub: user.id, email: user.email, role: user.role };
-      const accessToken = await this.customJwtService.generateAccessToken(newPayload);
-      const refreshToken = await this.customJwtService.generateRefreshToken(newPayload);
+      const newPayload = { 
+        sub: user.id.toString(), 
+        email: user.email, 
+        role: user.role as UserRole 
+      };
+      
+      const accessToken = await this.jwtService.sign(newPayload);
+      const refreshToken = await this.jwtService.sign(newPayload);
 
       return {
         accessToken,
@@ -66,4 +80,4 @@ export class AuthService {
       throw new UnauthorizedException('Invalid refresh token');
     }
   }
-} 
+}
