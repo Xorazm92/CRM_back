@@ -1,0 +1,30 @@
+[Nest] 1823  - 04/14/2025, 7:59:50 PM   ERROR [ExceptionHandler] Nest can't resolve dependencies of the StudentService (?). Please make sure that the argument PrismaService at index [0] is available in the StudentModule context.
+
+Potential solutions:
+- Is StudentModule a valid NestJS module?
+- If PrismaService is a provider, is it part of the current StudentModule?
+- If PrismaService is exported from a separate @Module, is that module imported within StudentModule?
+  @Module({
+    imports: [ /* the Module containing PrismaService */ ]
+  })
+
+Error: Nest can't resolve dependencies of the StudentService (?). Please make sure that the argument PrismaService at index [0] is available in the StudentModule context.
+
+Potential solutions:
+- Is StudentModule a valid NestJS module?
+- If PrismaService is a provider, is it part of the current StudentModule?
+- If PrismaService is exported from a separate @Module, is that module imported within StudentModule?
+  @Module({
+    imports: [ /* the Module containing PrismaService */ ]
+  })
+
+    at Injector.lookupComponentInParentModules (/home/runner/workspace/node_modules/@nestjs/core/injector/injector.js:262:19)
+    at async Injector.resolveComponentInstance (/home/runner/workspace/node_modules/@nestjs/core/injector/injector.js:215:33)
+    at async resolveParam (/home/runner/workspace/node_modules/@nestjs/core/injector/injector.js:129:38)
+    at async Promise.all (index 0)
+    at async Injector.resolveConstructorParams (/home/runner/workspace/node_modules/@nestjs/core/injector/injector.js:144:27)
+    at async Injector.loadInstance (/home/runner/workspace/node_modules/@nestjs/core/injector/injector.js:70:13)
+    at async Injector.loadProvider (/home/runner/workspace/node_modules/@nestjs/core/injector/injector.js:98:9)
+    at async /home/runner/workspace/node_modules/@nestjs/core/injector/instance-loader.js:56:13
+    at async Promise.all (index 3)
+    at async InstanceLoader.createInstancesOfProviders (/home/runner/workspace/node_modules/@nestjs/core/injector/instance-loader.js:55:9)
