@@ -5,6 +5,7 @@ import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { AuthGuard } from '@nestjs/passport';
+import { ValidationPipe, UsePipes, BadRequestException, NotFoundException } from '@nestjs/common';
 
 @ApiTags('users')
 @UseGuards(AuthGuard('jwt'))
@@ -16,38 +17,62 @@ export class UserController {
   @ApiOperation({ summary: 'Create a new user' })
   @ApiResponse({ status: 201, description: 'User created successfully' })
   @ApiResponse({ status: 400, description: 'Bad request' })
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.userService.create(createUserDto);
+  @UsePipes(new ValidationPipe({ whitelist: true }))
+  async create(@Body() createUserDto: CreateUserDto) {
+    try {
+      return await this.userService.create(createUserDto);
+    } catch (e) {
+      throw new BadRequestException(e.message);
+    }
   }
 
   @Get()
   @ApiOperation({ summary: 'Get all users' })
   @ApiResponse({ status: 200, description: 'List of users' })
-  findAll() {
-    return this.userService.findAll();
+  async findAll() {
+    try {
+      return await this.userService.findAll();
+    } catch (e) {
+      throw new BadRequestException(e.message);
+    }
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Get user by ID' })
   @ApiResponse({ status: 200, description: 'User found' })
   @ApiResponse({ status: 404, description: 'User not found' })
-  findOne(@Param('id') id: string) {
-    return this.userService.findOne(id);
+  async findOne(@Param('id') id: string) {
+    try {
+      const user = await this.userService.findOne(id);
+      if (!user) throw new NotFoundException('User not found');
+      return user;
+    } catch (e) {
+      throw new NotFoundException(e.message);
+    }
   }
 
   @Put(':id')
   @ApiOperation({ summary: 'Update user' })
   @ApiResponse({ status: 200, description: 'User updated successfully' })
   @ApiResponse({ status: 404, description: 'User not found' })
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.userService.update(id, updateUserDto);
+  @UsePipes(new ValidationPipe({ whitelist: true }))
+  async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+    try {
+      return await this.userService.update(id, updateUserDto);
+    } catch (e) {
+      throw new NotFoundException(e.message);
+    }
   }
 
   @Delete(':id')
   @ApiOperation({ summary: 'Delete user' })
   @ApiResponse({ status: 200, description: 'User deleted successfully' })
   @ApiResponse({ status: 404, description: 'User not found' })
-  remove(@Param('id') id: string) {
-    return this.userService.remove(id);
+  async remove(@Param('id') id: string) {
+    try {
+      return await this.userService.remove(id);
+    } catch (e) {
+      throw new NotFoundException(e.message);
+    }
   }
 }

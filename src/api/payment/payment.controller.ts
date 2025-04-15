@@ -4,7 +4,8 @@ import { CreateStudentPaymentDto } from './dto/create-student-payment.dto';
 import { CreateTeacherSalaryDto } from './dto/create-teacher-salary.dto';
 import { PaymentStatus } from './dto/payment-status.enum';
 import { AdminGuard } from 'src/common/guard/admin.guard';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags, ApiBody, ApiParam, ApiNotFoundResponse, ApiBadRequestResponse } from '@nestjs/swagger';
+import { ValidationPipe, UsePipes, BadRequestException, NotFoundException } from '@nestjs/common';
 
 @ApiTags('Payments')
 @ApiBearerAuth()
@@ -14,38 +15,78 @@ export class PaymentController {
   constructor(private readonly paymentService: PaymentService) {}
 
   @Post('student')
-  createStudentPayment(@Body() dto: CreateStudentPaymentDto) {
-    return this.paymentService.createStudentPayment(dto);
+  @UsePipes(new ValidationPipe({ whitelist: true }))
+  @ApiBody({ type: CreateStudentPaymentDto })
+  @ApiBadRequestResponse({ description: 'Bad Request' })
+  async createStudentPayment(@Body() dto: CreateStudentPaymentDto) {
+    try {
+      return await this.paymentService.createStudentPayment(dto);
+    } catch (e) {
+      throw new BadRequestException(e.message);
+    }
   }
 
   @Post('teacher')
-  createTeacherSalary(@Body() dto: CreateTeacherSalaryDto) {
-    return this.paymentService.createTeacherSalary(dto);
+  @UsePipes(new ValidationPipe({ whitelist: true }))
+  @ApiBody({ type: CreateTeacherSalaryDto })
+  @ApiBadRequestResponse({ description: 'Bad Request' })
+  async createTeacherSalary(@Body() dto: CreateTeacherSalaryDto) {
+    try {
+      return await this.paymentService.createTeacherSalary(dto);
+    } catch (e) {
+      throw new BadRequestException(e.message);
+    }
   }
 
   @Get('student/:id')
-  getStudentPayments(@Param('id') id: string) {
-    return this.paymentService.getStudentPaymentHistory(id);
+  @ApiParam({ name: 'id', type: String, required: true })
+  @ApiNotFoundResponse({ description: 'Not Found' })
+  async getStudentPayments(@Param('id') id: string) {
+    try {
+      return await this.paymentService.getStudentPaymentHistory(id);
+    } catch (e) {
+      throw new NotFoundException(e.message);
+    }
   }
 
   @Get('teacher/:id')
-  getTeacherSalaries(@Param('id') id: string) {
-    return this.paymentService.getTeacherSalaryHistory(id);
+  @ApiParam({ name: 'id', type: String, required: true })
+  @ApiNotFoundResponse({ description: 'Not Found' })
+  async getTeacherSalaries(@Param('id') id: string) {
+    try {
+      return await this.paymentService.getTeacherSalaryHistory(id);
+    } catch (e) {
+      throw new NotFoundException(e.message);
+    }
   }
 
   @Put('student/:id/status')
-  updatePaymentStatus(
+  @ApiParam({ name: 'id', type: String, required: true })
+  @ApiBody({ schema: { type: 'object', properties: { status: { type: 'string', enum: Object.values(PaymentStatus) } } } })
+  @ApiBadRequestResponse({ description: 'Bad Request' })
+  async updatePaymentStatus(
     @Param('id') id: string,
     @Body('status') status: PaymentStatus,
   ) {
-    return this.paymentService.updatePaymentStatus(id, status);
+    try {
+      return await this.paymentService.updatePaymentStatus(id, status);
+    } catch (e) {
+      throw new BadRequestException(e.message);
+    }
   }
 
   @Put('teacher/:id/status')
-  updateSalaryStatus(
+  @ApiParam({ name: 'id', type: String, required: true })
+  @ApiBody({ schema: { type: 'object', properties: { status: { type: 'string', enum: Object.values(PaymentStatus) } } } })
+  @ApiBadRequestResponse({ description: 'Bad Request' })
+  async updateSalaryStatus(
     @Param('id') id: string,
     @Body('status') status: PaymentStatus,
   ) {
-    return this.paymentService.updateSalaryStatus(id, status);
+    try {
+      return await this.paymentService.updateSalaryStatus(id, status);
+    } catch (e) {
+      throw new BadRequestException(e.message);
+    }
   }
 }

@@ -8,6 +8,7 @@ import {
   Post,
   Put,
   UseGuards,
+  UsePipes,
 } from '@nestjs/common';
 import { CreateGroupDto } from './dto/create.group.dto';
 import { GroupService } from './group.service';
@@ -15,6 +16,7 @@ import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagg
 import { UserID } from 'src/common/decorator/user-id.decorator';
 import { UpdateGroupDto } from './dto/update.group.dto';
 import { JwtAuthGuard } from '../../infrastructure/guards/jwt-auth.guard';
+import { ValidationPipe, BadRequestException, NotFoundException, ConflictException } from '@nestjs/common';
 
 @ApiTags('Groups') // Group API documentation tag
 @ApiBearerAuth()
@@ -51,8 +53,14 @@ export class GroupController {
     status: HttpStatus.BAD_REQUEST,
     description: 'Invalid input data'
   })
+  @UsePipes(new ValidationPipe({ whitelist: true }))
   async createGroup(@Body() createGroupDto: CreateGroupDto) {
-    return this.groupService.createGroup(createGroupDto);
+    try {
+      return await this.groupService.createGroup(createGroupDto);
+    } catch (e) {
+      if (e.code === 'P2002') throw new ConflictException('Group with this name already exists');
+      throw new BadRequestException(e.message);
+    }
   }
 
   @Get()
@@ -60,14 +68,23 @@ export class GroupController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Groups retrieved successfully',
-    type: [CreateGroupDto], // Or whatever type represents your group
+    type: [CreateGroupDto],
   })
   @ApiResponse({
     status: HttpStatus.NOT_FOUND,
     description: 'No groups found for this admin',
   })
-  getAllGroups() {
-    return this.groupService.findAllGroup();
+  async getAllGroups() {
+    try {
+      const result = await this.groupService.findAllGroup();
+      // result = { status, message, data }
+      if (!result.data || !Array.isArray(result.data) || result.data.length === 0) {
+        throw new NotFoundException('No groups found for this admin');
+      }
+      return result;
+    } catch (e) {
+      throw new NotFoundException(e.message);
+    }
   }
 
   @Get(':id')
@@ -75,14 +92,20 @@ export class GroupController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Group details retrieved successfully',
-    type: CreateGroupDto, // Or the DTO type representing the group
+    type: CreateGroupDto,
   })
   @ApiResponse({
     status: HttpStatus.NOT_FOUND,
     description: 'Group not found',
   })
-  getOneGroup(@Param('id') groupId: string) {
-    return this.groupService.findOneGroup(groupId);
+  async getOneGroup(@Param('id') groupId: string) {
+    try {
+      const group = await this.groupService.findOneGroup(groupId);
+      if (!group) throw new NotFoundException('Group not found');
+      return group;
+    } catch (e) {
+      throw new NotFoundException(e.message);
+    }
   }
 
   @Put(':id')
@@ -100,11 +123,18 @@ export class GroupController {
     status: HttpStatus.CONFLICT,
     description: 'Group name already exists',
   })
-  updateGroup(
+  @UsePipes(new ValidationPipe({ whitelist: true }))
+  async updateGroup(
     @Param('id') groupId: string,
     @Body() updateGroupDto: UpdateGroupDto,
   ) {
-    return this.groupService.updateOne(groupId, updateGroupDto);
+    try {
+      return await this.groupService.updateOne(groupId, updateGroupDto);
+    } catch (e) {
+      if (e.code === 'P2002') throw new ConflictException('Group name already exists');
+      if (e.code === 'P2025') throw new NotFoundException('Group not found');
+      throw new BadRequestException(e.message);
+    }
   }
 
   @Delete(':id')
@@ -117,7 +147,11 @@ export class GroupController {
     status: HttpStatus.NOT_FOUND,
     description: 'Group not found',
   })
-  deleteOne(@Param('id') groupId: string) {
-    return this.groupService.remove(groupId);
+  async deleteOne(@Param('id') groupId: string) {
+    try {
+      return await this.groupService.remove(groupId);
+    } catch (e) {
+      throw new NotFoundException(e.message);
+    }
   }
 }

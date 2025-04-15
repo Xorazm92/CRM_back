@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards, UsePipes } from '@nestjs/common';
 import { SubmissionsService } from './submissions.service';
 import { JwtAuthGuard } from '../../infrastructure/guards/jwt-auth.guard';
 import { RolesGuard } from '../../infrastructure/guards/roles.guard';
@@ -7,6 +7,7 @@ import { UserRole } from '@prisma/client';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { CreateSubmissionDto } from './dto/create-submission.dto';
 import { UpdateSubmissionDto } from './dto/update-submission.dto';
+import { ValidationPipe, BadRequestException, NotFoundException } from '@nestjs/common';
 
 @ApiTags('Submissions')
 @ApiBearerAuth()
@@ -22,8 +23,13 @@ export class SubmissionsController {
   @ApiResponse({ status: 400, description: 'Bad request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Forbidden' })
-  create(@Body() createSubmissionDto: CreateSubmissionDto) {
-    return this.submissionsService.create(createSubmissionDto);
+  @UsePipes(new ValidationPipe({ whitelist: true }))
+  async create(@Body() createSubmissionDto: CreateSubmissionDto) {
+    try {
+      return await this.submissionsService.create(createSubmissionDto);
+    } catch (e) {
+      throw new BadRequestException(e.message);
+    }
   }
 
   @Get()
@@ -32,8 +38,12 @@ export class SubmissionsController {
   @ApiResponse({ status: 200, description: 'Submissions retrieved successfully' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Forbidden' })
-  findAll() {
-    return this.submissionsService.findAll();
+  async findAll() {
+    try {
+      return await this.submissionsService.findAll();
+    } catch (e) {
+      throw new BadRequestException(e.message);
+    }
   }
 
   @Get(':id')
@@ -43,8 +53,14 @@ export class SubmissionsController {
   @ApiResponse({ status: 404, description: 'Submission not found' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Forbidden' })
-  findOne(@Param('id') id: string) {
-    return this.submissionsService.findOne(id);
+  async findOne(@Param('id') id: string) {
+    try {
+      const submission = await this.submissionsService.findOne(id);
+      if (!submission) throw new NotFoundException('Submission not found');
+      return submission;
+    } catch (e) {
+      throw new NotFoundException(e.message);
+    }
   }
 
   @Put(':id')
@@ -55,8 +71,13 @@ export class SubmissionsController {
   @ApiResponse({ status: 400, description: 'Bad request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Forbidden' })
-  update(@Param('id') id: string, @Body() updateSubmissionDto: UpdateSubmissionDto) {
-    return this.submissionsService.update(id, updateSubmissionDto);
+  @UsePipes(new ValidationPipe({ whitelist: true }))
+  async update(@Param('id') id: string, @Body() updateSubmissionDto: UpdateSubmissionDto) {
+    try {
+      return await this.submissionsService.update(id, updateSubmissionDto);
+    } catch (e) {
+      throw new BadRequestException(e.message);
+    }
   }
 
   @Delete(':id')
@@ -66,7 +87,11 @@ export class SubmissionsController {
   @ApiResponse({ status: 404, description: 'Submission not found' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Forbidden' })
-  remove(@Param('id') id: string) {
-    return this.submissionsService.remove(id);
+  async remove(@Param('id') id: string) {
+    try {
+      return await this.submissionsService.remove(id);
+    } catch (e) {
+      throw new NotFoundException(e.message);
+    }
   }
 }
