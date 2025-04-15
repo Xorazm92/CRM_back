@@ -6,15 +6,23 @@ import {
   Patch,
   Param,
   Delete,
-  HttpStatus,
   UseGuards,
+  UsePipes,
+  ValidationPipe,
+  NotFoundException,
+  BadRequestException,
+  InternalServerErrorException,
   Query,
   DefaultValuePipe,
-  ParseIntPipe,
+  ParseIntPipe
 } from '@nestjs/common';
 import { TeacherService } from './teacher.service';
 import { CreateTeacherDto } from './dto/create-teacher.dto';
 import { UpdateTeacherDto } from './dto/update-teacher.dto';
+import { JwtAuthGuard } from 'src/infrastructure/guards/jwt-auth.guard';
+import { RolesGuard } from 'src/infrastructure/guards/roles.guard';
+import { Roles } from 'src/infrastructure/decorators/roles.decorator';
+import { UserRole } from 'src/users/user-role.enum';
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -22,78 +30,107 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { AdminGuard } from 'src/common/guard/admin.guard';
-import { UserID } from 'src/common/decorator';
 
 @ApiTags('Teacher Api')
 @ApiBearerAuth()
-@UseGuards(AdminGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
+@UsePipes(new ValidationPipe({ whitelist: true }))
 @Controller('teacher')
 export class TeacherController {
   constructor(private readonly teacherService: TeacherService) {}
 
-  @ApiOperation({
-    summary: 'Create Teacher',
-  })
-  @ApiResponse({
-    status: HttpStatus.CREATED,
-    description: 'Teacher created successfully',
-    schema: {
-      example: {
-        status: HttpStatus.CREATED,
-        message: 'created',
-      },
-    },
-  })
-  @Post('createTeacher')
-  create(@Body() createTeacherDto: CreateTeacherDto) {
-    return this.teacherService.create(createTeacherDto);
+  @ApiOperation({ summary: 'Create teacher' })
+  @ApiResponse({ status: 201, description: 'Teacher created' })
+  @ApiResponse({ status: 400, description: 'Validation error' })
+  @Roles('admin')
+  @Post()
+  async create(@Body() createTeacherDto: CreateTeacherDto) {
+    try {
+      return await this.teacherService.create(createTeacherDto);
+    } catch (e) {
+      if (e instanceof BadRequestException || e instanceof NotFoundException) {
+        throw e;
+      }
+      throw new InternalServerErrorException(e.message);
+    }
   }
 
-  @ApiOperation({
-    summary: 'Get all Teachers',
-  })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'All Teachers fetched successfully',
-  })
+  @ApiOperation({ summary: 'Get all teachers' })
+  @ApiResponse({ status: 200, description: 'List of teachers' })
+  @Roles('admin')
   @Get()
-  findAll(
+  async findAll(
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page?: number,
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit?: number,
   ) {
-    return this.teacherService.findAll(page, limit);
+    try {
+      return await this.teacherService.findAll(page, limit);
+    } catch (e) {
+      throw new InternalServerErrorException(e.message);
+    }
   }
 
-  @ApiOperation({
-    summary: 'Get Teacher Profile',
-  })
-  @Get('getProfile')
-  getProfile(@UserID() id: string) {
-    return this.teacherService.getProfile(id);
+  @ApiOperation({ summary: 'Get teacher profile' })
+  @ApiResponse({ status: 200, description: 'Teacher profile' })
+  @Roles('teacher')
+  @Get('profile/:id')
+  async getProfile(@Param('id') id: string) {
+    try {
+      return await this.teacherService.getProfile(id);
+    } catch (e) {
+      if (e instanceof NotFoundException) {
+        throw e;
+      }
+      throw new InternalServerErrorException(e.message);
+    }
   }
 
-  @ApiOperation({
-    summary: 'Get Teacher by ID',
-  })
+  @ApiOperation({ summary: 'Get teacher by ID' })
+  @ApiParam({ name: 'id', required: true })
+  @ApiResponse({ status: 200, description: 'Teacher found' })
+  @ApiResponse({ status: 404, description: 'Teacher not found' })
+  @Roles('admin')
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.teacherService.findOne(id);
+  async findOne(@Param('id') id: string) {
+    try {
+      return await this.teacherService.findOne(id);
+    } catch (e) {
+      if (e instanceof NotFoundException) {
+        throw e;
+      }
+      throw new InternalServerErrorException(e.message);
+    }
   }
 
-  @ApiOperation({
-    summary: 'Update Teacher',
-  })
+  @ApiOperation({ summary: 'Update teacher' })
+  @ApiResponse({ status: 200, description: 'Teacher updated' })
+  @ApiResponse({ status: 404, description: 'Teacher not found' })
+  @Roles('admin')
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTeacherDto: UpdateTeacherDto) {
-    return this.teacherService.update(id, updateTeacherDto);
+  async update(@Param('id') id: string, @Body() updateTeacherDto: UpdateTeacherDto) {
+    try {
+      return await this.teacherService.update(id, updateTeacherDto);
+    } catch (e) {
+      if (e instanceof NotFoundException || e instanceof BadRequestException) {
+        throw e;
+      }
+      throw new InternalServerErrorException(e.message);
+    }
   }
 
-  @ApiOperation({
-    summary: 'Delete Teacher',
-  })
+  @ApiOperation({ summary: 'Delete teacher' })
+  @ApiResponse({ status: 200, description: 'Teacher deleted' })
+  @ApiResponse({ status: 404, description: 'Teacher not found' })
+  @Roles('admin')
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.teacherService.remove(id);
+  async remove(@Param('id') id: string) {
+    try {
+      return await this.teacherService.remove(id);
+    } catch (e) {
+      if (e instanceof NotFoundException) {
+        throw e;
+      }
+      throw new InternalServerErrorException(e.message);
+    }
   }
 }

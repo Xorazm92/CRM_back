@@ -6,15 +6,25 @@ import {
   Patch,
   Param,
   Delete,
-  HttpStatus,
   UseGuards,
+  UsePipes,
+  ValidationPipe,
+  HttpStatus,
+  HttpCode,
+  NotFoundException,
+  BadRequestException,
+  InternalServerErrorException,
   Query,
   DefaultValuePipe,
-  ParseIntPipe,
+  ParseIntPipe
 } from '@nestjs/common';
 import { StudentService } from './student.service';
 import { CreateStudentDto } from './dto/create-student.dto';
 import { UpdateStudentDto } from './dto/update-student.dto';
+import { JwtAuthGuard } from 'src/infrastructure/guards/jwt-auth.guard';
+import { RolesGuard } from 'src/infrastructure/guards/roles.guard';
+import { Roles } from 'src/infrastructure/decorators/roles.decorator';
+import { UserRole } from 'src/users/user-role.enum';
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -22,202 +32,107 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { UserID } from 'src/common/decorator';
-import { JwtAuthGuard } from 'src/infrastructure/guards/jwt-auth.guard';
 
 @ApiTags('Student Api')
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
+@UsePipes(new ValidationPipe({ whitelist: true }))
 @Controller('student')
 export class StudentController {
   constructor(private readonly studentService: StudentService) {}
 
-  @ApiOperation({
-    summary: 'Create Student ',
-  })
-  @ApiResponse({
-    status: HttpStatus.CREATED,
-    description: 'Student created successfully',
-    schema: {
-      example: {
-        status: HttpStatus.CREATED,
-        message: 'CREATED',
-      },
-    },
-  })
-  @ApiResponse({
-    status: HttpStatus.BAD_REQUEST,
-    description: 'A user with this username already exists',
-    schema: {
-      example: {
-        status: HttpStatus.BAD_REQUEST,
-        message: 'A user with this username already exists',
-      },
-    },
-  })
- 
+  @ApiOperation({ summary: 'Create student' })
+  @ApiResponse({ status: 201, description: 'Student created' })
+  @ApiResponse({ status: 400, description: 'Validation error' })
+  @Roles('admin')
   @Post('createStudent')
-  create(@Body() createStudentDto: CreateStudentDto) {
-    return this.studentService.create(createStudentDto);
+  async create(@Body() createStudentDto: CreateStudentDto) {
+    try {
+      return await this.studentService.create(createStudentDto);
+    } catch (e) {
+      if (e instanceof BadRequestException || e instanceof NotFoundException) {
+        throw e;
+      }
+      throw new InternalServerErrorException(e.message);
+    }
   }
 
-  @ApiOperation({
-    summary: 'Get all Student ',
-  })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'All Student fetched successfully',
-    schema: {
-      example: {
-        status: HttpStatus.OK,
-        message: 'success',
-        data: [
-          {
-            user_id: 'f6bb055d-8b0b-4503-b53b-67c1230993f7',
-            full_name: 'Jhon Doe',
-            username: 'jhondoe007',
-            password:
-              '$2b$10$D01/2P0O1TI5Jg4hRglByOEwavU3cfLcLAbimHCgIn1VUXo0ZKN4W',
-            role: 'STUDENT',
-            created_at: '2025-04-06T15:25:06.746Z',
-            updated_at: '2025-04-06T15:25:06.746Z',
-          },
-        ],
-      },
-    },
-  })
- 
+  @ApiOperation({ summary: 'Get all students' })
+  @ApiResponse({ status: 200, description: 'List of students' })
+  @Roles('admin', 'teacher')
   @Get()
-  findAll(
+  async findAll(
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page?: number,
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit?: number,
   ) {
-    return this.studentService.findAll(page , limit);
+    try {
+      return await this.studentService.findAll(page, limit);
+    } catch (e) {
+      throw new InternalServerErrorException(e.message);
+    }
   }
 
-  @ApiOperation({
-    summary: 'Get Profile Student ',
-  })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'Profile Student fetched successfully',
-    schema: {
-      example: {
-        status: HttpStatus.OK,
-        message: 'success',
-        data: [
-          {
-            user_id: 'f6bb055d-8b0b-4503-b53b-67c1230993f7',
-            full_name: 'Jhon Doe',
-            username: 'jhondoe007',
-          },
-        ],
-      },
-    },
-  })
-  @Get('getProfile')
-  getProfile(@UserID() id: string) {
-    return this.studentService.getProfile(id);
+  @ApiOperation({ summary: 'Get student profile' })
+  @ApiResponse({ status: 200, description: 'Student profile' })
+  @Roles('student')
+  @Get('getProfile/:id')
+  async getProfile(@Param('id') id: string) {
+    try {
+      return await this.studentService.getProfile(id);
+    } catch (e) {
+      if (e instanceof NotFoundException) {
+        throw e;
+      }
+      throw new InternalServerErrorException(e.message);
+    }
   }
 
-  @ApiOperation({
-    summary: 'Get Student by ID',
-  })
-  @ApiParam({
-    name: 'id',
-    description: 'ID of the Student',
-    type: String,
-    example: 'ws783241-213dsbzcxfdsh0329-ljdsk',
-  })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'Student fetched by id successfully',
-    schema: {
-      example: {
-        status: HttpStatus.OK,
-        message: 'success',
-        data: {
-          user_id: 'f6bb055d-8b0b-4503-b53b-67c1230993f7',
-          full_name: 'Jhon Doe',
-          username: 'jhondoe007',
-          password:
-            '$2b$10$D01/2P0O1TI5Jg4hRglByOEwavU3cfLcLAbimHCgIn1VUXo0ZKN4W',
-          role: 'STUDENT',
-          created_at: '2025-04-06T15:25:06.746Z',
-          updated_at: '2025-04-06T15:25:06.746Z',
-        },
-      },
-    },
-  })
-  @ApiResponse({
-    status: HttpStatus.NOT_FOUND,
-    description: 'Student Not Found',
-    schema: {
-      example: {
-        status: HttpStatus.NOT_FOUND,
-        message: 'Student with id 2378askjdh-23498sjkdafh not found.',
-      },
-    },
-  })
+  @ApiOperation({ summary: 'Get student by ID' })
+  @ApiParam({ name: 'id', required: true })
+  @ApiResponse({ status: 200, description: 'Student found' })
+  @ApiResponse({ status: 404, description: 'Student not found' })
+  @Roles('admin', 'teacher')
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.studentService.findOne(id);
+  async findOne(@Param('id') id: string) {
+    try {
+      return await this.studentService.findOne(id);
+    } catch (e) {
+      if (e instanceof NotFoundException) {
+        throw e;
+      }
+      throw new InternalServerErrorException(e.message);
+    }
   }
 
-  @ApiOperation({
-    summary: 'Edit Profile Student ',
-  })
-  @ApiResponse({
-    status: HttpStatus.CREATED,
-    description: 'Student Updated successfully',
-    schema: {
-      example: {
-        status: HttpStatus.OK,
-        message: 'success',
-      },
-    },
-  })
-  @ApiResponse({
-    status: HttpStatus.NOT_FOUND,
-    description: 'Student Not Found',
-    schema: {
-      example: {
-        status: HttpStatus.NOT_FOUND,
-        message: 'Student with id 2378askjdh-23498sjkdafh not found.',
-      },
-    },
-  })
+  @ApiOperation({ summary: 'Update student' })
+  @ApiResponse({ status: 200, description: 'Student updated' })
+  @ApiResponse({ status: 404, description: 'Student not found' })
+  @Roles('admin')
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateStudentDto: UpdateStudentDto) {
-    return this.studentService.update(id, updateStudentDto);
+  async update(@Param('id') id: string, @Body() updateStudentDto: UpdateStudentDto) {
+    try {
+      return await this.studentService.update(id, updateStudentDto);
+    } catch (e) {
+      if (e instanceof NotFoundException || e instanceof BadRequestException) {
+        throw e;
+      }
+      throw new InternalServerErrorException(e.message);
+    }
   }
 
-  @ApiOperation({
-    summary: 'Delete Student ',
-  })
-  @ApiResponse({
-    status: HttpStatus.CREATED,
-    description: 'Student delete successfully',
-    schema: {
-      example: {
-        status: HttpStatus.OK,
-        message: 'success',
-      },
-    },
-  })
-  @ApiResponse({
-    status: HttpStatus.NOT_FOUND,
-    description: 'Student Not Found',
-    schema: {
-      example: {
-        status: HttpStatus.NOT_FOUND,
-        message: 'Student with id 2378askjdh-23498sjkdafh not found.',
-      },
-    },
-  })
-  
+  @ApiOperation({ summary: 'Delete student' })
+  @ApiResponse({ status: 200, description: 'Student deleted' })
+  @ApiResponse({ status: 404, description: 'Student not found' })
+  @Roles('admin')
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.studentService.remove(id);
+  async remove(@Param('id') id: string) {
+    try {
+      return await this.studentService.remove(id);
+    } catch (e) {
+      if (e instanceof NotFoundException) {
+        throw e;
+      }
+      throw new InternalServerErrorException(e.message);
+    }
   }
 }
