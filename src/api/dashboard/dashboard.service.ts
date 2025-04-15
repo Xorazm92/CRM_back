@@ -7,6 +7,33 @@ export class DashboardService {
   constructor(private prisma: PrismaService) {}
 
   async getStats(): Promise<DashboardStatsDto> {
+    const [basicStats, financialStats, attendanceStats] = await Promise.all([
+      this.getBasicStats(),
+      this.getFinancialStats(),
+      this.getDetailedAttendanceStats()
+    ]);
+
+    return {
+      ...basicStats,
+      ...financialStats,
+      ...attendanceStats,
+      revenueByMonth: await this.getRevenueByMonth(),
+      studentGrowth: await this.getStudentGrowthStats(),
+      coursePerformance: await this.getCoursePerformanceStats()
+    };
+  }
+
+  private async getFinancialStats() {
+    const currentMonth = new Date();
+    const lastMonth = new Date(currentMonth.setMonth(currentMonth.getMonth() - 1));
+
+    return {
+      totalRevenue: await this.calculateTotalRevenue(),
+      monthlyComparison: await this.compareMonthlyRevenue(lastMonth, currentMonth),
+      unpaidInvoices: await this.getUnpaidInvoicesCount(),
+      averagePaymentTime: await this.calculateAveragePaymentTime()
+    };
+  }
     const [
       totalStudents,
       totalTeachers,

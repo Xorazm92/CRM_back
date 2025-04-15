@@ -8,6 +8,38 @@ import { PaymentStatus } from './dto/payment-status.enum';
 export class PaymentService {
   constructor(private prisma: PrismaService) {}
 
+  async getPaymentHistory(studentId: string) {
+    return this.prisma.studentPayment.findMany({
+      where: { student_id: studentId },
+      include: {
+        discounts: true,
+        course: true
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+  }
+
+  async applyDiscount(paymentId: string, discountPercent: number) {
+    const payment = await this.prisma.studentPayment.findUnique({
+      where: { id: paymentId }
+    });
+    
+    const discountedAmount = payment.amount * (1 - discountPercent/100);
+    
+    return this.prisma.studentPayment.update({
+      where: { id: paymentId },
+      data: {
+        amount: discountedAmount,
+        discounts: {
+          create: {
+            percent: discountPercent,
+            appliedAt: new Date()
+          }
+        }
+      }
+    });
+  }
+
   async createStudentPayment(dto: CreateStudentPaymentDto) {
     const student = await this.prisma.student.findUnique({
       where: { id: dto.studentId }
