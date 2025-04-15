@@ -1,4 +1,3 @@
-
 import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards } from '@nestjs/common';
 import { AttendanceService } from './attendance.service';
 import { JwtAuthGuard } from '../../infrastructure/guards/jwt-auth.guard';
@@ -9,8 +8,8 @@ import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagg
 
 @ApiTags('Attendance')
 @ApiBearerAuth()
-@Controller('attendance')
 @UseGuards(JwtAuthGuard, RolesGuard)
+@Controller('attendance')
 export class AttendanceController {
   constructor(private readonly attendanceService: AttendanceService) {}
 

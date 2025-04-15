@@ -7,8 +7,8 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { AuthGuard } from '@nestjs/passport';
 
 @ApiTags('users')
-@Controller('users')
 @UseGuards(AuthGuard('jwt'))
+@Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 

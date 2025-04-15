@@ -1,11 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../common/prisma/prisma.service';
+import { BadRequestException } from '@nestjs/common';
 
 @Injectable()
 export class LessonService {
   constructor(private prisma: PrismaService) {}
 
-  create(createLessonDto: any) {
+  async create(createLessonDto: any) {
+    if (!createLessonDto.topic || typeof createLessonDto.topic !== 'string') {
+      throw new BadRequestException('Topic is required');
+    }
     return this.prisma.lessons.create({
       data: createLessonDto,
     });

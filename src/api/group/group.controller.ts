@@ -7,15 +7,18 @@ import {
   Param,
   Post,
   Put,
+  UseGuards,
 } from '@nestjs/common';
 import { CreateGroupDto } from './dto/create.group.dto';
 import { GroupService } from './group.service';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UserID } from 'src/common/decorator/user-id.decorator';
 import { UpdateGroupDto } from './dto/update.group.dto';
+import { JwtAuthGuard } from '../../infrastructure/guards/jwt-auth.guard';
 
 @ApiTags('Groups') // Group API documentation tag
 @ApiBearerAuth()
+@UseGuards(JwtAuthGuard)
 @Controller('groups')
 export class GroupController {
   constructor(private readonly groupService: GroupService) {}

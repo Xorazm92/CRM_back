@@ -27,6 +27,7 @@ import { UserID } from 'src/common/decorator';
 
 @ApiTags('Teacher Api')
 @ApiBearerAuth()
+@UseGuards(AdminGuard)
 @Controller('teacher')
 export class TeacherController {
   constructor(private readonly teacherService: TeacherService) {}
@@ -44,7 +45,6 @@ export class TeacherController {
       },
     },
   })
-  @UseGuards(AdminGuard)
   @Post('createTeacher')
   create(@Body() createTeacherDto: CreateTeacherDto) {
     return this.teacherService.create(createTeacherDto);
@@ -57,7 +57,6 @@ export class TeacherController {
     status: HttpStatus.OK,
     description: 'All Teachers fetched successfully',
   })
-  @UseGuards(AdminGuard)
   @Get()
   findAll(
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page?: number,
@@ -93,7 +92,6 @@ export class TeacherController {
   @ApiOperation({
     summary: 'Delete Teacher',
   })
-  @UseGuards(AdminGuard)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.teacherService.remove(id);

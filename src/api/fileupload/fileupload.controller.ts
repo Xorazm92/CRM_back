@@ -12,8 +12,8 @@ interface RequestWithUser extends Request {
 }
 
 @ApiTags('File Upload')
-@Controller('files')
 @UseGuards(JwtAuthGuard)
+@Controller('files')
 export class FileUploadController {
   constructor(private readonly fileuploadService: FileUploadService) {}
 

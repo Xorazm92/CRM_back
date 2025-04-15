@@ -29,8 +29,8 @@ import { UserID } from 'src/common/decorator';
 import { JwtAuthGuard } from 'src/infrastructure/guards/jwt-auth.guard';
 
 @ApiTags('Admin Api')
-@UseGuards(JwtAuthGuard)
 @Controller('admin')
+@UseGuards(JwtAuthGuard)
 export class AdminController {
   constructor(private readonly adminService: AdminService) {}
 

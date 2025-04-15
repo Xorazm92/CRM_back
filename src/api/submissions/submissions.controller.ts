@@ -10,8 +10,8 @@ import { UpdateSubmissionDto } from './dto/update-submission.dto';
 
 @ApiTags('Submissions')
 @ApiBearerAuth()
-@Controller('submissions')
 @UseGuards(JwtAuthGuard, RolesGuard)
+@Controller('submissions')
 export class SubmissionsController {
   constructor(private readonly submissionsService: SubmissionsService) {}
 

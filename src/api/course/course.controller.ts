@@ -1,18 +1,18 @@
 import { Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from '../../infrastructure/guards/jwt-auth.guard';
+import { RolesGuard } from '../../infrastructure/guards/roles.guard';
 import { CourseService } from './course.service';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
 import { FindCoursesQueryDto } from './dto/find-courses-query.dto';
-import { JwtAuthGuard } from '../../infrastructure/guards/jwt-auth.guard';
-import { RolesGuard } from '../../infrastructure/guards/roles.guard';
 import { Roles } from '../../infrastructure/decorators/roles.decorator';
 import { UserRole } from '@prisma/client';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 
 @ApiTags('Courses')
 @ApiBearerAuth()
-@Controller('courses')
 @UseGuards(JwtAuthGuard, RolesGuard)
+@Controller('courses')
 export class CourseController {
   constructor(private readonly courseService: CourseService) {}
 

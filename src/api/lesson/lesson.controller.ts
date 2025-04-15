@@ -1,4 +1,3 @@
-
 import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards } from '@nestjs/common';
 import { LessonService } from './lesson.service';
 import { JwtAuthGuard } from '../../infrastructure/guards/jwt-auth.guard';
@@ -9,8 +8,8 @@ import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagg
 
 @ApiTags('Lessons')
 @ApiBearerAuth()
-@Controller('lessons')
 @UseGuards(JwtAuthGuard, RolesGuard)
+@Controller('lessons')
 export class LessonController {
   constructor(private readonly lessonService: LessonService) {}
 

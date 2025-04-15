@@ -1,16 +1,20 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../../common/prisma/prisma.service';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { PrismaService } from '../../infrastructure/prisma/prisma.service';
 
 @Injectable()
 export class AttendanceService {
   constructor(private prisma: PrismaService) {}
 
   async create(createAttendanceDto: any) {
+    if (!createAttendanceDto.lessonId || !createAttendanceDto.studentId || !createAttendanceDto.status) {
+      throw new BadRequestException('lessonId, studentId va status majburiy!');
+    }
     return this.prisma.attendance.create({
       data: {
-        ...createAttendanceDto,
-        group_id: createAttendanceDto.groupId,
-        student_id: createAttendanceDto.studentId
+        lesson_id: createAttendanceDto.lessonId,
+        student_id: createAttendanceDto.studentId,
+        status: createAttendanceDto.status,
+        remarks: createAttendanceDto.remarks,
       },
       include: {
         student: true,

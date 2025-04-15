@@ -25,9 +25,9 @@ import {
 import { UserID } from 'src/common/decorator';
 import { JwtAuthGuard } from 'src/infrastructure/guards/jwt-auth.guard';
 
-
 @ApiTags('Student Api')
 @ApiBearerAuth()
+@UseGuards(JwtAuthGuard)
 @Controller('student')
 export class StudentController {
   constructor(private readonly studentService: StudentService) {}
