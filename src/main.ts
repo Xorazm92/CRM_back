@@ -8,20 +8,21 @@ async function bootstrap() {
 
   const config = new DocumentBuilder()
     .setTitle('LMS API')
-    .setDescription('Learning Management System API')
+    .setDescription('Learning Management System API documentation')
     .setVersion('1.0')
     .addBearerAuth()
     .addTag('auth', 'Authentication endpoints')
     .addTag('users', 'User management')
-    .addTag('admin', 'Admin operations')  
+    .addTag('admin', 'Admin operations')
     .addTag('teachers', 'Teacher management')
-    .addTag('students', 'Student management')
+    .addTag('students', 'Student management') 
     .addTag('courses', 'Course management')
     .addTag('groups', 'Group management')
     .addTag('lessons', 'Lesson management')
     .addTag('assignments', 'Assignment management')
     .addTag('attendance', 'Attendance tracking')
     .addTag('payments', 'Payment management')
+    .addTag('files', 'File management')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
