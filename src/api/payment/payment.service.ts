@@ -1,73 +1,58 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from 'src/common/prisma/prisma.service';
+import { PrismaService } from 'src/infrastructure/prisma/prisma.service';
 import { CreateStudentPaymentDto } from './dto/create-student-payment.dto';
 import { CreateTeacherSalaryDto } from './dto/create-teacher-salary.dto';
-import { PaymentType, PaymentStatus } from '@prisma/client';
+import { PaymentStatus } from './dto/payment-status.enum';
 
 @Injectable()
 export class PaymentService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) {}
 
   async createStudentPayment(dto: CreateStudentPaymentDto) {
-    const student = await this.prisma.user.findUnique({
-      where: { user_id: dto.student_id },
+    const student = await this.prisma.student.findUnique({
+      where: { id: dto.studentId }
     });
 
     if (!student) {
       throw new NotFoundException('Student not found');
     }
 
-    return this.prisma.studentPayment.create({
+    return this.prisma.payment.create({
       data: {
         amount: dto.amount,
-        type: PaymentType.MONTHLY,
-        status: PaymentStatus.PENDING
+        status: PaymentStatus.COMPLETED,
+        type: 'STUDENT_PAYMENT',
+        description: dto.description,
+        student: { connect: { id: dto.studentId } }
       }
     });
   }
 
   async createTeacherSalary(dto: CreateTeacherSalaryDto) {
-    const teacher = await this.prisma.user.findUnique({
-      where: { user_id: dto.teacher_id },
+    const teacher = await this.prisma.teacher.findUnique({
+      where: { id: dto.teacherId }
     });
 
     if (!teacher) {
       throw new NotFoundException('Teacher not found');
     }
 
-    return this.prisma.teacherSalary.create({
+    return this.prisma.payment.create({
       data: {
         amount: dto.amount,
-        status: PaymentStatus.PENDING
+        status: PaymentStatus.COMPLETED,
+        type: 'TEACHER_SALARY',
+        description: dto.description,
+        teacher: { connect: { id: dto.teacherId } }
       }
     });
   }
 
-  async getStudentPayments(studentId: string) {
-    return this.prisma.studentPayment.findMany({
-      where: { id: studentId },
-      orderBy: { createdAt: 'desc' }
-    });
-  }
-
-  async getTeacherSalaries(teacherId: string) {
-    return this.prisma.teacherSalary.findMany({
-      where: { id: teacherId },
-      orderBy: { createdAt: 'desc' }
-    });
-  }
-
-  async updatePaymentStatus(paymentId: string, status: PaymentStatus) {
-    return this.prisma.studentPayment.update({
-      where: { id: paymentId },
-      data: { status },
-    });
-  }
-
-  async updateSalaryStatus(salaryId: string, status: PaymentStatus) {
-    return this.prisma.teacherSalary.update({
-      where: { id: salaryId },
-      data: { status },
+  async getPaymentStats() {
+    return this.prisma.payment.groupBy({
+      by: ['type', 'status'],
+      _sum: { amount: true },
+      _count: true
     });
   }
 }
