@@ -1,4 +1,3 @@
-
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
@@ -15,24 +14,21 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
       secretOrKey: configService.get('ACCESS_TOKEN_KEY'),
+      passReqToCallback: true
     });
   }
 
-  async validate(payload: any) {
-    const user = await this.prisma.user.findUnique({
-      where: { id: payload.userId },
-      select: {
-        id: true,
-        email: true,
-        role: true,
-        isActive: true
-      }
-    });
+  async validate(req: Request, payload: any) {
+    const token = ExtractJwt.fromAuthHeaderAsBearerToken()(req);
 
-    if (!user || !user.isActive) {
-      throw new UnauthorizedException('User is not active or not found');
+    if (!token) {
+      throw new UnauthorizedException('Token topilmadi');
     }
 
-    return user;
+    return {
+      userId: payload.sub,
+      username: payload.username,
+      role: payload.role
+    };
   }
 }

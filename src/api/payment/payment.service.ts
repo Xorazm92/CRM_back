@@ -8,6 +8,52 @@ import { PaymentStatus } from './dto/payment-status.enum';
 export class PaymentService {
   constructor(private prisma: PrismaService) {}
 
+  async getStudentPaymentHistory(studentId: string) {
+    return this.prisma.payment.findMany({
+      where: { 
+        student_id: studentId,
+        type: 'STUDENT_PAYMENT'
+      },
+      include: {
+        student: true,
+        course: true
+      },
+      orderBy: { created_at: 'desc' }
+    });
+  }
+
+  async getMonthlyReport() {
+    const startOfMonth = new Date();
+    startOfMonth.setDate(1);
+    startOfMonth.setHours(0, 0, 0, 0);
+
+    return this.prisma.payment.groupBy({
+      by: ['type'],
+      where: {
+        created_at: {
+          gte: startOfMonth
+        }
+      },
+      _sum: {
+        amount: true
+      }
+    });
+  }
+
+  async createPaymentWithDiscount(dto: CreateStudentPaymentDto, discountPercent: number) {
+    const amount = dto.amount * (1 - discountPercent/100);
+    
+    return this.prisma.payment.create({
+      data: {
+        amount,
+        type: 'STUDENT_PAYMENT',
+        status: PaymentStatus.PENDING,
+        student: { connect: { id: dto.studentId } },
+        discount_percent: discountPercent
+      }
+    });
+  }
+
   async getPaymentHistory(studentId: string) {
     return this.prisma.studentPayment.findMany({
       where: { student_id: studentId },
