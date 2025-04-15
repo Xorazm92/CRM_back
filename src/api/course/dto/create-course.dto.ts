@@ -37,3 +37,26 @@ export class CreateCourseDto {
   @IsEnum(CourseStatus)
   status: CourseStatus;
 }
+import { IsNotEmpty, IsString, IsNumber, IsOptional } from 'class-validator';
+
+export class CreateCourseDto {
+  @IsNotEmpty()
+  @IsString()
+  name: string;
+
+  @IsNotEmpty()
+  @IsString()
+  description: string;
+
+  @IsNotEmpty()
+  @IsNumber()
+  duration: number;
+
+  @IsNotEmpty()
+  @IsNumber()
+  price: number;
+
+  @IsOptional()
+  @IsString()
+  syllabus?: string;
+}
