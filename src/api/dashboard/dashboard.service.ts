@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { PrismaService } from 'src/infrastructure/prisma/prisma.service';
 import { DashboardStatsDto } from './dto/dashboard-stats.dto';
 
@@ -6,119 +6,130 @@ import { DashboardStatsDto } from './dto/dashboard-stats.dto';
 export class DashboardService {
   constructor(private prisma: PrismaService) {}
 
-  async getStats(): Promise<DashboardStatsDto> {
-    const [basicStats, financialStats, performanceStats] = await Promise.all([
-      this.getBasicStats(),
-      this.getFinancialStats(),
-      this.getPerformanceStats()
-    ]);
-
-    return {
-      ...basicStats,
-      ...financialStats,
-      ...performanceStats,
-      monthlyRevenue: 0, // lint uchun qo'shildi
-      lastUpdated: new Date()
-    };
+  async getStats(): Promise<DashboardStatsDto & { monthlyRevenue: number; lastUpdated: Date }> {
+    try {
+      const [basicStats, financialStats, performanceStats] = await Promise.all([
+        this.getBasicStats(),
+        this.getFinancialStats(),
+        this.getPerformanceStats(),
+      ]);
+      return {
+        ...basicStats,
+        ...financialStats,
+        ...performanceStats,
+        monthlyRevenue: 0, // lint uchun qo'shildi
+        lastUpdated: new Date(),
+      };
+    } catch (e) {
+      throw new InternalServerErrorException(e.message);
+    }
   }
 
   private async getPerformanceStats() {
-    const monthStart = new Date();
-    monthStart.setDate(1);
-
-    return {
-      bestPerformingCourses: await this.prisma.course.findMany({
-        take: 5,
-        orderBy: {
-          groups: {
-            _count: 'desc'
-          }
-        },
-        include: {
-          _count: {
-            select: { groups: true }
-          }
-        }
-      }),
-      
-      teacherPerformance: await this.prisma.teacher.findMany({
-        take: 5,
-        include: {
-          _count: {
-            select: { groups: true }
+    try {
+      const monthStart = new Date();
+      monthStart.setDate(1);
+      return {
+        bestPerformingCourses: await this.prisma.course.findMany({
+          take: 5,
+          orderBy: {
+            groups: {
+              _count: 'desc',
+            },
           },
-          groups: {
-            include: {
-              _count: {
-                select: { students: true }
-              }
-            }
-          }
-        }
-      })
-    };
+          include: {
+            _count: {
+              select: { groups: true },
+            },
+          },
+        }),
+        teacherPerformance: await this.prisma.user.findMany({
+          where: { role: 'TEACHER' },
+          take: 5,
+          include: {
+            _count: {
+              select: { groups: true },
+            },
+            groups: {
+              include: {
+                _count: {
+                  select: { students: true },
+                },
+              },
+            },
+          },
+        }),
+      };
+    } catch (e) {
+      throw new InternalServerErrorException(e.message);
+    }
   }
 
   private async getFinancialStats() {
-    const currentMonth = new Date();
-    const lastMonth = new Date(currentMonth.setMonth(currentMonth.getMonth() - 1));
-
-    return {
-      totalRevenue: await this.calculateTotalRevenue(),
-      monthlyComparison: await this.compareMonthlyRevenue(lastMonth, currentMonth),
-      unpaidInvoices: await this.getUnpaidInvoicesCount(),
-      averagePaymentTime: await this.calculateAveragePaymentTime()
-    };
+    try {
+      const currentMonth = new Date();
+      const lastMonth = new Date(currentMonth);
+      lastMonth.setMonth(currentMonth.getMonth() - 1);
+      return {
+        totalRevenue: await this.calculateTotalRevenue(),
+        monthlyComparison: await this.compareMonthlyRevenue(lastMonth, currentMonth),
+        unpaidInvoices: await this.getUnpaidInvoicesCount(),
+        averagePaymentTime: await this.calculateAveragePaymentTime(),
+      };
+    } catch (e) {
+      throw new InternalServerErrorException(e.message);
+    }
   }
 
   private async getBasicStats() {
-    const [
-      totalStudents,
-      totalTeachers,
-      totalCourses,
-      activeGroups,
-      attendance
-    ] = await Promise.all([
-      this.prisma.user.count({ where: { role: 'STUDENT' } }),
-      this.prisma.user.count({ where: { role: 'TEACHER' } }),
-      this.prisma.course.count(),
-      this.prisma.groups.count({ where: { status: 'ACTIVE' } }),
-      this.prisma.attendance.groupBy({
-        by: ['status'],
-        _count: true
-      })
-    ]);
-
-    return {
-      totalStudents,
-      totalTeachers, 
-      totalCourses,
-      activeGroups,
-      attendance: {
-        present: attendance.find(a => a.status === 'PRESENT')?._count || 0,
-        absent: attendance.find(a => a.status === 'ABSENT')?._count || 0,
-        total: attendance.reduce((acc, curr) => acc + curr._count, 0)
-      }
-    };
+    try {
+      const [totalStudents, totalTeachers, totalCourses, activeGroups, attendance] = await Promise.all([
+        this.prisma.user.count({ where: { role: 'STUDENT' } }),
+        this.prisma.user.count({ where: { role: 'TEACHER' } }),
+        this.prisma.course.count(),
+        this.prisma.groups.count({ where: { status: 'ACTIVE' } }),
+        this.prisma.attendance.groupBy({
+          by: ['status'],
+          _count: true,
+        }),
+      ]);
+      return {
+        totalStudents,
+        totalTeachers,
+        totalCourses,
+        activeGroups,
+        attendance: {
+          present: attendance.find((a) => a.status === 'PRESENT')?._count || 0,
+          absent: attendance.find((a) => a.status === 'ABSENT')?._count || 0,
+          total: attendance.reduce((acc, curr) => acc + curr._count, 0),
+        },
+      };
+    } catch (e) {
+      throw new InternalServerErrorException(e.message);
+    }
   }
 
   private async getAttendanceStats() {
-    throw new Error('Method not implemented.');
+    throw new InternalServerErrorException('Method not implemented.');
   }
 
   private async calculateTotalRevenue() {
-    throw new Error('Method not implemented.');
+    // TODO: implement
+    return 0;
   }
 
   private async compareMonthlyRevenue(lastMonth: Date, currentMonth: Date) {
-    throw new Error('Method not implemented.');
+    // TODO: implement
+    return 0;
   }
 
   private async getUnpaidInvoicesCount() {
-    throw new Error('Method not implemented.');
+    // TODO: implement
+    return 0;
   }
 
   private async calculateAveragePaymentTime() {
-    throw new Error('Method not implemented.');
+    // TODO: implement
+    return 0;
   }
 }
