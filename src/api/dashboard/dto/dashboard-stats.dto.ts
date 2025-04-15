@@ -10,4 +10,6 @@ export class DashboardStatsDto {
     absent: number;
     total: number;
   };
+  lastUpdated: any;
+  teacherPerformance: any;
 }

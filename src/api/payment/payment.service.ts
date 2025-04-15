@@ -6,6 +6,12 @@ import { PaymentStatus } from './dto/payment-status.enum';
 
 @Injectable()
 export class PaymentService {
+  getTeacherSalaryHistory(id: string) {
+    throw new Error('Method not implemented.');
+  }
+  getStudentPayments(id: string) {
+    throw new Error('Method not implemented.');
+  }
   constructor(private prisma: PrismaService) {}
 
   async getStudentPaymentHistory(studentId: string) {
@@ -34,9 +40,8 @@ export class PaymentService {
           gte: startOfMonth
         }
       },
-      _sum: {
-        amount: true
-      }
+      _sum: { amount: true },
+      _count: true
     });
   }
 
@@ -48,88 +53,94 @@ export class PaymentService {
         amount,
         type: 'STUDENT_PAYMENT',
         status: PaymentStatus.PENDING,
-        student: { connect: { id: dto.studentId } },
+        student: { connect: { id: dto.student_id } },
         discount_percent: discountPercent
       }
     });
   }
 
   async getPaymentHistory(studentId: string) {
-    return this.prisma.studentPayment.findMany({
+    return this.prisma.payment.findMany({
       where: { student_id: studentId },
       include: {
-        discounts: true,
+        student: true,
         course: true
       },
-      orderBy: { createdAt: 'desc' }
+      orderBy: { created_at: 'desc' }
     });
   }
 
-  async applyDiscount(paymentId: string, discountPercent: number) {
-    const payment = await this.prisma.studentPayment.findUnique({
+  async getPaymentDetails(paymentId: string) {
+    const payment = await this.prisma.payment.findUnique({
       where: { id: paymentId }
     });
     
-    const discountedAmount = payment.amount * (1 - discountPercent/100);
+    if (!payment) {
+      throw new NotFoundException(`Payment with ID ${paymentId} not found`);
+    }
     
-    return this.prisma.studentPayment.update({
-      where: { id: paymentId },
-      data: {
-        amount: discountedAmount,
-        discounts: {
-          create: {
-            percent: discountPercent,
-            appliedAt: new Date()
-          }
-        }
-      }
-    });
+    return payment;
   }
 
   async createStudentPayment(dto: CreateStudentPaymentDto) {
     const student = await this.prisma.student.findUnique({
-      where: { id: dto.studentId }
+      where: { id: dto.student_id }
     });
 
     if (!student) {
-      throw new NotFoundException('Student not found');
+      throw new NotFoundException(`Student with ID ${dto.student_id} not found`);
     }
 
     return this.prisma.payment.create({
       data: {
         amount: dto.amount,
-        status: PaymentStatus.COMPLETED,
         type: 'STUDENT_PAYMENT',
-        description: dto.description,
-        student: { connect: { id: dto.studentId } }
+        status: dto.status,
+        student: { connect: { id: dto.student_id } },
+        payment_date: dto.payment_type,
+        payment_type: dto.payment_type
       }
     });
   }
 
   async createTeacherSalary(dto: CreateTeacherSalaryDto) {
     const teacher = await this.prisma.teacher.findUnique({
-      where: { id: dto.teacherId }
+      where: { id: dto.teacher_id }
     });
 
     if (!teacher) {
-      throw new NotFoundException('Teacher not found');
+      throw new NotFoundException(`Teacher with ID ${dto.teacher_id} not found`);
     }
 
     return this.prisma.payment.create({
       data: {
         amount: dto.amount,
-        status: PaymentStatus.COMPLETED,
         type: 'TEACHER_SALARY',
-        description: dto.description,
-        teacher: { connect: { id: dto.teacherId } }
+        status: dto.status,
+        teacher: { connect: { id: dto.teacher_id } },
+        payment_date: dto.payment_date,
+        payment_type: dto.payment_type
       }
+    });
+  }
+
+  async updatePaymentStatus(id: string, status: PaymentStatus) {
+    return this.prisma.payment.update({
+      where: { id },
+      data: { status }
+    });
+  }
+
+  async updateSalaryStatus(id: string, status: PaymentStatus) {
+    return this.prisma.payment.update({
+      where: { id },
+      data: { status }
     });
   }
 
   async getPaymentStats() {
     return this.prisma.payment.groupBy({
-      by: ['type', 'status'],
-      _sum: { amount: true },
+      by: ['status'],
       _count: true
     });
   }

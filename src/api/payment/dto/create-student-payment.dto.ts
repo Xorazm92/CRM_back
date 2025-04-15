@@ -18,4 +18,5 @@ export class CreateStudentPaymentDto {
   @IsOptional()
   @IsString()
   description?: string;
+  status: any;
 }

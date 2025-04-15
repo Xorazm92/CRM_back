@@ -22,8 +22,9 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { AdminGuard } from 'src/common/guard/admin.guard';
 import { UserID } from 'src/common/decorator';
+import { JwtAuthGuard } from 'src/infrastructure/guards/jwt-auth.guard';
+
 
 @ApiTags('Student Api')
 @ApiBearerAuth()
@@ -36,7 +37,7 @@ export class StudentController {
   })
   @ApiResponse({
     status: HttpStatus.CREATED,
-    description: 'Student created',
+    description: 'Student created successfully',
     schema: {
       example: {
         status: HttpStatus.CREATED,
@@ -54,7 +55,7 @@ export class StudentController {
       },
     },
   })
-  @UseGuards(AdminGuard)
+ 
   @Post('createStudent')
   create(@Body() createStudentDto: CreateStudentDto) {
     return this.studentService.create(createStudentDto);
@@ -85,7 +86,7 @@ export class StudentController {
       },
     },
   })
-  @UseGuards(AdminGuard)
+ 
   @Get()
   findAll(
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page?: number,
@@ -214,7 +215,7 @@ export class StudentController {
       },
     },
   })
-  @UseGuards(AdminGuard)
+  
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.studentService.remove(id);

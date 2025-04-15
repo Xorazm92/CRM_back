@@ -22,11 +22,11 @@ export class DashboardController {
   })
   @ApiResponse({ status: 401, description: 'Unauthorized.' })
   @ApiResponse({ status: 403, description: 'Forbidden. Admin/Manager access required.' })
-  getGeneralStats() {
-    return this.dashboardService.getGeneralStats();
+  async getStats() {
+    return this.dashboardService.getStats();
   }
 
-  @Get('attendance-stats')
+  @Get('attendance')
   @ApiOperation({ summary: 'Get attendance statistics' })
   @ApiResponse({
     status: 200,
@@ -34,31 +34,45 @@ export class DashboardController {
   })
   @ApiResponse({ status: 401, description: 'Unauthorized.' })
   @ApiResponse({ status: 403, description: 'Forbidden. Admin/Manager access required.' })
-  getAttendanceStats() {
-    return this.dashboardService.getAttendanceStats();
+  async getAttendance() {
+    const stats = await this.dashboardService.getStats();
+    return {
+      totalStudents: stats.totalStudents,
+      attendance: stats.attendance,
+      lastUpdated: stats.lastUpdated
+    };
   }
 
-  @Get('groups-stats')
+  @Get('groups')
   @ApiOperation({ summary: 'Get groups statistics' })
   @ApiResponse({
     status: 200,
-    description: 'Returns groups statistics including total groups, active groups, and students per group.'
+    description: 'Returns statistics about groups including total active groups and group performance.'
   })
   @ApiResponse({ status: 401, description: 'Unauthorized.' })
   @ApiResponse({ status: 403, description: 'Forbidden. Admin/Manager access required.' })
-  getGroupsStats() {
-    return this.dashboardService.getGroupsStats();
+  async getGroups() {
+    const stats = await this.dashboardService.getStats();
+    return {
+      activeGroups: stats.activeGroups,
+      lastUpdated: stats.lastUpdated
+    };
   }
 
-  @Get('teachers-stats')
+  @Get('teachers')
   @ApiOperation({ summary: 'Get teachers statistics' })
   @ApiResponse({
     status: 200,
-    description: 'Returns teachers statistics including groups per teacher and their students.'
+    description: 'Returns statistics about teachers including total teachers and teacher performance.'
   })
   @ApiResponse({ status: 401, description: 'Unauthorized.' })
   @ApiResponse({ status: 403, description: 'Forbidden. Admin/Manager access required.' })
-  getTeachersStats() {
-    return this.dashboardService.getTeachersStats();
+  async getTeachers() {
+    const stats = await this.dashboardService.getStats();
+    return {
+      totalTeachers: stats.totalTeachers,
+      teacherPerformance: stats.teacherPerformance,
+      lastUpdated: stats.lastUpdated
+    };
   }
 }

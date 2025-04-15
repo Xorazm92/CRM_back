@@ -24,11 +24,12 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { Public } from 'src/common/decorator/auth.decorator';
-import { AdminGuard } from 'src/common/guard/admin.guard';
 import { AddMemberDto } from './dto/add-memberdto';
 import { UserID } from 'src/common/decorator';
+import { JwtAuthGuard } from 'src/infrastructure/guards/jwt-auth.guard';
 
 @ApiTags('Admin Api')
+@UseGuards(JwtAuthGuard)
 @Controller('admin')
 export class AdminController {
   constructor(private readonly adminService: AdminService) {}
@@ -91,8 +92,6 @@ export class AdminController {
       },
     },
   })
-  @UseGuards(AdminGuard)
-  @ApiBearerAuth()
   @Post('createAdmin')
   create(@Body() createAdminDto: CreateAdminDto) {
     return this.adminService.create(createAdminDto);
@@ -121,8 +120,6 @@ export class AdminController {
       },
     },
   })
-  @UseGuards(AdminGuard)
-  @ApiBearerAuth()
   @Post('addMembersToGroup')
   addMembersToGroup(@Body() addMembersDto: AddMemberDto) {
     return this.adminService.addMemberToGroup(addMembersDto);
@@ -154,13 +151,11 @@ export class AdminController {
     },
   })
   @Get()
-  @UseGuards(AdminGuard)
-  @ApiBearerAuth()
   findAll(
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page?: number,
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit?: number,
   ) {
-    return this.adminService.findAll(page , limit);
+    return this.adminService.findAll(page, limit);
   }
 
   @ApiOperation({
@@ -183,8 +178,6 @@ export class AdminController {
       },
     },
   })
-  @UseGuards(AdminGuard)
-  @ApiBearerAuth()
   @Get('getProfile')
   getProfile(@UserID() id: string) {
     return this.adminService.getProfile(id);
@@ -229,8 +222,6 @@ export class AdminController {
       },
     },
   })
-  @UseGuards(AdminGuard)
-  @ApiBearerAuth()
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.adminService.findOne(id);
@@ -259,8 +250,6 @@ export class AdminController {
       },
     },
   })
-  @UseGuards(AdminGuard)
-  @ApiBearerAuth()
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateAdminDto: UpdateAdminDto) {
     return this.adminService.update(id, updateAdminDto);
@@ -289,8 +278,6 @@ export class AdminController {
       },
     },
   })
-  @UseGuards(AdminGuard)
-  @ApiBearerAuth()
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.adminService.remove(id);

@@ -17,4 +17,7 @@ export class CreateTeacherSalaryDto {
   @IsOptional()
   @IsString()
   description?: string;
+  status: any;
+  payment_date: any;
+  payment_type: any;
 }

@@ -7,17 +7,15 @@ export class DashboardService {
   constructor(private prisma: PrismaService) {}
 
   async getStats(): Promise<DashboardStatsDto> {
-    const [basicStats, financialStats, attendanceStats, performanceStats] = await Promise.all([
+    const [basicStats, financialStats, performanceStats] = await Promise.all([
       this.getBasicStats(),
       this.getFinancialStats(),
-      this.getAttendanceStats(),
       this.getPerformanceStats()
     ]);
 
     return {
       ...basicStats,
       ...financialStats,
-      ...attendanceStats,
       ...performanceStats,
       lastUpdated: new Date()
     };
@@ -31,13 +29,13 @@ export class DashboardService {
       bestPerformingCourses: await this.prisma.course.findMany({
         take: 5,
         orderBy: {
-          students: {
+          groups: {
             _count: 'desc'
           }
         },
         include: {
           _count: {
-            select: { students: true }
+            select: { groups: true }
           }
         }
       }),
@@ -59,20 +57,6 @@ export class DashboardService {
       })
     };
   }
-      this.getBasicStats(),
-      this.getFinancialStats(),
-      this.getDetailedAttendanceStats()
-    ]);
-
-    return {
-      ...basicStats,
-      ...financialStats,
-      ...attendanceStats,
-      revenueByMonth: await this.getRevenueByMonth(),
-      studentGrowth: await this.getStudentGrowthStats(),
-      coursePerformance: await this.getCoursePerformanceStats()
-    };
-  }
 
   private async getFinancialStats() {
     const currentMonth = new Date();
@@ -85,6 +69,8 @@ export class DashboardService {
       averagePaymentTime: await this.calculateAveragePaymentTime()
     };
   }
+
+  private async getBasicStats() {
     const [
       totalStudents,
       totalTeachers,
@@ -96,7 +82,7 @@ export class DashboardService {
       this.prisma.student.count(),
       this.prisma.teacher.count(),
       this.prisma.course.count(),
-      this.prisma.group.count({ where: { status: 'ACTIVE' } }),
+      this.prisma.groups.count({ where: { status: 'ACTIVE' } }),
       this.prisma.payment.aggregate({
         where: {
           createdAt: {
@@ -123,5 +109,25 @@ export class DashboardService {
         total: attendance.reduce((acc, curr) => acc + curr._count, 0)
       }
     };
+  }
+
+  private async getAttendanceStats() {
+    throw new Error('Method not implemented.');
+  }
+
+  private async calculateTotalRevenue() {
+    throw new Error('Method not implemented.');
+  }
+
+  private async compareMonthlyRevenue(lastMonth: Date, currentMonth: Date) {
+    throw new Error('Method not implemented.');
+  }
+
+  private async getUnpaidInvoicesCount() {
+    throw new Error('Method not implemented.');
+  }
+
+  private async calculateAveragePaymentTime() {
+    throw new Error('Method not implemented.');
   }
 }

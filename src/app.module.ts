@@ -1,4 +1,3 @@
-
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AppService } from './app.service';
@@ -17,6 +16,8 @@ import { SubmissionsModule } from './api/submissions/submissions.module';
 import { PaymentModule } from './api/payment/payment.module';
 import { FileUploadModule } from './api/fileupload/fileupload.module';
 import { CacheModule } from '@nestjs/cache-manager';
+import { JwtModule } from '@nestjs/jwt';
+import { JwtStrategy } from './infrastructure/lib/jwt.strategy';
 
 @Module({
   imports: [
@@ -24,6 +25,10 @@ import { CacheModule } from '@nestjs/cache-manager';
     CacheModule.register({
       isGlobal: true,
       ttl: 60000
+    }),
+    JwtModule.register({
+      secret: process.env.JWT_SECRET,
+      signOptions: { expiresIn: '1d' },
     }),
     AuthModule,
     UserModule,
@@ -40,6 +45,6 @@ import { CacheModule } from '@nestjs/cache-manager';
     PaymentModule,
     FileUploadModule,
   ],
-  providers: [AppService],
+  providers: [AppService, JwtStrategy],
 })
 export class AppModule {}

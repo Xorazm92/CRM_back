@@ -3,7 +3,7 @@ import { Controller, Get, Post, Body, Param, Put, UseGuards } from '@nestjs/comm
 import { PaymentService } from './payment.service';
 import { CreateStudentPaymentDto } from './dto/create-student-payment.dto';
 import { CreateTeacherSalaryDto } from './dto/create-teacher-salary.dto';
-import { PaymentStatus } from '@prisma/client';
+import { PaymentStatus } from './dto/payment-status.enum';
 import { AdminGuard } from 'src/common/guard/admin.guard';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
@@ -26,12 +26,12 @@ export class PaymentController {
 
   @Get('student/:id')
   getStudentPayments(@Param('id') id: string) {
-    return this.paymentService.getStudentPayments(id);
+    return this.paymentService.getStudentPaymentHistory(id);
   }
 
   @Get('teacher/:id')
   getTeacherSalaries(@Param('id') id: string) {
-    return this.paymentService.getTeacherSalaries(id);
+    return this.paymentService.getTeacherSalaryHistory(id);
   }
 
   @Put('student/:id/status')
