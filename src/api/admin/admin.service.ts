@@ -10,10 +10,10 @@ import { UpdateAdminDto } from './dto/update-admin.dto';
 import { PrismaService } from 'src/common/prisma/prisma.service';
 import { SignInAdminDto } from './dto/signin-admin.dto';
 import { BcryptEncryption } from 'src/infrastructure/lib/bcrypt/bcrypt';
-import { CustomJwtService } from 'src/infrastructure/lib/custom-jwt';
 import { ConfigService } from '@nestjs/config';
-// Removed unused import of UserRole
+import { UserRole } from 'src/users/user-role.enum';
 import { AddMemberDto } from './dto/add-memberdto';
+import { CustomJwtService } from 'src/infrastructure/lib/custom-jwt.service';
 
 @Injectable()
 export class AdminService {
@@ -39,9 +39,8 @@ export class AdminService {
       throw new BadRequestException('Username or password invalid');
     }
     const payload = {
-      id: currentAdmin.user_id,
       sub: currentAdmin.username,
-      role: currentAdmin.role,
+      role: UserRole[currentAdmin.role],
     };
     const accessToken = await this.jwt.generateAccessToken(payload);
     const refreshToken = await this.jwt.generateRefreshToken(payload);

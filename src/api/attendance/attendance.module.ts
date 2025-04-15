@@ -23,7 +23,8 @@ import { Module } from '@nestjs/common';
 import { AttendanceController } from './attendance.controller';
 import { AttendanceService } from './attendance.service';
 import { PrismaService } from '../../common/prisma/prisma.service';
-import { CustomJwtModule } from 'src/infrastructure/lib/custom-jwt/custom-jwt.module';
+import { CustomJwtModule } from 'src/infrastructure/lib/custom-jwt.module';
+
 
 @Module({
   imports: [CustomJwtModule],

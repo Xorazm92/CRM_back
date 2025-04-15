@@ -3,7 +3,8 @@ import { LessonController } from './lesson.controller';
 import { LessonService } from './lesson.service';
 import { PrismaService } from '../../common/prisma/prisma.service';
 import { PrismaModule } from '../../infrastructure/prisma/prisma.module';
-import { CustomJwtModule } from '../../infrastructure/lib/custom-jwt';
+import { CustomJwtModule } from 'src/infrastructure/lib/custom-jwt.module';
+
 
 @Module({
   imports: [PrismaModule, CustomJwtModule],

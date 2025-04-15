@@ -4,7 +4,6 @@ import { UserRole } from '../../users/user-role.enum';
 
 interface JwtPayload {
   sub: string;
-  email: string;
   role: UserRole;
 }
 

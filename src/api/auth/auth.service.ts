@@ -9,10 +9,11 @@ import {
 import { RegisterDto, LoginDto } from '../admin/dto/auth.dto';
 import { PrismaService } from 'src/common/prisma/prisma.service';
 import { BcryptEncryption } from 'src/infrastructure/lib/bcrypt/bcrypt';
-import { UserRole } from '@prisma/client';
-import { CustomJwtService } from 'src/infrastructure/lib/custom-jwt';
+import { UserRole as PrismaUserRole } from '@prisma/client';
 import { ConfigService } from '@nestjs/config';
 import { ConfirmPasswordDto } from './dto/confirm-password.dto';
+import { CustomJwtService } from 'src/infrastructure/lib/custom-jwt.service';
+import { UserRole } from 'src/users/user-role.enum';
 
 @Injectable()
 export class AuthService {
@@ -51,7 +52,7 @@ export class AuthService {
     const user = await this.prisma.user.create({
       data: {
         ...dto,
-        role: dto.role as UserRole
+        role: dto.role as PrismaUserRole
       }
     });
 
@@ -65,6 +66,14 @@ export class AuthService {
   async login(dto: LoginDto) {
     const user = await this.prisma.user.findUnique({
       where: { username: dto.username },
+      select: {
+        user_id: true,
+        username: true,
+        password: true,
+        role: true,
+        created_at: true,
+        updated_at: true
+      }
     });
     console.log(dto.username);
 
@@ -82,9 +91,9 @@ export class AuthService {
     }
 
     const payload = {
-      id: user.user_id.toString(), // id qo‘shamiz
+      id: user.user_id.toString(), 
       sub: user.user_id.toString(),
-      role: user.role as UserRole, // enum bo'lishi kerak
+      role: user.role as UserRole, 
     };
     const accessToken =
       await this.customJwtService.generateAccessToken(payload);
@@ -140,7 +149,7 @@ export class AuthService {
     const payload = {
       id: user.user_id,
       sub: user.username,
-      role: user.role,
+      role: user.role as unknown as UserRole,
     };
     const accessToken =
       await this.customJwtService.generateAccessToken(payload);

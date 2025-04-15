@@ -1,6 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { Pager } from '../pagination/page';
+import { IResponsePagination } from 'src/common';
+
 
 @Injectable()
 export class BaseService<T> {
@@ -19,6 +21,8 @@ export class BaseService<T> {
       this.prisma[this.modelName].count(),
     ]);
 
+    const from = (page - 1) * limit + 1;
+    const to = page * limit;
     return Pager.of(
       data,
       total,

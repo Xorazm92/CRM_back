@@ -2,7 +2,8 @@ import { Module } from '@nestjs/common';
 import { SubmissionsService } from './submissions.service';
 import { SubmissionsController } from './submissions.controller';
 import { PrismaModule } from '../../infrastructure/prisma/prisma.module';
-import { CustomJwtModule } from '../../infrastructure/lib/custom-jwt/custom-jwt.module';
+import { CustomJwtModule } from 'src/infrastructure/lib/custom-jwt.module';
+
 
 @Module({
   imports: [PrismaModule, CustomJwtModule],

@@ -23,7 +23,8 @@ import { Module } from '@nestjs/common';
 import { AssignmentsController } from './assignments.controller';
 import { AssignmentsService } from './assignments.service';
 import { PrismaService } from '../../common/prisma/prisma.service';
-import { CustomJwtModule } from 'src/infrastructure/lib/custom-jwt/custom-jwt.module';
+import { CustomJwtModule } from 'src/infrastructure/lib/custom-jwt.module';
+
 
 @Module({
   imports: [CustomJwtModule],

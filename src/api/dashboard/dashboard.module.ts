@@ -2,7 +2,8 @@ import { Module } from '@nestjs/common';
 import { DashboardService } from './dashboard.service';
 import { DashboardController } from './dashboard.controller';
 import { PrismaModule } from '../../infrastructure/prisma/prisma.module';
-import { CustomJwtModule } from 'src/infrastructure/lib/custom-jwt';
+import { CustomJwtModule } from 'src/infrastructure/lib/custom-jwt.module';
+
 
 @Module({
   imports: [PrismaModule, CustomJwtModule],

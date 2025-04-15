@@ -16,7 +16,8 @@ import { SubmissionsModule } from './submissions/submissions.module';
 import { PaymentModule } from './payment/payment.module';
 import { FileUploadModule } from './fileupload/fileupload.module';
 import { CacheModule } from '@nestjs/cache-manager';
-import { CustomJwtModule} from '../infrastructure/lib/custom-jwt';
+import { CustomJwtModule } from 'src/infrastructure/lib/custom-jwt.module';
+
 
 @Module({
   imports: [
