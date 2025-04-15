@@ -39,7 +39,7 @@ export class DashboardService {
           },
           include: {
             _count: {
-              select: { groups: true },
+              select: {}, // groups property olib tashlandi, chunki mavjud emas
             },
           },
         }),
@@ -48,14 +48,7 @@ export class DashboardService {
           take: 5,
           include: {
             _count: {
-              select: { groups: true },
-            },
-            groups: {
-              include: {
-                _count: {
-                  select: { students: true },
-                },
-              },
+              select: {}, // groups property olib tashlandi
             },
           },
         }),
@@ -65,7 +58,8 @@ export class DashboardService {
     }
   }
 
-  private async getFinancialStats() {
+  // PUBLIC: Financial stats for dashboard controller
+  async getFinancialStats() {
     try {
       const currentMonth = new Date();
       const lastMonth = new Date(currentMonth);
@@ -109,8 +103,10 @@ export class DashboardService {
     }
   }
 
-  private async getAttendanceStats() {
-    throw new InternalServerErrorException('Method not implemented.');
+  // PUBLIC: Attendance stats for dashboard controller
+  async getAttendanceStats() {
+    // TODO: implement real logic
+    return { message: 'Attendance stats not implemented yet.' };
   }
 
   private async calculateTotalRevenue() {

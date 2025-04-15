@@ -1,78 +1,103 @@
-import { Controller, Get, Query, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  UseGuards,
+  UsePipes,
+  ValidationPipe,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { DashboardService } from './dashboard.service';
-import { JwtAuthGuard } from '../../infrastructure/guards/jwt-auth.guard';
-import { RolesGuard } from '../../infrastructure/guards/roles.guard';
-import { Roles } from '../../infrastructure/decorators/roles.decorator';
-import { UserRole } from '@prisma/client';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { JwtAuthGuard } from 'src/infrastructure/guards/jwt-auth.guard';
+import { RolesGuard } from 'src/infrastructure/guards/roles.guard';
+import { Roles } from 'src/infrastructure/decorators/roles.decorator';
+import { UserRole } from 'src/users/user-role.enum';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 
-@ApiTags('Dashboard')
+@ApiTags('Dashboard Api')
 @ApiBearerAuth()
-@Controller('dashboard')
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Roles(UserRole.ADMIN, UserRole.MANAGER)
+@UsePipes(new ValidationPipe({ whitelist: true }))
+@Controller('dashboard')
 export class DashboardController {
-  constructor(private readonly dashboardService: DashboardService) { }
+  constructor(private readonly dashboardService: DashboardService) {}
 
-  @Get('stats')
   @ApiOperation({ summary: 'Get general statistics' })
-  @ApiResponse({
-    status: 200,
-    description: 'Returns general statistics including total students, teachers, groups, and courses.'
-  })
-  @ApiResponse({ status: 401, description: 'Unauthorized.' })
-  @ApiResponse({ status: 403, description: 'Forbidden. Admin/Manager access required.' })
+  @ApiResponse({ status: 200, description: 'General dashboard statistics' })
+  @Roles('admin', 'manager')
+  @Get('stats')
   async getStats() {
-    return this.dashboardService.getStats();
+    try {
+      return await this.dashboardService.getStats();
+    } catch (e) {
+      throw new InternalServerErrorException(e.message);
+    }
   }
 
-  @Get('attendance')
+  @ApiOperation({ summary: 'Get financial statistics' })
+  @ApiResponse({ status: 200, description: 'Financial statistics' })
+  @Roles('admin', 'manager')
+  @Get('financial')
+  async getFinancialStats() {
+    try {
+      return await this.dashboardService.getFinancialStats();
+    } catch (e) {
+      throw new InternalServerErrorException(e.message);
+    }
+  }
+
   @ApiOperation({ summary: 'Get attendance statistics' })
-  @ApiResponse({
-    status: 200,
-    description: 'Returns attendance statistics including total lessons, average attendance, and attendance by group/date.'
-  })
-  @ApiResponse({ status: 401, description: 'Unauthorized.' })
-  @ApiResponse({ status: 403, description: 'Forbidden. Admin/Manager access required.' })
-  async getAttendance() {
-    const stats = await this.dashboardService.getStats();
-    return {
-      totalStudents: stats.totalStudents,
-      attendance: stats.attendance,
-      lastUpdated: stats.lastUpdated
-    };
+  @ApiResponse({ status: 200, description: 'Attendance statistics' })
+  @Roles('admin', 'manager', 'teacher')
+  @Get('attendance')
+  async getAttendanceStats() {
+    try {
+      return await this.dashboardService.getAttendanceStats();
+    } catch (e) {
+      throw new InternalServerErrorException(e.message);
+    }
   }
 
-  @Get('groups')
   @ApiOperation({ summary: 'Get groups statistics' })
   @ApiResponse({
     status: 200,
-    description: 'Returns statistics about groups including total active groups and group performance.'
+    description: 'Returns statistics about groups including total active groups and group performance.',
   })
-  @ApiResponse({ status: 401, description: 'Unauthorized.' })
-  @ApiResponse({ status: 403, description: 'Forbidden. Admin/Manager access required.' })
+  @Roles('admin', 'manager')
+  @Get('groups')
   async getGroups() {
-    const stats = await this.dashboardService.getStats();
-    return {
-      activeGroups: stats.activeGroups,
-      lastUpdated: stats.lastUpdated
-    };
+    try {
+      const stats = await this.dashboardService.getStats();
+      return {
+        activeGroups: stats.activeGroups,
+        lastUpdated: stats.lastUpdated,
+      };
+    } catch (e) {
+      throw new InternalServerErrorException(e.message);
+    }
   }
 
-  @Get('teachers')
   @ApiOperation({ summary: 'Get teachers statistics' })
   @ApiResponse({
     status: 200,
-    description: 'Returns statistics about teachers including total teachers and teacher performance.'
+    description: 'Returns statistics about teachers including total teachers and teacher performance.',
   })
-  @ApiResponse({ status: 401, description: 'Unauthorized.' })
-  @ApiResponse({ status: 403, description: 'Forbidden. Admin/Manager access required.' })
+  @Roles('admin', 'manager')
+  @Get('teachers')
   async getTeachers() {
-    const stats = await this.dashboardService.getStats();
-    return {
-      totalTeachers: stats.totalTeachers,
-      teacherPerformance: stats.teacherPerformance,
-      lastUpdated: stats.lastUpdated
-    };
+    try {
+      const stats = await this.dashboardService.getStats();
+      return {
+        totalTeachers: stats.totalTeachers,
+        teacherPerformance: stats.teacherPerformance,
+        lastUpdated: stats.lastUpdated,
+      };
+    } catch (e) {
+      throw new InternalServerErrorException(e.message);
+    }
   }
 }

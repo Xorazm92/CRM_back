@@ -16,6 +16,7 @@ import {
 import { Public } from 'src/common/decorator/auth.decorator';
 import { UserID } from 'src/common/decorator';
 import { ConfirmPasswordDto } from './dto/confirm-password.dto';
+import { ValidationPipe, UsePipes, BadRequestException, ConflictException, UnauthorizedException, InternalServerErrorException } from '@nestjs/common';
 
 @ApiTags('Authentication')
 @Controller('auth')
@@ -33,8 +34,14 @@ export class AuthController {
     status: HttpStatus.CONFLICT,
     description: 'Username already exists',
   })
-  register(@Body() registerDto: RegisterDto) {
-    return this.authService.register(registerDto);
+  @UsePipes(new ValidationPipe({ whitelist: true }))
+  async register(@Body() registerDto: RegisterDto) {
+    try {
+      return await this.authService.register(registerDto);
+    } catch (e) {
+      if (e instanceof ConflictException) throw e;
+      throw new BadRequestException(e.message);
+    }
   }
 
   @Public()
@@ -49,8 +56,13 @@ export class AuthController {
     status: HttpStatus.UNAUTHORIZED,
     description: 'Invalid credentials',
   })
-  login(@Body() loginDto: LoginDto) {
-    return this.authService.login(loginDto);
+  @UsePipes(new ValidationPipe({ whitelist: true }))
+  async login(@Body() loginDto: LoginDto) {
+    try {
+      return await this.authService.login(loginDto);
+    } catch (e) {
+      throw new UnauthorizedException(e.message);
+    }
   }
 
   @ApiOperation({
@@ -78,11 +90,16 @@ export class AuthController {
   })
   @ApiBearerAuth()
   @Post('confirmPassword')
-  confirmPassword(
+  @UsePipes(new ValidationPipe({ whitelist: true }))
+  async confirmPassword(
     @UserID() id: string,
     @Body() confirmPasswordDto: ConfirmPasswordDto,
   ) {
-    return this.authService.confirmPassword(id, confirmPasswordDto);
+    try {
+      return await this.authService.confirmPassword(id, confirmPasswordDto);
+    } catch (e) {
+      throw new BadRequestException(e.message);
+    }
   }
 
   @Post('refresh')
@@ -92,7 +109,11 @@ export class AuthController {
     status: HttpStatus.OK,
     description: 'Token successfully refreshed',
   })
-  refreshTokens(@UserID() id: string) {
-    return this.authService.refreshTokens(id);
+  async refreshTokens(@UserID() id: string) {
+    try {
+      return await this.authService.refreshTokens(id);
+    } catch (e) {
+      throw new InternalServerErrorException(e.message);
+    }
   }
 }

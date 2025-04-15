@@ -4,6 +4,7 @@ import { FileUploadService } from './fileupload.service';
 import { JwtAuthGuard } from '../../infrastructure/guards/jwt-auth.guard';
 import { ApiTags, ApiOperation, ApiConsumes, ApiBody } from '@nestjs/swagger';
 import { Request } from 'express';
+import { BadRequestException, NotFoundException, InternalServerErrorException } from '@nestjs/common';
 
 interface RequestWithUser extends Request {
   user: {
@@ -33,19 +34,31 @@ export class FileUploadController {
   })
   @UseInterceptors(FileInterceptor('file'))
   async uploadFile(@UploadedFile() file: Express.Multer.File, @Req() req: RequestWithUser) {
-    const userId = req.user.user_id;
-    return this.fileuploadService.uploadFile(file, userId);
+    try {
+      const userId = req.user.user_id;
+      return await this.fileuploadService.uploadFile(file, userId);
+    } catch (e) {
+      throw new BadRequestException(e.message);
+    }
   }
 
   @Get(':filename')
   @ApiOperation({ summary: 'Get file' })
-  getFile(@Param('filename') filename: string) {
-    return this.fileuploadService.getFile(filename);
+  async getFile(@Param('filename') filename: string) {
+    try {
+      return await this.fileuploadService.getFile(filename);
+    } catch (e) {
+      throw new NotFoundException(e.message);
+    }
   }
 
   @Delete(':filename')
   @ApiOperation({ summary: 'Delete file' })
-  deleteFile(@Param('filename') filename: string) {
-    return this.fileuploadService.deleteFile(filename);
+  async deleteFile(@Param('filename') filename: string) {
+    try {
+      return await this.fileuploadService.deleteFile(filename);
+    } catch (e) {
+      throw new NotFoundException(e.message);
+    }
   }
 }

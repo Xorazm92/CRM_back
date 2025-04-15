@@ -27,6 +27,8 @@ import { Public } from 'src/common/decorator/auth.decorator';
 import { AddMemberDto } from './dto/add-memberdto';
 import { UserID } from 'src/common/decorator';
 import { JwtAuthGuard } from 'src/infrastructure/guards/jwt-auth.guard';
+import { Roles } from 'src/infrastructure/decorators/roles.decorator';
+import { UserRole } from 'src/users/user-role.enum';
 
 @ApiTags('Admin Api')
 @Controller('admin')
@@ -92,6 +94,7 @@ export class AdminController {
       },
     },
   })
+  @Roles(UserRole.ADMIN)
   @Post('createAdmin')
   create(@Body() createAdminDto: CreateAdminDto) {
     return this.adminService.create(createAdminDto);
@@ -120,6 +123,7 @@ export class AdminController {
       },
     },
   })
+  @Roles(UserRole.ADMIN)
   @Post('addMembersToGroup')
   addMembersToGroup(@Body() addMembersDto: AddMemberDto) {
     return this.adminService.addMemberToGroup(addMembersDto);
@@ -150,6 +154,7 @@ export class AdminController {
       },
     },
   })
+  @Roles(UserRole.ADMIN)
   @Get()
   findAll(
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page?: number,
@@ -178,6 +183,7 @@ export class AdminController {
       },
     },
   })
+  @Roles(UserRole.ADMIN)
   @Get('getProfile')
   getProfile(@UserID() id: string) {
     return this.adminService.getProfile(id);
@@ -222,6 +228,7 @@ export class AdminController {
       },
     },
   })
+  @Roles(UserRole.ADMIN)
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.adminService.findOne(id);
@@ -250,6 +257,7 @@ export class AdminController {
       },
     },
   })
+  @Roles(UserRole.ADMIN)
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateAdminDto: UpdateAdminDto) {
     return this.adminService.update(id, updateAdminDto);
@@ -278,6 +286,7 @@ export class AdminController {
       },
     },
   })
+  @Roles(UserRole.ADMIN)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.adminService.remove(id);
