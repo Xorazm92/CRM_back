@@ -1,9 +1,9 @@
-import { Controller, Post, UseInterceptors, UploadedFile, Get, Param, Delete, UseGuards, Req } from '@nestjs/common';
+import { Controller, Post, UseInterceptors, UploadedFile, Get, Param, Delete, UseGuards, Req, Res } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { FileUploadService } from './fileupload.service';
 import { JwtAuthGuard } from '../../infrastructure/guards/jwt-auth.guard';
-import { ApiTags, ApiOperation, ApiConsumes, ApiBody } from '@nestjs/swagger';
-import { Request } from 'express';
+import { ApiTags, ApiOperation, ApiConsumes, ApiBody, ApiParam, ApiResponse } from '@nestjs/swagger';
+import { Request, Response } from 'express';
 import { BadRequestException, NotFoundException, InternalServerErrorException } from '@nestjs/common';
 
 interface RequestWithUser extends Request {
@@ -42,11 +42,21 @@ export class FileUploadController {
     }
   }
 
+  @Get()
+  @ApiOperation({ summary: 'List all files' })
+  @ApiResponse({ status: 200, description: 'List of files', schema: { type: 'array', items: { type: 'object', properties: { filename: { type: 'string' }, size: { type: 'number' }, mimeType: { type: 'string' } } } } })
+  async listFiles() {
+    return await this.fileuploadService.listFiles();
+  }
+
   @Get(':filename')
   @ApiOperation({ summary: 'Get file' })
-  async getFile(@Param('filename') filename: string) {
+  @ApiParam({ name: 'filename', description: 'File name to download' })
+  @ApiResponse({ status: 200, description: 'File found', schema: { type: 'string', format: 'binary' } })
+  async getFile(@Param('filename') filename: string, @Res() res: Response) {
     try {
-      return await this.fileuploadService.getFile(filename);
+      const file = await this.fileuploadService.getFile(filename);
+      return res.download(file.path, file.filename);
     } catch (e) {
       throw new NotFoundException(e.message);
     }
@@ -54,6 +64,8 @@ export class FileUploadController {
 
   @Delete(':filename')
   @ApiOperation({ summary: 'Delete file' })
+  @ApiParam({ name: 'filename', description: 'File name to delete' })
+  @ApiResponse({ status: 200, description: 'File deleted' })
   async deleteFile(@Param('filename') filename: string) {
     try {
       return await this.fileuploadService.deleteFile(filename);

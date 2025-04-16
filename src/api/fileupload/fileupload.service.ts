@@ -49,6 +49,21 @@ export class FileUploadService {
     return { message: 'File deleted successfully' };
   }
 
+  async listFiles() {
+    await this.ensureUploadDirectory();
+    const files = await fs.promises.readdir(this.UPLOAD_DIR);
+    const fileList = await Promise.all(files.map(async (filename) => {
+      const filePath = path.join(this.UPLOAD_DIR, filename);
+      const stats = await fs.promises.stat(filePath);
+      return {
+        filename,
+        size: stats.size,
+        mimeType: path.extname(filename).replace('.', '')
+      };
+    }));
+    return fileList;
+  }
+
   private validateFile(file: Express.Multer.File) {
     const fileExtension = path.extname(file.originalname).toLowerCase();
     if (!this.ALLOWED_EXTENSIONS.includes(fileExtension)) {
