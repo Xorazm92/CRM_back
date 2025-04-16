@@ -6,13 +6,14 @@ export class AttendanceService {
   constructor(private prisma: PrismaService) {}
 
   async create(createAttendanceDto: any) {
-    if (!createAttendanceDto.lessonId || !createAttendanceDto.studentId || !createAttendanceDto.status) {
-      throw new BadRequestException('lessonId, studentId va status majburiy!');
+    // DTO dan kelayotgan maydonlar: student_id, lesson_id, status, remarks
+    if (!createAttendanceDto.lesson_id || !createAttendanceDto.student_id || !createAttendanceDto.status) {
+      throw new BadRequestException('lesson_id, student_id va status majburiy!');
     }
     return this.prisma.attendance.create({
       data: {
-        lesson_id: createAttendanceDto.lessonId,
-        student_id: createAttendanceDto.studentId,
+        lesson_id: createAttendanceDto.lesson_id,
+        student_id: createAttendanceDto.student_id,
         status: createAttendanceDto.status,
         remarks: createAttendanceDto.remarks,
       },

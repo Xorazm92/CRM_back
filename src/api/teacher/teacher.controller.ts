@@ -102,6 +102,33 @@ export class TeacherController {
     }
   }
 
+  @ApiOperation({ summary: 'Get all groups for a teacher' })
+  @ApiResponse({ status: 200, description: 'List of groups for the teacher', schema: { example: {
+    teacher_id: '1234-5678',
+    full_name: 'Ali Akbarov',
+    groups: [
+      {
+        group_id: 'g1',
+        name: 'Frontend Guruh',
+        course_id: 'c1',
+        description: 'React JS uchun guruh',
+        status: 'ACTIVE'
+      },
+      {
+        group_id: 'g2',
+        name: 'Backend Guruh',
+        course_id: 'c2',
+        description: 'Node.js uchun guruh',
+        status: 'ACTIVE'
+      }
+    ]
+  } } })
+  @Roles('teacher', 'TEACHER', 'admin', 'ADMIN')
+  @Get(':id/groups')
+  async getTeacherGroups(@Param('id') id: string) {
+    return this.teacherService.getTeacherGroups(id);
+  }
+
   @ApiOperation({ summary: 'Update teacher' })
   @ApiResponse({ status: 200, description: 'Teacher updated' })
   @ApiResponse({ status: 404, description: 'Teacher not found' })

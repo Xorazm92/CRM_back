@@ -133,4 +133,31 @@ export class TeacherService {
       throw new InternalServerErrorException(e.message);
     }
   }
+
+  async getTeacherGroups(id: string) {
+    // O'qituvchining ma'lumotlari
+    const teacher = await this.prismaService.user.findUnique({
+      where: { user_id: id, role: 'TEACHER' },
+      select: { user_id: true, full_name: true }
+    });
+    if (!teacher) throw new NotFoundException('Teacher not found');
+    // O'qituvchi a'zo bo'lgan guruhlar
+    const groups = await this.prismaService.groupMembers.findMany({
+      where: { user_id: id },
+      include: {
+        group: true
+      }
+    });
+    return {
+      teacher_id: teacher.user_id,
+      full_name: teacher.full_name,
+      groups: groups.map(gm => ({
+        group_id: gm.group.group_id,
+        name: gm.group.name,
+        course_id: gm.group.course_id,
+        description: gm.group.description,
+        status: gm.group.status
+      }))
+    };
+  }
 }
