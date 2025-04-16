@@ -42,7 +42,7 @@ export class TeacherController {
   @ApiOperation({ summary: 'Create teacher' })
   @ApiResponse({ status: 201, description: 'Teacher created' })
   @ApiResponse({ status: 400, description: 'Validation error' })
-  @Roles('admin')
+  @Roles('admin', 'ADMIN')
   @Post()
   async create(@Body() createTeacherDto: CreateTeacherDto) {
     try {
@@ -57,7 +57,7 @@ export class TeacherController {
 
   @ApiOperation({ summary: 'Get all teachers' })
   @ApiResponse({ status: 200, description: 'List of teachers' })
-  @Roles('admin')
+  @Roles('admin', 'ADMIN')
   @Get()
   async findAll(
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page?: number,
@@ -72,7 +72,7 @@ export class TeacherController {
 
   @ApiOperation({ summary: 'Get teacher profile' })
   @ApiResponse({ status: 200, description: 'Teacher profile' })
-  @Roles('teacher')
+  @Roles('teacher', 'TEACHER', 'admin', 'ADMIN')
   @Get('profile/:id')
   async getProfile(@Param('id') id: string) {
     try {
@@ -89,7 +89,7 @@ export class TeacherController {
   @ApiParam({ name: 'id', required: true })
   @ApiResponse({ status: 200, description: 'Teacher found' })
   @ApiResponse({ status: 404, description: 'Teacher not found' })
-  @Roles('admin')
+  @Roles('admin', 'ADMIN')
   @Get(':id')
   async findOne(@Param('id') id: string) {
     try {
@@ -105,7 +105,7 @@ export class TeacherController {
   @ApiOperation({ summary: 'Update teacher' })
   @ApiResponse({ status: 200, description: 'Teacher updated' })
   @ApiResponse({ status: 404, description: 'Teacher not found' })
-  @Roles('admin')
+  @Roles('admin', 'ADMIN')
   @Patch(':id')
   async update(@Param('id') id: string, @Body() updateTeacherDto: UpdateTeacherDto) {
     try {
@@ -121,7 +121,7 @@ export class TeacherController {
   @ApiOperation({ summary: 'Delete teacher' })
   @ApiResponse({ status: 200, description: 'Teacher deleted' })
   @ApiResponse({ status: 404, description: 'Teacher not found' })
-  @Roles('admin')
+  @Roles('admin', 'ADMIN')
   @Delete(':id')
   async remove(@Param('id') id: string) {
     try {

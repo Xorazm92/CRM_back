@@ -28,7 +28,7 @@ export class DashboardController {
 
   @ApiOperation({ summary: 'Get general statistics' })
   @ApiResponse({ status: 200, description: 'General dashboard statistics' })
-  @Roles('admin', 'manager')
+  @Roles('admin', 'ADMIN', 'manager', 'MANAGER')
   @Get('stats')
   async getStats() {
     try {
@@ -40,7 +40,7 @@ export class DashboardController {
 
   @ApiOperation({ summary: 'Get financial statistics' })
   @ApiResponse({ status: 200, description: 'Financial statistics' })
-  @Roles('admin', 'manager')
+  @Roles('admin', 'ADMIN', 'manager', 'MANAGER')
   @Get('financial')
   async getFinancialStats() {
     try {
@@ -52,7 +52,7 @@ export class DashboardController {
 
   @ApiOperation({ summary: 'Get attendance statistics' })
   @ApiResponse({ status: 200, description: 'Attendance statistics' })
-  @Roles('admin', 'manager', 'teacher')
+  @Roles('admin', 'ADMIN', 'manager', 'MANAGER', 'teacher', 'TEACHER')
   @Get('attendance')
   async getAttendanceStats() {
     try {
@@ -67,7 +67,7 @@ export class DashboardController {
     status: 200,
     description: 'Returns statistics about groups including total active groups and group performance.',
   })
-  @Roles('admin', 'manager')
+  @Roles('admin', 'ADMIN', 'manager', 'MANAGER')
   @Get('groups')
   async getGroups() {
     try {
@@ -86,7 +86,7 @@ export class DashboardController {
     status: 200,
     description: 'Returns statistics about teachers including total teachers and teacher performance.',
   })
-  @Roles('admin', 'manager')
+  @Roles('admin', 'ADMIN', 'manager', 'MANAGER')
   @Get('teachers')
   async getTeachers() {
     try {

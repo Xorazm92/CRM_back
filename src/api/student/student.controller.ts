@@ -44,7 +44,7 @@ export class StudentController {
   @ApiOperation({ summary: 'Create student' })
   @ApiResponse({ status: 201, description: 'Student created' })
   @ApiResponse({ status: 400, description: 'Validation error' })
-  @Roles('admin')
+  @Roles('admin', 'ADMIN')
   @Post('createStudent')
   async create(@Body() createStudentDto: CreateStudentDto) {
     try {
@@ -59,7 +59,7 @@ export class StudentController {
 
   @ApiOperation({ summary: 'Get all students' })
   @ApiResponse({ status: 200, description: 'List of students' })
-  @Roles('admin', 'teacher')
+  @Roles('admin', 'ADMIN', 'teacher', 'TEACHER')
   @Get()
   async findAll(
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page?: number,
@@ -74,7 +74,7 @@ export class StudentController {
 
   @ApiOperation({ summary: 'Get student profile' })
   @ApiResponse({ status: 200, description: 'Student profile' })
-  @Roles('student')
+  @Roles('student', 'STUDENT', 'admin', 'ADMIN')
   @Get('getProfile/:id')
   async getProfile(@Param('id') id: string) {
     try {
@@ -91,7 +91,7 @@ export class StudentController {
   @ApiParam({ name: 'id', required: true })
   @ApiResponse({ status: 200, description: 'Student found' })
   @ApiResponse({ status: 404, description: 'Student not found' })
-  @Roles('admin', 'teacher')
+  @Roles('admin', 'ADMIN', 'teacher', 'TEACHER')
   @Get(':id')
   async findOne(@Param('id') id: string) {
     try {
@@ -107,7 +107,7 @@ export class StudentController {
   @ApiOperation({ summary: 'Update student' })
   @ApiResponse({ status: 200, description: 'Student updated' })
   @ApiResponse({ status: 404, description: 'Student not found' })
-  @Roles('admin')
+  @Roles('admin', 'ADMIN')
   @Patch(':id')
   async update(@Param('id') id: string, @Body() updateStudentDto: UpdateStudentDto) {
     try {
@@ -123,7 +123,7 @@ export class StudentController {
   @ApiOperation({ summary: 'Delete student' })
   @ApiResponse({ status: 200, description: 'Student deleted' })
   @ApiResponse({ status: 404, description: 'Student not found' })
-  @Roles('admin')
+  @Roles('admin', 'ADMIN')
   @Delete(':id')
   async remove(@Param('id') id: string) {
     try {

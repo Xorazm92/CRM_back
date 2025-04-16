@@ -31,10 +31,14 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       throw new UnauthorizedException('Invalid token');
     }
 
+    // DEBUG LOG
+    console.log('JwtStrategy.validate', { payload, user });
+
+    // Always return user object with 'role' as string and both lower/upper case
     return {
       user_id: user.user_id,
       username: user.username,
-      role: user.role,
+      role: typeof user.role === 'string' ? user.role : String(user.role),
     };
   }
 }

@@ -17,7 +17,7 @@ export class SubmissionsController {
   constructor(private readonly submissionsService: SubmissionsService) {}
 
   @Post()
-  @Roles(UserRole.TEACHER, UserRole.ADMIN)
+  @Roles('teacher', 'TEACHER', 'admin', 'ADMIN')
   @ApiOperation({ summary: 'Create a new submission' })
   @ApiResponse({ status: 201, description: 'Submission created successfully' })
   @ApiResponse({ status: 400, description: 'Bad request' })
@@ -33,7 +33,7 @@ export class SubmissionsController {
   }
 
   @Get()
-  @Roles(UserRole.STUDENT, UserRole.TEACHER, UserRole.ADMIN)
+  @Roles('student', 'STUDENT', 'teacher', 'TEACHER', 'admin', 'ADMIN')
   @ApiOperation({ summary: 'Get all submissions' })
   @ApiResponse({ status: 200, description: 'Submissions retrieved successfully' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
@@ -47,7 +47,7 @@ export class SubmissionsController {
   }
 
   @Get(':id')
-  @Roles(UserRole.STUDENT, UserRole.TEACHER, UserRole.ADMIN)
+  @Roles('student', 'STUDENT', 'teacher', 'TEACHER', 'admin', 'ADMIN')
   @ApiOperation({ summary: 'Get submission by ID' })
   @ApiResponse({ status: 200, description: 'Submission retrieved successfully' })
   @ApiResponse({ status: 404, description: 'Submission not found' })
@@ -64,7 +64,7 @@ export class SubmissionsController {
   }
 
   @Put(':id')
-  @Roles(UserRole.TEACHER, UserRole.ADMIN)
+  @Roles('teacher', 'TEACHER', 'admin', 'ADMIN')
   @ApiOperation({ summary: 'Update submission' })
   @ApiResponse({ status: 200, description: 'Submission updated successfully' })
   @ApiResponse({ status: 404, description: 'Submission not found' })
@@ -81,7 +81,7 @@ export class SubmissionsController {
   }
 
   @Delete(':id')
-  @Roles(UserRole.TEACHER, UserRole.ADMIN)
+  @Roles('teacher', 'TEACHER', 'admin', 'ADMIN')
   @ApiOperation({ summary: 'Delete submission' })
   @ApiResponse({ status: 200, description: 'Submission deleted successfully' })
   @ApiResponse({ status: 404, description: 'Submission not found' })

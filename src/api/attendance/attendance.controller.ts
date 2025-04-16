@@ -14,7 +14,7 @@ export class AttendanceController {
   constructor(private readonly attendanceService: AttendanceService) {}
 
   @Post()
-  @Roles(UserRole.TEACHER, UserRole.ADMIN)
+  @Roles('teacher', 'TEACHER', 'admin', 'ADMIN')
   @ApiOperation({ summary: 'Create attendance record' })
   create(@Body() createAttendanceDto: any) {
     return this.attendanceService.create(createAttendanceDto);
@@ -33,14 +33,14 @@ export class AttendanceController {
   }
 
   @Put(':id')
-  @Roles(UserRole.TEACHER, UserRole.ADMIN)
+  @Roles('teacher', 'TEACHER', 'admin', 'ADMIN')
   @ApiOperation({ summary: 'Update attendance record' })
   update(@Param('id') id: string, @Body() updateAttendanceDto: any) {
     return this.attendanceService.update(id, updateAttendanceDto);
   }
 
   @Delete(':id')
-  @Roles(UserRole.TEACHER, UserRole.ADMIN)
+  @Roles('teacher', 'TEACHER', 'admin', 'ADMIN')
   @ApiOperation({ summary: 'Delete attendance record' })
   remove(@Param('id') id: string) {
     return this.attendanceService.remove(id);

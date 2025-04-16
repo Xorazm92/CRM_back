@@ -94,7 +94,7 @@ export class AdminController {
       },
     },
   })
-  @Roles(UserRole.ADMIN)
+  @Roles('admin', 'ADMIN')
   @Post('createAdmin')
   create(@Body() createAdminDto: CreateAdminDto) {
     return this.adminService.create(createAdminDto);
@@ -123,7 +123,7 @@ export class AdminController {
       },
     },
   })
-  @Roles(UserRole.ADMIN)
+  @Roles('admin', 'ADMIN')
   @Post('addMembersToGroup')
   addMembersToGroup(@Body() addMembersDto: AddMemberDto) {
     return this.adminService.addMemberToGroup(addMembersDto);
@@ -154,7 +154,7 @@ export class AdminController {
       },
     },
   })
-  @Roles(UserRole.ADMIN)
+  @Roles('admin', 'ADMIN')
   @Get()
   findAll(
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page?: number,
@@ -183,7 +183,7 @@ export class AdminController {
       },
     },
   })
-  @Roles(UserRole.ADMIN)
+  @Roles('admin', 'ADMIN')
   @Get('getProfile')
   getProfile(@UserID() id: string) {
     return this.adminService.getProfile(id);
@@ -228,7 +228,7 @@ export class AdminController {
       },
     },
   })
-  @Roles(UserRole.ADMIN)
+  @Roles('admin', 'ADMIN')
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.adminService.findOne(id);
@@ -257,7 +257,7 @@ export class AdminController {
       },
     },
   })
-  @Roles(UserRole.ADMIN)
+  @Roles('admin', 'ADMIN')
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateAdminDto: UpdateAdminDto) {
     return this.adminService.update(id, updateAdminDto);
@@ -286,7 +286,7 @@ export class AdminController {
       },
     },
   })
-  @Roles(UserRole.ADMIN)
+  @Roles('admin', 'ADMIN')
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.adminService.remove(id);

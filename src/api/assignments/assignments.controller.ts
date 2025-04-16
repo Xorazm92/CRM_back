@@ -17,7 +17,7 @@ export class AssignmentsController {
   constructor(private readonly assignmentsService: AssignmentsService) {}
 
   @Post()
-  @Roles(UserRole.TEACHER, UserRole.ADMIN)
+  @Roles('teacher', 'TEACHER', 'admin', 'ADMIN')
   @ApiOperation({ summary: 'Create a new assignment' })
   @UsePipes(new ValidationPipe({ whitelist: true }))
   async create(@Body() createAssignmentDto: CreateAssignmentDto) {
@@ -51,7 +51,7 @@ export class AssignmentsController {
   }
 
   @Put(':id')
-  @Roles(UserRole.TEACHER, UserRole.ADMIN)
+  @Roles('teacher', 'TEACHER', 'admin', 'ADMIN')
   @ApiOperation({ summary: 'Update assignment' })
   @UsePipes(new ValidationPipe({ whitelist: true }))
   async update(@Param('id') id: string, @Body() updateAssignmentDto: UpdateAssignmentDto) {
@@ -63,7 +63,7 @@ export class AssignmentsController {
   }
 
   @Delete(':id')
-  @Roles(UserRole.TEACHER, UserRole.ADMIN)
+  @Roles('teacher', 'TEACHER', 'admin', 'ADMIN')
   @ApiOperation({ summary: 'Delete assignment' })
   async remove(@Param('id') id: string) {
     try {
