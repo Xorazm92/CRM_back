@@ -19,6 +19,8 @@ model User {
   group_members     GroupMembers[]
   gradedSubmissions Submissions[]  @relation("GraderSubmissions")
   submissions       Submissions[]  @relation("StudentSubmissions")
+  assignments       Assignments[]  @relation("AssignmentsTeacher")
+  student_payments  StudentPayment[] @relation("StudentPaymentUser")
 }
 
 model Groups {
@@ -43,8 +45,10 @@ model Assignments {
   due_date     DateTime
   lesson_id    String
   group_id     String
+  teacher_id   String?
   lesson       Lessons       @relation(fields: [lesson_id], references: [lesson_id])
   group        Groups        @relation(fields: [group_id], references: [group_id])
+  teacher      User?         @relation("AssignmentsTeacher", fields: [teacher_id], references: [user_id])
   created_at   DateTime      @default(now())
   updated_at   DateTime      @updatedAt
   submissions  Submissions[]
@@ -112,14 +116,34 @@ model Submissions {
   submission_id  String      @id @default(uuid())
   assignment_id  String
   student_id     String
-  graded_by      String
-  file_path      String
-  grade          String
-  graded_at      DateTime
-  feedback       String
+  graded_by      String?
+  file_path      String?
+  answer_text    String?
+  grade          String?
+  graded_at      DateTime?
+  feedback       String?
   assignment     Assignments @relation(fields: [assignment_id], references: [assignment_id])
-  graded        User        @relation("GraderSubmissions", fields: [graded_by], references: [user_id])
-  student       User        @relation("StudentSubmissions", fields: [student_id], references: [user_id])
+  graded         User?        @relation("GraderSubmissions", fields: [graded_by], references: [user_id])
+  student        User        @relation("StudentSubmissions", fields: [student_id], references: [user_id])
+}
+
+model StudentPayment {
+  id        String        @id @default(uuid())
+  student_id String
+  amount    Float
+  type      PaymentType
+  status    PaymentStatus
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  student   User          @relation("StudentPaymentUser", fields: [student_id], references: [user_id])
+}
+
+model TeacherSalary {
+  id        String        @id @default(uuid())
+  amount    Float
+  status    PaymentStatus
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
 }
 
 enum UserRole {
@@ -146,23 +170,6 @@ enum AttendanceStatus {
   ABSENT
   LATE
   EXCUSED
-}
-
-model StudentPayment {
-  id        String        @id @default(uuid())
-  amount    Float
-  type      PaymentType
-  status    PaymentStatus
-  createdAt DateTime      @default(now())
-  updatedAt DateTime      @updatedAt
-}
-
-model TeacherSalary {
-  id        String        @id @default(uuid())
-  amount    Float
-  status    PaymentStatus
-  createdAt DateTime      @default(now())
-  updatedAt DateTime      @updatedAt
 }
 
 enum PaymentStatus {

@@ -8,8 +8,23 @@ export class SubmissionsService {
   constructor(private prisma: PrismaService) {}
 
   async create(createSubmissionDto: CreateSubmissionDto) {
+    // Student bir assignmentga faqat bir marta topshira oladi
+    const exists = await this.prisma.submissions.findFirst({
+      where: {
+        assignment_id: createSubmissionDto.assignment_id,
+        student_id: createSubmissionDto.student_id
+      }
+    });
+    if (exists) {
+      throw new Error('Siz bu assignmentga allaqachon topshirgansiz!');
+    }
     return this.prisma.submissions.create({
-      data: createSubmissionDto,
+      data: {
+        assignment_id: createSubmissionDto.assignment_id,
+        student_id: createSubmissionDto.student_id,
+        file_path: createSubmissionDto.file_path,
+        answer_text: createSubmissionDto.answer_text,
+      },
     });
   }
 
@@ -34,7 +49,19 @@ export class SubmissionsService {
     });
   }
 
+  async getByAssignment(assignmentId: string) {
+    return this.prisma.submissions.findMany({
+      where: { assignment_id: assignmentId },
+      include: {
+        assignment: true,
+        student: true,
+        graded: true,
+      },
+    });
+  }
+
   async update(id: string, updateSubmissionDto: UpdateSubmissionDto) {
+    // Agar baholash bo'lsa graded_by va feedback ham yangilanadi
     return this.prisma.submissions.update({
       where: { submission_id: id },
       data: updateSubmissionDto,

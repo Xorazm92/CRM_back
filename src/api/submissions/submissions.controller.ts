@@ -4,7 +4,7 @@ import { JwtAuthGuard } from '../../infrastructure/guards/jwt-auth.guard';
 import { RolesGuard } from '../../infrastructure/guards/roles.guard';
 import { Roles } from '../../infrastructure/decorators/roles.decorator';
 import { UserRole } from '@prisma/client';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiBody } from '@nestjs/swagger';
 import { CreateSubmissionDto } from './dto/create-submission.dto';
 import { UpdateSubmissionDto } from './dto/update-submission.dto';
 import { ValidationPipe, BadRequestException, NotFoundException } from '@nestjs/common';
@@ -17,10 +17,20 @@ export class SubmissionsController {
   constructor(private readonly submissionsService: SubmissionsService) {}
 
   @Post()
-  @Roles('teacher', 'TEACHER', 'admin', 'ADMIN')
-  @ApiOperation({ summary: 'Create a new submission' })
-  @ApiResponse({ status: 201, description: 'Submission created successfully' })
-  @ApiResponse({ status: 400, description: 'Bad request' })
+  @Roles('student', 'STUDENT')
+  @ApiOperation({ summary: 'Submit assignment answer' })
+  @ApiBody({ type: CreateSubmissionDto, examples: {
+    default: {
+      value: {
+        assignment_id: 'uuid-assignment',
+        student_id: 'uuid-student',
+        file_path: '/uploads/hw1.pdf',
+        answer_text: 'My answer'
+      }
+    }
+  }})
+  @ApiResponse({ status: 201, description: 'Submission created', type: CreateSubmissionDto })
+  @ApiResponse({ status: 400, description: 'You have already submitted for this assignment!' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Forbidden' })
   @UsePipes(new ValidationPipe({ whitelist: true }))
@@ -63,14 +73,45 @@ export class SubmissionsController {
     }
   }
 
+  @Get('assignment/:assignmentId')
+  @Roles('teacher', 'TEACHER', 'admin', 'ADMIN')
+  @ApiOperation({ summary: 'Get all submissions for an assignment' })
+  @ApiResponse({ status: 200, description: 'List of submissions for an assignment', schema: { example: [
+    {
+      submission_id: 'sub1',
+      assignment_id: 'a1',
+      student_id: 's1',
+      file_path: '/uploads/hw1.pdf',
+      answer_text: 'My answer',
+      grade: 'A',
+      feedback: 'Good job',
+      graded_by: 'teacher1',
+      created_at: '2025-04-16T14:00:00.000Z',
+      updated_at: '2025-04-16T14:00:00.000Z',
+      assignment: { title: 'HW1' },
+      student: { user_id: 's1', full_name: 'Student 1' },
+      graded: { user_id: 't1', full_name: 'Teacher 1' }
+    }
+  ] } })
+  async getSubmissionsByAssignment(@Param('assignmentId') assignmentId: string) {
+    return this.submissionsService.getByAssignment(assignmentId);
+  }
+
   @Put(':id')
   @Roles('teacher', 'TEACHER', 'admin', 'ADMIN')
-  @ApiOperation({ summary: 'Update submission' })
-  @ApiResponse({ status: 200, description: 'Submission updated successfully' })
+  @ApiOperation({ summary: 'Grade submission' })
+  @ApiBody({ type: UpdateSubmissionDto, examples: {
+    default: {
+      value: {
+        grade: 'A',
+        feedback: 'Excellent work!',
+        graded_by: 'uuid-teacher'
+      }
+    }
+  }})
+  @ApiResponse({ status: 200, description: 'Submission graded', type: UpdateSubmissionDto })
   @ApiResponse({ status: 404, description: 'Submission not found' })
-  @ApiResponse({ status: 400, description: 'Bad request' })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 400, description: 'Validation error' })
   @UsePipes(new ValidationPipe({ whitelist: true }))
   async update(@Param('id') id: string, @Body() updateSubmissionDto: UpdateSubmissionDto) {
     try {

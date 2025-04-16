@@ -1,4 +1,3 @@
-
 import { IsNotEmpty, IsNumber, IsString, IsEnum, IsOptional } from 'class-validator';
 import { PaymentType } from '@prisma/client';
 
@@ -18,5 +17,4 @@ export class CreateStudentPaymentDto {
   @IsOptional()
   @IsString()
   description?: string;
-  status: any;
 }

@@ -1,4 +1,4 @@
-
+import { PaymentStatus } from '@prisma/client';
 import { IsNotEmpty, IsNumber, IsString, IsDateString, IsOptional } from 'class-validator';
 
 export class CreateTeacherSalaryDto {
@@ -17,7 +17,9 @@ export class CreateTeacherSalaryDto {
   @IsOptional()
   @IsString()
   description?: string;
-  status: any;
-  payment_date: any;
-  payment_type: any;
+  status: PaymentStatus;
+  // Quyidagilarni olib tashlash kerak, chunki DTO uchun valid emas:
+  // status: any;
+  // payment_date: any;
+  // payment_type: any;
 }
