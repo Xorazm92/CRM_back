@@ -29,10 +29,11 @@ import { UserID } from 'src/common/decorator';
 import { JwtAuthGuard } from 'src/infrastructure/guards/jwt-auth.guard';
 import { Roles } from 'src/infrastructure/decorators/roles.decorator';
 import { UserRole } from 'src/users/user-role.enum';
+import { RolesGuard } from 'src/infrastructure/guards/roles.guard';
 
 @ApiTags('Admin Api')
 @Controller('admin')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class AdminController {
   constructor(private readonly adminService: AdminService) {}
 
@@ -94,7 +95,7 @@ export class AdminController {
       },
     },
   })
-  @Roles('admin', 'ADMIN')
+  @Public()
   @Post('createAdmin')
   create(@Body() createAdminDto: CreateAdminDto) {
     return this.adminService.create(createAdminDto);
@@ -123,7 +124,7 @@ export class AdminController {
       },
     },
   })
-  @Roles('admin', 'ADMIN')
+  @Public()
   @Post('addMembersToGroup')
   addMembersToGroup(@Body() addMembersDto: AddMemberDto) {
     return this.adminService.addMemberToGroup(addMembersDto);
@@ -154,7 +155,7 @@ export class AdminController {
       },
     },
   })
-  @Roles('admin', 'ADMIN')
+  @Public()
   @Get()
   findAll(
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page?: number,
@@ -183,7 +184,7 @@ export class AdminController {
       },
     },
   })
-  @Roles('admin', 'ADMIN')
+  @Public()
   @Get('getProfile')
   getProfile(@UserID() id: string) {
     return this.adminService.getProfile(id);
@@ -228,7 +229,7 @@ export class AdminController {
       },
     },
   })
-  @Roles('admin', 'ADMIN')
+  @Public()
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.adminService.findOne(id);
@@ -257,7 +258,7 @@ export class AdminController {
       },
     },
   })
-  @Roles('admin', 'ADMIN')
+  @Public()
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateAdminDto: UpdateAdminDto) {
     return this.adminService.update(id, updateAdminDto);
@@ -286,7 +287,7 @@ export class AdminController {
       },
     },
   })
-  @Roles('admin', 'ADMIN')
+  @Public()
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.adminService.remove(id);

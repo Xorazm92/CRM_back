@@ -32,6 +32,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { Public } from 'src/common';
 
 @ApiTags('Student Api')
 @ApiBearerAuth()
@@ -44,7 +45,7 @@ export class StudentController {
   @ApiOperation({ summary: 'Create student' })
   @ApiResponse({ status: 201, description: 'Student created' })
   @ApiResponse({ status: 400, description: 'Validation error' })
-  @Roles('admin', 'ADMIN')
+  @Public()
   @Post('createStudent')
   async create(@Body() createStudentDto: CreateStudentDto) {
     try {

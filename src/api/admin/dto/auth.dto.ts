@@ -4,7 +4,9 @@ import { IsString, IsNotEmpty, MinLength, IsEnum } from 'class-validator';
 export enum UserRole {
   ADMIN = 'ADMIN',
   USER = 'USER',
-  MODERATOR = 'MODERATOR'
+  MODERATOR = 'MODERATOR',
+  TEACHER = 'TEACHER',
+  STUDENT = 'STUDENT'
 }
 
 

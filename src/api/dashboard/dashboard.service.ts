@@ -39,7 +39,7 @@ export class DashboardService {
           },
           include: {
             _count: {
-              select: {}, // groups property olib tashlandi, chunki mavjud emas
+              select: { groups: true }, // to'g'ri select
             },
           },
         }),
@@ -48,7 +48,7 @@ export class DashboardService {
           take: 5,
           include: {
             _count: {
-              select: {}, // groups property olib tashlandi
+              select: { group_members: true }, // to'g'ri select
             },
           },
         }),
