@@ -91,33 +91,33 @@ export class AdminService {
     };
   }
 
-  //! ADD Member TO GROUP
-  async addMemberToGroup(addMemberDto: AddMemberDto) {
-    const currentMember = await this.prismaService.user.findUnique({
+  /**
+   * Guruhga a'zo qo'shish (student yoki teacher)
+   */
+  async addMemberToGroup(dto: AddMemberDto) {
+    // 1. User va Group mavjudligini tekshirish
+    const user = await this.prismaService.user.findUnique({ where: { user_id: dto.user_id } });
+    if (!user) throw new NotFoundException(`User with id ${dto.user_id} not found.`);
+    const group = await this.prismaService.groups.findUnique({ where: { group_id: dto.group_id } });
+    if (!group) throw new NotFoundException(`Group with id ${dto.group_id} not found.`);
+
+    // 2. Allaqachon guruh a'zosi emasligini tekshirish
+    const exists = await this.prismaService.groupMembers.findFirst({
       where: {
-        user_id: addMemberDto.user_id,
-      },
+        user_id: dto.user_id,
+        group_id: dto.group_id
+      }
     });
-    if (!currentMember) {
-      throw new NotFoundException(
-        `Member with id ${addMemberDto.user_id} not found.`,
-      );
-    }
-    const currentGroup = await this.prismaService.groups.findUnique({
-      where: { group_id: addMemberDto.group_id },
-    });
-    if (!currentGroup) {
-      throw new NotFoundException(
-        `Group with id ${addMemberDto.group_id} not found.`,
-      );
-    }
+    if (exists) throw new BadRequestException('User already in group');
+
+    // 3. Qo'shish
     await this.prismaService.groupMembers.create({
-      data: addMemberDto,
+      data: {
+        user_id: dto.user_id,
+        group_id: dto.group_id
+      }
     });
-    return {
-      status: HttpStatus.OK,
-      message: 'success',
-    };
+    return { status: 200, message: 'success' };
   }
 
   //! FIND ALL ADMIN
