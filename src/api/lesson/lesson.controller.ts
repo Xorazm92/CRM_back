@@ -30,18 +30,45 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { Public } from 'src/common';
 
 @ApiTags('Lesson Api')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, RolesGuard)
 @UsePipes(new ValidationPipe({ whitelist: true }))
+@Public()
 @Controller('lesson')
 export class LessonController {
   constructor(private readonly lessonService: LessonService) {}
 
   @ApiOperation({ summary: 'Create lesson' })
-  @ApiResponse({ status: 201, description: 'Lesson created' })
-  @ApiResponse({ status: 400, description: 'Validation error' })
+  @ApiResponse({
+    status: 201,
+    description: 'Lesson created',
+    schema: {
+      example: {
+        status: 201,
+        message: 'Lesson created',
+        data: {
+          lesson_id: 'e2b5c1f2-6c8a-4f7c-9be5-3e8e2b5c1f2a',
+          topic: 'Introduction to Algebra',
+          description: 'Basic algebraic concepts',
+          created_at: '2025-04-16T11:51:00.000Z',
+        }
+      }
+    }
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Validation error',
+    schema: {
+      example: {
+        statusCode: 400,
+        message: 'Topic is required',
+        error: 'Bad Request',
+      }
+    }
+  })
   @Roles('teacher', 'TEACHER', 'admin', 'ADMIN')
   @Post()
   async create(@Body() createLessonDto: CreateLessonDto) {
@@ -56,7 +83,24 @@ export class LessonController {
   }
 
   @ApiOperation({ summary: 'Get all lessons' })
-  @ApiResponse({ status: 200, description: 'List of lessons' })
+  @ApiResponse({
+    status: 200,
+    description: 'List of lessons',
+    schema: {
+      example: {
+        status: 200,
+        message: 'success',
+        data: [
+          {
+            lesson_id: 'e2b5c1f2-6c8a-4f7c-9be5-3e8e2b5c1f2a',
+            topic: 'Introduction to Algebra',
+            description: 'Basic algebraic concepts',
+            created_at: '2025-04-16T11:51:00.000Z',
+          }
+        ]
+      }
+    }
+  })
   @Roles('teacher', 'TEACHER', 'admin', 'ADMIN')
   @Get()
   async findAll() {
@@ -68,9 +112,34 @@ export class LessonController {
   }
 
   @ApiOperation({ summary: 'Get lesson by ID' })
-  @ApiParam({ name: 'id', required: true })
-  @ApiResponse({ status: 200, description: 'Lesson found' })
-  @ApiResponse({ status: 404, description: 'Lesson not found' })
+  @ApiParam({ name: 'id', required: true, description: 'Lesson ID', example: 'e2b5c1f2-6c8a-4f7c-9be5-3e8e2b5c1f2a' })
+  @ApiResponse({
+    status: 200,
+    description: 'Lesson found',
+    schema: {
+      example: {
+        status: 200,
+        message: 'success',
+        data: {
+          lesson_id: 'e2b5c1f2-6c8a-4f7c-9be5-3e8e2b5c1f2a',
+          topic: 'Introduction to Algebra',
+          description: 'Basic algebraic concepts',
+          created_at: '2025-04-16T11:51:00.000Z',
+        }
+      }
+    }
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Lesson not found',
+    schema: {
+      example: {
+        statusCode: 404,
+        message: 'Lesson not found',
+        error: 'Not Found',
+      }
+    }
+  })
   @Roles('teacher', 'TEACHER', 'admin', 'ADMIN')
   @Get(':id')
   async findOne(@Param('id') id: string) {
@@ -85,8 +154,33 @@ export class LessonController {
   }
 
   @ApiOperation({ summary: 'Update lesson' })
-  @ApiResponse({ status: 200, description: 'Lesson updated' })
-  @ApiResponse({ status: 404, description: 'Lesson not found' })
+  @ApiResponse({
+    status: 200,
+    description: 'Lesson updated',
+    schema: {
+      example: {
+        status: 200,
+        message: 'Lesson updated',
+        data: {
+          lesson_id: 'e2b5c1f2-6c8a-4f7c-9be5-3e8e2b5c1f2a',
+          topic: 'Updated topic',
+          description: 'Updated description',
+          updated_at: '2025-04-16T11:51:00.000Z',
+        }
+      }
+    }
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Lesson not found',
+    schema: {
+      example: {
+        statusCode: 404,
+        message: 'Lesson not found',
+        error: 'Not Found',
+      }
+    }
+  })
   @Roles('teacher', 'TEACHER', 'admin', 'ADMIN')
   @Patch(':id')
   async update(@Param('id') id: string, @Body() updateLessonDto: UpdateLessonDto) {
@@ -101,8 +195,27 @@ export class LessonController {
   }
 
   @ApiOperation({ summary: 'Delete lesson' })
-  @ApiResponse({ status: 200, description: 'Lesson deleted' })
-  @ApiResponse({ status: 404, description: 'Lesson not found' })
+  @ApiResponse({
+    status: 200,
+    description: 'Lesson deleted',
+    schema: {
+      example: {
+        status: 200,
+        message: 'Lesson deleted',
+      }
+    }
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Lesson not found',
+    schema: {
+      example: {
+        statusCode: 404,
+        message: 'Lesson not found',
+        error: 'Not Found',
+      }
+    }
+  })
   @Roles('teacher', 'TEACHER', 'admin', 'ADMIN')
   @Delete(':id')
   async remove(@Param('id') id: string) {
