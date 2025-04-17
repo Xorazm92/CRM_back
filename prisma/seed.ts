@@ -86,6 +86,23 @@ async function main() {
     });
   }
 
+  // --- SUPERADMIN USER YARATISH ---
+  const superadminUsername = 'superadmin';
+  const superadminPassword = await import('../src/infrastructure/lib/bcrypt/bcrypt').then(m => m.BcryptEncryption.hashPassword('superadmin'));
+  const superadmin = await prisma.user.upsert({
+    where: { username: superadminUsername },
+    update: {},
+    create: {
+      full_name: 'Super Admin',
+      username: superadminUsername,
+      password: superadminPassword,
+      role: UserRole.ADMIN,
+    },
+  });
+
+  users.push(superadmin);
+  // --- END SUPERADMIN ---
+
   console.log('yakunlandi!');
 }
 

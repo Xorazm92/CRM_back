@@ -20,7 +20,8 @@ export const UserID = createParamDecorator(
       throw new UnauthorizedException('Unauthorizated');
     }
     try {
-      const jwtService = new JwtService({ secret: config.ACCESS_TOKEN_KEY });
+      // JWT_SECRET ni ishlatamiz, ACCESS_TOKEN_KEY emas!
+      const jwtService = new JwtService({ secret: process.env.JWT_SECRET });
       const decoded = await jwtService.verifyAsync(token);
       return decoded['id'];
     } catch (error) {

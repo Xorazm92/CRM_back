@@ -23,26 +23,26 @@ import { ValidationPipe, UsePipes, BadRequestException, ConflictException, Unaut
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Public()
-  @Post('register')
-  @ApiOperation({ summary: 'Register a new user' })
-  @ApiResponse({
-    status: HttpStatus.CREATED,
-    description: 'User successfully registered',
-  })
-  @ApiResponse({
-    status: HttpStatus.CONFLICT,
-    description: 'Username already exists',
-  })
-  @UsePipes(new ValidationPipe({ whitelist: true }))
-  async register(@Body() registerDto: RegisterDto) {
-    try {
-      return await this.authService.register(registerDto);
-    } catch (e) {
-      if (e instanceof ConflictException) throw e;
-      throw new BadRequestException(e.message);
-    }
-  }
+  // @Public()
+  // @Post('register')
+  // @ApiOperation({ summary: 'Register a new user' })
+  // @ApiResponse({
+  //   status: HttpStatus.CREATED,
+  //   description: 'User successfully registered',
+  // })
+  // @ApiResponse({
+  //   status: HttpStatus.CONFLICT,
+  //   description: 'Username already exists',
+  // })
+  // @UsePipes(new ValidationPipe({ whitelist: true }))
+  // async register(@Body() registerDto: RegisterDto) {
+  //   try {
+  //     return await this.authService.register(registerDto);
+  //   } catch (e) {
+  //     if (e instanceof ConflictException) throw e;
+  //     throw new BadRequestException(e.message);
+  //   }
+  // }
 
   @Public()
   @Post('login')
@@ -59,7 +59,18 @@ export class AuthController {
   @UsePipes(new ValidationPipe({ whitelist: true }))
   async login(@Body() loginDto: LoginDto) {
     try {
-      return await this.authService.login(loginDto);
+      const { user, accessToken, refreshToken, access_token_expire, refresh_token_expire } = await this.authService.login(loginDto);
+      return {
+        status: 200,
+        message: 'success',
+        data: {
+          user,
+          accessToken,
+          refreshToken,
+          access_token_expire,
+          refresh_token_expire,
+        }
+      };
     } catch (e) {
       throw new UnauthorizedException(e.message);
     }
@@ -100,6 +111,17 @@ export class AuthController {
     } catch (e) {
       throw new BadRequestException(e.message);
     }
+  }
+
+  @Post('me')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get current user info' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Current user info',
+  })
+  async me(@UserID() id: string) {
+    return this.authService.me(id);
   }
 
   @Post('refresh')

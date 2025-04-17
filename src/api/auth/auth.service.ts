@@ -69,11 +69,12 @@ export class AuthService {
       select: {
         user_id: true,
         username: true,
-        password: true,
+        full_name: true,
         role: true,
         created_at: true,
-        updated_at: true
-      }
+        updated_at: true,
+        password: true,
+      },
     });
     console.log(dto.username);
 
@@ -90,6 +91,9 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
+    // Remove password before returning user object
+    const { password, ...userData } = user;
+
     const payload = {
       id: user.user_id.toString(), 
       sub: user.user_id.toString(),
@@ -100,16 +104,11 @@ export class AuthService {
     const refreshToken =
       await this.customJwtService.generateRefreshToken(payload);
     return {
-      status: HttpStatus.OK,
-      message: 'success',
-      data: {
-        accessToken,
-        access_token_expire:
-          this.configService.get<string>('ACCESS_TOKEN_TIME'),
-        refreshToken,
-        refresh_token_expire:
-          this.configService.get<string>('REFRESH_TOKEN_TIME'),
-      },
+      user: userData,
+      accessToken,
+      refreshToken,
+      access_token_expire: this.configService.get<string>('ACCESS_TOKEN_TIME'),
+      refresh_token_expire: this.configService.get<string>('REFRESH_TOKEN_TIME'),
     };
   }
 
@@ -156,5 +155,24 @@ export class AuthService {
     const refreshToken =
       await this.customJwtService.generateRefreshToken(payload);
     return { accessToken, refreshToken };
+  }
+
+  async me(id: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { user_id: id },
+      select: {
+        user_id: true,
+        username: true,
+        full_name: true,
+        role: true,
+        created_at: true,
+        updated_at: true, 
+        password: true,
+      },
+    });
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+    return { status: HttpStatus.OK, data: user };
   }
 }
