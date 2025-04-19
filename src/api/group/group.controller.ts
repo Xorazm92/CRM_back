@@ -78,9 +78,6 @@ export class GroupController {
     try {
       const result = await this.groupService.findAllGroup();
       // result = { status, message, data }
-      if (!result.data || !Array.isArray(result.data) || result.data.length === 0) {
-        throw new NotFoundException('No groups found for this admin');
-      }
       return result;
     } catch (e) {
       throw new NotFoundException(e.message);

@@ -36,6 +36,7 @@ model Groups {
   lessons       Lessons[]
   schedules     Schedule[]
   assignments   Assignments[]
+  students      Student[]
 }
 
 model Assignments {
@@ -144,6 +145,16 @@ model TeacherSalary {
   status    PaymentStatus
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
+}
+
+model Student {
+  user_id    String   @id @default(uuid())
+  full_name  String
+  birthdate  DateTime
+  gender     Gender
+  group_id   String?
+  created_at DateTime @default(now())
+  group      Groups?  @relation(fields: [group_id], references: [group_id])
 }
 
 enum UserRole {

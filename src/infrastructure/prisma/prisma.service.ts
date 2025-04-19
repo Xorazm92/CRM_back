@@ -3,9 +3,6 @@ import { PrismaClient } from '@prisma/client';
 
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
-  teacher: any;
-  student: any;
-  payment: any;
   async onModuleInit() {
     await this.$connect();
   }
