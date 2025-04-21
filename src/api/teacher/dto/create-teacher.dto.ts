@@ -5,7 +5,12 @@ export class CreateTeacherDto {
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  full_name: string;
+  name: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  lastname: string;
 
   @ApiProperty()
   @IsString()

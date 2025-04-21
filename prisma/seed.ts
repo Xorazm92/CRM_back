@@ -16,7 +16,8 @@ async function main() {
     for (let i = 1; i <= 2; i++) {
       const user = await prisma.user.create({
         data: {
-          full_name: `${role} User ${i}`,
+          name: `${role} User ${i}`,
+          lastname: `Lastname${i}`,
           username: `${role.toLowerCase()}_user${i}`,
           password: 'hashed_password',
           role: role,
@@ -88,12 +89,14 @@ async function main() {
 
   // --- SUPERADMIN USER YARATISH ---
   const superadminUsername = 'superadmin';
-  const superadminPassword = await import('../src/infrastructure/lib/bcrypt/bcrypt').then(m => m.BcryptEncryption.hashPassword('superadmin'));
+  const bcrypt = await import('../src/infrastructure/lib/bcrypt/bcrypt');
+  const superadminPassword = await bcrypt.BcryptEncryption.hashPassword('superadmin');
   const superadmin = await prisma.user.upsert({
     where: { username: superadminUsername },
     update: {},
     create: {
-      full_name: 'Super Admin',
+      name: 'Super',
+      lastname: 'Admin',
       username: superadminUsername,
       password: superadminPassword,
       role: UserRole.ADMIN,

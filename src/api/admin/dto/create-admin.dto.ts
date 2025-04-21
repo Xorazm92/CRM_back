@@ -4,12 +4,21 @@ import { IsNotEmpty, IsString, IsStrongPassword } from 'class-validator';
 export class CreateAdminDto {
   @ApiProperty({
     type: String,
-    description: 'FullName of admin',
-    example: 'Jhon Doe',
+    description: 'Name of admin',
+    example: 'Jhon',
   })
   @IsString()
   @IsNotEmpty()
-  full_name: string;
+  name: string;
+
+  @ApiProperty({
+    type: String,
+    description: 'Lastname of admin',
+    example: 'Doe',
+  })
+  @IsString()
+  @IsNotEmpty()
+  lastname: string;
 
   @ApiProperty({
     type: String,

@@ -16,7 +16,7 @@ import { PaymentModule } from './payment/payment.module';
 import { FileUploadModule } from './fileupload/fileupload.module';
 import { CacheModule } from '@nestjs/cache-manager';
 import { CustomJwtModule } from 'src/infrastructure/lib/custom-jwt.module';
-
+import { SettingModule } from './setting/setting.module';
 
 @Module({
   imports: [
@@ -40,6 +40,7 @@ import { CustomJwtModule } from 'src/infrastructure/lib/custom-jwt.module';
     SubmissionsModule,
     PaymentModule,
     FileUploadModule,
+    SettingModule,
   ],
 })
 export class AppModule {}

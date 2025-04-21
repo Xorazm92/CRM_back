@@ -16,8 +16,8 @@ export class TeacherService {
   constructor(private readonly prismaService: PrismaService) {}
 
   async create(createTeacherDto: CreateTeacherDto) {
-    if (!createTeacherDto.username || !createTeacherDto.password || !createTeacherDto.full_name) {
-      throw new BadRequestException('username, password va full_name majburiy');
+    if (!createTeacherDto.username || !createTeacherDto.password || !createTeacherDto.name || !createTeacherDto.lastname) {
+      throw new BadRequestException('username, password, name va lastname majburiy');
     }
     // Duplicate username check
     const currentTeacher = await this.prismaService.user.findUnique({ where: { username: createTeacherDto.username } });
@@ -28,15 +28,13 @@ export class TeacherService {
     try {
       const teacher = await this.prismaService.user.create({
         data: {
-          ...createTeacherDto,
+          name: createTeacherDto.name,
+          lastname: createTeacherDto.lastname,
+          username: createTeacherDto.username,
+          password: createTeacherDto.password,
           role: 'TEACHER',
         },
-        select: {
-          user_id: true,
-          username: true,
-          full_name: true,
-          role: true,
-        },
+        select: { user_id: true, name: true, lastname: true, username: true, role: true },
       });
       return { status: 201, message: 'Teacher created', data: teacher };
     } catch (e) {
@@ -53,7 +51,7 @@ export class TeacherService {
           where: { role: 'TEACHER' },
           take: limit,
           skip: skip,
-          select: { user_id: true, full_name: true, username: true, role: true },
+          select: { user_id: true, name: true, lastname: true, username: true, role: true },
         }),
       ]);
       return {
@@ -76,7 +74,7 @@ export class TeacherService {
     try {
       const teacher = await this.prismaService.user.findUnique({
         where: { user_id: id, role: 'TEACHER' },
-        select: { user_id: true, full_name: true, username: true, role: true },
+        select: { user_id: true, name: true, lastname: true, username: true, role: true },
       });
       if (!teacher) throw new NotFoundException(`Teacher not found`);
       return { status: HttpStatus.OK, message: 'success', data: teacher };
@@ -89,7 +87,7 @@ export class TeacherService {
     try {
       const teacher = await this.prismaService.user.findUnique({
         where: { user_id: id, role: 'TEACHER' },
-        select: { user_id: true, full_name: true, username: true, role: true },
+        select: { user_id: true, name: true, lastname: true, username: true, role: true },
       });
       if (!teacher) {
         throw new NotFoundException(`Teacher with id ${id} not found.`);
@@ -110,8 +108,8 @@ export class TeacherService {
       }
       const updated = await this.prismaService.user.update({
         where: { user_id: id },
-        data: { full_name: updateTeacherDto.full_name },
-        select: { user_id: true, full_name: true, username: true, role: true },
+        data: { name: updateTeacherDto.name, lastname: updateTeacherDto.lastname },
+        select: { user_id: true, name: true, lastname: true, username: true, role: true },
       });
       return { status: HttpStatus.OK, message: 'Teacher updated', data: updated };
     } catch (e) {
@@ -138,7 +136,7 @@ export class TeacherService {
     // O'qituvchining ma'lumotlari
     const teacher = await this.prismaService.user.findUnique({
       where: { user_id: id, role: 'TEACHER' },
-      select: { user_id: true, full_name: true }
+      select: { user_id: true, name: true, lastname: true }
     });
     if (!teacher) throw new NotFoundException('Teacher not found');
     // O'qituvchi a'zo bo'lgan guruhlar
@@ -150,7 +148,8 @@ export class TeacherService {
     });
     return {
       teacher_id: teacher.user_id,
-      full_name: teacher.full_name,
+      name: teacher.name,
+      lastname: teacher.lastname,
       groups: groups.map(gm => ({
         group_id: gm.group.group_id,
         name: gm.group.name,

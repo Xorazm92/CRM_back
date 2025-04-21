@@ -82,7 +82,7 @@ export class AdminService {
   async getProfile(id: string) {
     const admin = await this.prismaService.user.findUnique({
       where: { user_id: id, role: 'ADMIN' },
-      select: { user_id: true, full_name: true, username: true, role: true },
+      select: { user_id: true, name: true, lastname: true, username: true, role: true },
     });
     return {
       status: HttpStatus.OK,
@@ -92,32 +92,40 @@ export class AdminService {
   }
 
   /**
-   * Guruhga a'zo qo'shish (student yoki teacher)
+   * Guruhga bir nechta a'zo qo'shish (student yoki teacher)
    */
   async addMemberToGroup(dto: AddMemberDto) {
-    // 1. User va Group mavjudligini tekshirish
-    const user = await this.prismaService.user.findUnique({ where: { user_id: dto.user_id } });
-    if (!user) throw new NotFoundException(`User with id ${dto.user_id} not found.`);
+    if (!dto.user_ids || !dto.group_id) {
+      throw new BadRequestException('user_ids va group_id majburiy!');
+    }
+    // Guruhni tekshirish
     const group = await this.prismaService.groups.findUnique({ where: { group_id: dto.group_id } });
     if (!group) throw new NotFoundException(`Group with id ${dto.group_id} not found.`);
 
-    // 2. Allaqachon guruh a'zosi emasligini tekshirish
-    const exists = await this.prismaService.groupMembers.findFirst({
-      where: {
-        user_id: dto.user_id,
-        group_id: dto.group_id
+    const results = [];
+    for (const user_id of dto.user_ids) {
+      if (!user_id) {
+        results.push({ user_id, status: 'user_id_undefined' });
+        continue;
       }
-    });
-    if (exists) throw new BadRequestException('User already in group');
-
-    // 3. Qo'shish
-    await this.prismaService.groupMembers.create({
-      data: {
-        user_id: dto.user_id,
-        group_id: dto.group_id
+      const user = await this.prismaService.user.findUnique({ where: { user_id } });
+      if (!user) {
+        results.push({ user_id, status: 'not_found' });
+        continue;
       }
-    });
-    return { status: 200, message: 'success' };
+      const exists = await this.prismaService.groupMembers.findFirst({
+        where: { user_id, group_id: dto.group_id }
+      });
+      if (exists) {
+        results.push({ user_id, status: 'already_in_group' });
+        continue;
+      }
+      await this.prismaService.groupMembers.create({
+        data: { user_id, group_id: dto.group_id }
+      });
+      results.push({ user_id, status: 'added' });
+    }
+    return { status: 200, message: 'done', results };
   }
 
   //! FIND ALL ADMIN
@@ -168,7 +176,7 @@ export class AdminService {
     }
     await this.prismaService.user.update({
       where: { user_id: id },
-      data: { full_name: updateAdminDto.full_name },
+      data: { name: updateAdminDto.name, lastname: updateAdminDto.lastname },
     });
     return {
       status: HttpStatus.OK,

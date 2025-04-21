@@ -8,13 +8,21 @@ datasource db {
 }
 
 model User {
-  full_name         String?
-  username          String         @unique
-  password          String
-  role              UserRole   
-  created_at        DateTime       @default(now())
-  updated_at        DateTime       @updatedAt
-  user_id           String         @id @default(uuid())
+  user_id      String   @id @default(uuid())
+  username     String   @unique
+  password     String
+  role         UserRole
+  name         String
+  lastname     String
+  middlename   String?
+  birthdate    DateTime?
+  gender       Gender?
+  address      String?
+  payment      String?
+  phone_number String?
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+
   attendances       Attendance[]
   group_members     GroupMembers[]
   gradedSubmissions Submissions[]  @relation("GraderSubmissions")
@@ -148,13 +156,35 @@ model TeacherSalary {
 }
 
 model Student {
+  user_id     String   @id @default(uuid())
+  name        String
+  lastname    String
+  middlename  String?
+  birthdate   DateTime?
+  gender      Gender?
+  address     String?
+  payment     String?
+  phone_number String?
+  group_id    String?
+  created_at  DateTime @default(now())
+  group       Groups?  @relation(fields: [group_id], references: [group_id])
+}
+
+model Teacher {
   user_id    String   @id @default(uuid())
   full_name  String
   birthdate  DateTime
   gender     Gender
-  group_id   String?
+  contact    String?
   created_at DateTime @default(now())
-  group      Groups?  @relation(fields: [group_id], references: [group_id])
+}
+
+model Setting {
+  id        Int      @id @default(autoincrement())
+  key       String   @unique
+  value     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 enum UserRole {

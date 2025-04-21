@@ -51,7 +51,10 @@ export class AuthService {
 
     const user = await this.prisma.user.create({
       data: {
-        ...dto,
+        name: dto.name,
+        lastname: dto.lastname,
+        username: dto.username,
+        password: dto.password,
         role: dto.role as PrismaUserRole
       }
     });
@@ -69,7 +72,8 @@ export class AuthService {
       select: {
         user_id: true,
         username: true,
-        full_name: true,
+        name: true,
+        lastname: true,
         role: true,
         created_at: true,
         updated_at: true,
@@ -163,7 +167,8 @@ export class AuthService {
       select: {
         user_id: true,
         username: true,
-        full_name: true,
+        name: true,
+        lastname: true,
         role: true,
         created_at: true,
         updated_at: true, 

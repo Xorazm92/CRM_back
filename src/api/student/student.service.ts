@@ -9,31 +9,47 @@ export class StudentService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(dto: CreateStudentDto) {
-    if (!dto.username || !dto.password || !dto.full_name) {
-      throw new BadRequestException('username, password va full_name majburiy');
-    }
-    // Duplicate username check
-    const existing = await this.prisma.user.findUnique({ where: { username: dto.username } });
-    if (existing) {
-      throw new BadRequestException('A user with this username already exists');
-    }
-    const hashedPassword = await BcryptEncryption.hashPassword(dto.password);
     try {
+      if (!dto.username || !dto.password || !dto.name || !dto.lastname) {
+        throw new BadRequestException('username, password, name va lastname majburiy');
+      }
+      // Duplicate username check
+      const existing = await this.prisma.user.findUnique({ where: { username: dto.username } });
+      if (existing) {
+        throw new BadRequestException('A user with this username already exists');
+      }
+      const hashedPassword = await BcryptEncryption.hashPassword(dto.password);
       const student = await this.prisma.user.create({
         data: {
-          ...dto,
+          username: dto.username,
           password: hashedPassword,
+          name: dto.name,
+          lastname: dto.lastname,
+          middlename: dto.middlename,
+          birthdate: dto.birthdate ? new Date(dto.birthdate) : undefined,
+          gender: dto.gender ? dto.gender.toUpperCase() as any : undefined,
+          address: dto.address,
+          payment: dto.payment,
+          phone_number: dto.phone_number,
           role: 'STUDENT'
         },
         select: {
           user_id: true,
           username: true,
-          full_name: true,
+          name: true,
+          lastname: true,
+          middlename: true,
+          birthdate: true,
+          gender: true,
+          address: true,
+          payment: true,
+          phone_number: true,
           role: true
         }
       });
       return { status: 201, message: 'Student created', data: student };
     } catch (e) {
+      console.error('Student create error:', e);
       throw new InternalServerErrorException(e.message);
     }
   }
@@ -50,7 +66,14 @@ export class StudentService {
           select: {
             user_id: true,
             username: true,
-            full_name: true,
+            name: true,
+            lastname: true,
+            middlename: true,
+            birthdate: true,
+            gender: true,
+            address: true,
+            payment: true,
+            phone_number: true,
             role: true
           }
         })
@@ -78,7 +101,14 @@ export class StudentService {
         select: {
           user_id: true,
           username: true,
-          full_name: true,
+          name: true,
+          lastname: true,
+          middlename: true,
+          birthdate: true,
+          gender: true,
+          address: true,
+          payment: true,
+          phone_number: true,
           role: true
         }
       });
@@ -93,11 +123,27 @@ export class StudentService {
     try {
       const student = await this.prisma.user.update({
         where: { user_id: id },
-        data: { full_name: updateStudentDto.full_name },
+        data: {
+          name: updateStudentDto.name,
+          lastname: updateStudentDto.lastname,
+          middlename: updateStudentDto.middlename,
+          birthdate: updateStudentDto.birthdate ? new Date(updateStudentDto.birthdate) : undefined,
+          gender: updateStudentDto.gender ? updateStudentDto.gender.toUpperCase() as any : undefined,
+          address: updateStudentDto.address,
+          payment: updateStudentDto.payment,
+          phone_number: updateStudentDto.phone_number,
+        },
         select: {
           user_id: true,
           username: true,
-          full_name: true,
+          name: true,
+          lastname: true,
+          middlename: true,
+          birthdate: true,
+          gender: true,
+          address: true,
+          payment: true,
+          phone_number: true,
           role: true
         }
       });
@@ -125,7 +171,14 @@ export class StudentService {
         select: {
           user_id: true,
           username: true,
-          full_name: true,
+          name: true,
+          lastname: true,
+          middlename: true,
+          birthdate: true,
+          gender: true,
+          address: true,
+          payment: true,
+          phone_number: true,
           role: true
         }
       });

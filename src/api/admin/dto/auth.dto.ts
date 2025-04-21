@@ -12,12 +12,20 @@ export enum UserRole {
 
 export class RegisterDto {
   @ApiProperty({
-    description: 'Foydalanuvchi to\'liq ismi',
-    example: 'John Doe'
+    description: 'Ismi',
+    example: 'John'
   })
   @IsString()
   @IsNotEmpty()
-  full_name: string;
+  name: string;
+
+  @ApiProperty({
+    description: 'Familiyasi',
+    example: 'Doe'
+  })
+  @IsString()
+  @IsNotEmpty()
+  lastname: string;
 
   @ApiProperty({
     description: 'Foydalanuvchi nomi',

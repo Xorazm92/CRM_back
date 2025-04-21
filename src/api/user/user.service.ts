@@ -17,7 +17,10 @@ export class UserService {
     }
     return this.prismaService.user.create({
       data: {
-        ...createUserDto,
+        name: createUserDto.name,
+        lastname: createUserDto.lastname,
+        username: createUserDto.username,
+        password: createUserDto.password,
         role: createUserDto.role as UserRole || UserRole.STUDENT
       },
     });
