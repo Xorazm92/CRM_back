@@ -29,6 +29,7 @@ model User {
   submissions       Submissions[]  @relation("StudentSubmissions")
   assignments       Assignments[]  @relation("AssignmentsTeacher")
   student_payments  StudentPayment[] @relation("StudentPaymentUser")
+  groups_as_teacher Groups[] @relation("GroupsTeacher")
 }
 
 model Groups {
@@ -45,6 +46,8 @@ model Groups {
   schedules     Schedule[]
   assignments   Assignments[]
   students      Student[]
+  teacher_id    String?        
+  teacher       User?          @relation("GroupsTeacher", fields: [teacher_id], references: [user_id])
 }
 
 model Assignments {

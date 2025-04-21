@@ -30,6 +30,7 @@ import { JwtAuthGuard } from 'src/infrastructure/guards/jwt-auth.guard';
 import { Roles } from 'src/infrastructure/decorators/roles.decorator';
 import { UserRole } from 'src/users/user-role.enum';
 import { RolesGuard } from 'src/infrastructure/guards/roles.guard';
+import { AddTeacherToGroupDto } from './dto/add-teacher-to-group.dto';
 
 @ApiTags('Admin Api')
 @Controller('admin')
@@ -128,6 +129,35 @@ export class AdminController {
   @Post('addMembersToGroup')
   addMembersToGroup(@Body() addMembersDto: AddMemberDto) {
     return this.adminService.addMemberToGroup(addMembersDto);
+  }
+
+  @ApiOperation({
+    summary: 'Add Teacher to Group',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Teacher added to group successfully',
+    schema: {
+      example: {
+        status: HttpStatus.OK,
+        message: 'success',
+      },
+    },
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Teacher or Group Not Found',
+    schema: {
+      example: {
+        status: HttpStatus.NOT_FOUND,
+        message: 'Teacher or Group not found.',
+      },
+    },
+  })
+  @Public()
+  @Post('addTeacherToGroup')
+  addTeacherToGroup(@Body() dto: AddTeacherToGroupDto) {
+    return this.adminService.addTeacherToGroup(dto);
   }
 
   @ApiOperation({
@@ -233,6 +263,46 @@ export class AdminController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.adminService.findOne(id);
+  }
+
+  @ApiOperation({
+    summary: 'Get group by ID (all info)',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Group with all related info fetched by id successfully',
+    schema: {
+      example: {
+        status: HttpStatus.OK,
+        message: 'success',
+        data: {
+          group_id: '...',
+          name: '...',
+          teacher: { /* ... */ },
+          course: { /* ... */ },
+          group_members: [ { user: { /* ... */ } } ],
+          lessons: [ /* ... */ ],
+          schedules: [ /* ... */ ],
+          assignments: [ /* ... */ ],
+          students: [ /* ... */ ]
+        }
+      }
+    }
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Group Not Found',
+    schema: {
+      example: {
+        status: HttpStatus.NOT_FOUND,
+        message: 'Group with id ... not found.'
+      }
+    }
+  })
+  @Public()
+  @Get('group/:id')
+  getGroupById(@Param('id') id: string) {
+    return this.adminService.findGroupById(id);
   }
 
   @ApiOperation({

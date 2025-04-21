@@ -14,6 +14,7 @@ import { ConfigService } from '@nestjs/config';
 import { UserRole } from 'src/users/user-role.enum';
 import { AddMemberDto } from './dto/add-memberdto';
 import { CustomJwtService } from 'src/infrastructure/lib/custom-jwt.service';
+import { AddTeacherToGroupDto } from './dto/add-teacher-to-group.dto';
 
 @Injectable()
 export class AdminService {
@@ -199,6 +200,55 @@ export class AdminService {
     return {
       status: HttpStatus.OK,
       message: 'success',
+    };
+  }
+
+  /**
+   * Guruhga teacher qo'shish
+   */
+  async addTeacherToGroup(dto: AddTeacherToGroupDto) {
+    if (!dto.teacher_id || !dto.group_id) {
+      throw new BadRequestException('teacher_id va group_id majburiy!');
+    }
+    // Guruhni tekshirish
+    const group = await this.prismaService.groups.findUnique({ where: { group_id: dto.group_id } });
+    if (!group) throw new NotFoundException(`Group with id ${dto.group_id} not found.`);
+    // Teacher mavjudligini tekshirish
+    const teacher = await this.prismaService.user.findUnique({ where: { user_id: dto.teacher_id } });
+    if (!teacher) throw new NotFoundException(`Teacher with id ${dto.teacher_id} not found.`);
+    // Guruhga biriktirish (masalan, Groups modelida teacher_id ni update qilish)
+    await this.prismaService.groups.update({
+      where: { group_id: dto.group_id },
+      data: { teacher_id: dto.teacher_id }
+    });
+    return { status: 200, message: 'success' };
+  }
+
+  // GROUPNI ID BO'YICHA TO'LIQ MA'LUMOTLAR BILAN QAYTARISH
+  async findGroupById(id: string) {
+    const group = await this.prismaService.groups.findUnique({
+      where: { group_id: id },
+      include: {
+        teacher: true,
+        course: true,
+        group_members: {
+          include: {
+            user: true
+          }
+        },
+        lessons: true,
+        schedules: true,
+        assignments: true,
+        students: true
+      }
+    });
+    if (!group) {
+      throw new NotFoundException(`Group with id ${id} not found.`);
+    }
+    return {
+      status: HttpStatus.OK,
+      message: 'success',
+      data: group,
     };
   }
 }
