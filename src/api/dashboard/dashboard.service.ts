@@ -128,4 +128,69 @@ export class DashboardService {
     // TODO: implement
     return 0;
   }
+
+  // Bolalarni yosh bo‘yicha statistikasi
+  async getStudentAgeStats() {
+    const result = await this.prisma.user.groupBy({
+      by: ['birthdate'],
+      where: { role: 'STUDENT' },
+    });
+    // Yoshni hisoblash va guruhlash
+    const now = new Date();
+    const ageMap = new Map<number, number>();
+    for (const row of result) {
+      if (!row.birthdate) continue;
+      const age = now.getFullYear() - row.birthdate.getFullYear();
+      ageMap.set(age, (ageMap.get(age) || 0) + 1);
+    }
+    return Array.from(ageMap.entries()).map(([age, count]) => ({ age, count })).sort((a, b) => a.age - b.age);
+  }
+
+  // So‘nggi to‘lovlar (oxirgi 5 ta)
+  async getRecentPayments(limit = 5) {
+    return this.prisma.studentPayment.findMany({
+      orderBy: { createdAt: 'desc' },
+      take: limit,
+      include: { student: true },
+    });
+  }
+
+  // Kirim/chiqim va bolalar soni o‘zgarishi uchun statistik endpointlar
+  async getIncomeStats() {
+    // Oxirgi 2 oy uchun kirim (to‘lovlar)
+    const now = new Date();
+    const lastMonth = new Date(now);
+    lastMonth.setMonth(now.getMonth() - 1);
+    const currMonthPayments = await this.prisma.studentPayment.aggregate({
+      _sum: { amount: true },
+      where: { createdAt: { gte: new Date(now.getFullYear(), now.getMonth(), 1) } },
+    });
+    const prevMonthPayments = await this.prisma.studentPayment.aggregate({
+      _sum: { amount: true },
+      where: { createdAt: { gte: new Date(lastMonth.getFullYear(), lastMonth.getMonth(), 1), lt: new Date(now.getFullYear(), now.getMonth(), 1) } },
+    });
+    return {
+      currentMonth: currMonthPayments._sum.amount || 0,
+      previousMonth: prevMonthPayments._sum.amount || 0,
+      delta: (currMonthPayments._sum.amount || 0) - (prevMonthPayments._sum.amount || 0),
+    };
+  }
+
+  async getStudentCountDelta() {
+    // Bolalar soni o‘zgarishi: oxirgi oy va undan avvalgi oy
+    const now = new Date();
+    const lastMonth = new Date(now);
+    lastMonth.setMonth(now.getMonth() - 1);
+    const currMonthCount = await this.prisma.user.count({
+      where: { role: 'STUDENT', created_at: { gte: new Date(now.getFullYear(), now.getMonth(), 1) } },
+    });
+    const prevMonthCount = await this.prisma.user.count({
+      where: { role: 'STUDENT', created_at: { gte: new Date(lastMonth.getFullYear(), lastMonth.getMonth(), 1), lt: new Date(now.getFullYear(), now.getMonth(), 1) } },
+    });
+    return {
+      currentMonth: currMonthCount,
+      previousMonth: prevMonthCount,
+      delta: currMonthCount - prevMonthCount,
+    };
+  }
 }

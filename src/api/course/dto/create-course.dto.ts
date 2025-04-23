@@ -30,6 +30,16 @@ export class CreateCourseDto {
   duration: number;
 
   @ApiProperty({
+    description: 'Price of the course',
+    example: 1500000,
+    minimum: 0
+  })
+  @IsNotEmpty()
+  @IsInt()
+  @Min(0)
+  price: number;
+
+  @ApiProperty({
     description: 'Current status of the course',
     enum: CourseStatus,
     example: 'ACTIVE'

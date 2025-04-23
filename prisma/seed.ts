@@ -33,6 +33,7 @@ async function main() {
       name: 'Web Development',
       description: 'Learn web development from scratch',
       duration: 3,
+      price: 1000000, // Qo'shildi: yangi price field uchun default qiymat
       status: 'ACTIVE',
     },
   });

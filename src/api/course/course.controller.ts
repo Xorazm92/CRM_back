@@ -22,7 +22,7 @@ import { UpdateCourseDto } from './dto/update-course.dto';
 import { JwtAuthGuard } from 'src/infrastructure/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/infrastructure/guards/roles.guard';
 import { Roles } from 'src/infrastructure/decorators/roles.decorator';
-import { UserRole } from 'src/users/user-role.enum';
+import { UserRole } from '@prisma/client';
 import {
   ApiBearerAuth,
   ApiOperation,

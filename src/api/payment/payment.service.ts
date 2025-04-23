@@ -1,18 +1,40 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, Inject, forwardRef } from '@nestjs/common';
 import { Prisma, PaymentType, PaymentStatus } from '@prisma/client';
 import { PrismaService } from 'src/infrastructure/prisma/prisma.service';
 import { CreateStudentPaymentDto } from './dto/create-student-payment.dto';
 import { CreateTeacherSalaryDto } from './dto/create-teacher-salary.dto';
+import { NotificationService } from 'src/api/notification/notification.service';
 
 @Injectable()
 export class PaymentService {
-  getTeacherSalaryHistory(id: string) {
-    throw new Error('Method not implemented.');
+  // O'qituvchining barcha oyliklari tarixini qaytaradi
+  async getTeacherSalaryHistory(id: string) {
+    const teacher = await this.prisma.user.findUnique({ where: { user_id: id } });
+    if (!teacher || teacher.role !== 'TEACHER') {
+      throw new NotFoundException(`Teacher with ID ${id} not found`);
+    }
+    return this.prisma.teacherSalary.findMany({
+      where: { teacher: { user_id: id } },
+      orderBy: { createdAt: 'desc' }
+    });
   }
-  getStudentPayments(id: string) {
-    throw new Error('Method not implemented.');
+
+  // Studentning barcha paymentlarini qaytaradi
+  async getStudentPayments(id: string) {
+    const student = await this.prisma.user.findUnique({ where: { user_id: id } });
+    if (!student || student.role !== 'STUDENT') {
+      throw new NotFoundException(`Student with ID ${id} not found`);
+    }
+    return this.prisma.studentPayment.findMany({
+      where: { student_id: id },
+      orderBy: { createdAt: 'desc' }
+    });
   }
-  constructor(private prisma: PrismaService) {}
+
+  constructor(
+    private prisma: PrismaService,
+    @Inject(forwardRef(() => NotificationService)) private notificationService: NotificationService,
+  ) {}
 
   async getStudentPaymentHistory(studentId: string) {
     return this.prisma.studentPayment.findMany({
@@ -40,9 +62,21 @@ export class PaymentService {
     if (!student || student.role !== 'STUDENT') {
       throw new NotFoundException(`Student with ID ${dto.student_id} not found`);
     }
-    // 2. Chegirma aniqlash
+    // 2. Chegirma aniqlash (Discount model orqali)
     let discountPercent = 0;
-    if (dto.description && dto.description.includes('discount:')) {
+    const now = new Date();
+    const activeDiscount = await this.prisma.discount.findFirst({
+      where: {
+        student_id: dto.student_id,
+        valid_from: { lte: now },
+        valid_to: { gte: now },
+      },
+      orderBy: { created_at: 'desc' },
+    });
+    if (activeDiscount) {
+      discountPercent = activeDiscount.percent;
+    } else if (dto.description && dto.description.includes('discount:')) {
+      // Eski description orqali chegirma
       const match = dto.description.match(/discount:(\d+)/);
       if (match) discountPercent = Number(match[1]);
     }
@@ -51,7 +85,7 @@ export class PaymentService {
     // 4. 30 kunlik cheklov
     const lastPayment = await this.prisma.studentPayment.findFirst({
       where: { student_id: dto.student_id, type: dto.payment_type },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: 'desc' }
     });
     if (lastPayment) {
       const now = new Date();
@@ -89,7 +123,7 @@ export class PaymentService {
         status: dto.status as PaymentStatus,
         createdAt: new Date(),
         updatedAt: new Date(),
-        // qo'shimcha fieldlar kerak bo'lsa shu yerda
+        teacher: { connect: { user_id: dto.teacher_id } },
       },
     });
   }
@@ -178,7 +212,7 @@ export class PaymentService {
       // 5. Shu oy uchun teacherSalary yozilganmi, tekshirish
       const existingSalary = await this.prisma.teacherSalary.findFirst({
         where: {
-          id: teacher.user_id,
+          teacher: { user_id: teacher.user_id },
           createdAt: {
             gte: new Date(year, month, 1),
             lt: new Date(year, month + 1, 1)
@@ -189,11 +223,11 @@ export class PaymentService {
         // Yangi oylik yozamiz
         const salaryRecord = await this.prisma.teacherSalary.create({
           data: {
-            id: teacher.user_id,
             amount: Math.round(salary),
             status: 'PENDING',
             createdAt: new Date(),
             updatedAt: new Date(),
+            teacher: { connect: { user_id: teacher.user_id } },
           }
         });
         results.push(salaryRecord);
@@ -202,5 +236,67 @@ export class PaymentService {
       }
     }
     return { count: results.length, results };
+  }
+
+  async updateStudentPayment(id: string, dto: CreateStudentPaymentDto) {
+    // Student payment mavjudligini tekshirish
+    const existing = await this.prisma.studentPayment.findUnique({ where: { id } });
+    if (!existing) {
+      throw new NotFoundException(`Student payment with ID ${id} not found`);
+    }
+    // Yangilash uchun ma'lumotlarni tayyorlash
+    const updateData: any = {
+      student_id: dto.student_id,
+      amount: dto.amount,
+      type: dto.payment_type,
+      updatedAt: new Date(),
+    };
+    if (dto.description) updateData.description = dto.description;
+    // Status mavjud bo'lsa, statusni ham yangilash
+    if ((dto as any).status) updateData.status = (dto as any).status;
+    return this.prisma.studentPayment.update({
+      where: { id },
+      data: updateData,
+    });
+  }
+
+  // Qarzdorlar ro'yxatini aniqlash (to'lov qilmagan studentlar)
+  async getDebtors(notify = false) {
+    // Barcha studentlarni olish
+    const students = await this.prisma.user.findMany({ where: { role: 'STUDENT' } });
+    // Har bir student uchun oxirgi paymentni tekshirish
+    const debtors = [];
+    const now = new Date();
+    for (const student of students) {
+      // Oxirgi payment
+      const lastPayment = await this.prisma.studentPayment.findFirst({
+        where: { student_id: student.user_id, status: 'COMPLETED' },
+        orderBy: { createdAt: 'desc' }
+      });
+      let isDebtor = false;
+      if (!lastPayment) {
+        isDebtor = true; // Umuman payment qilmagan
+      } else {
+        const diffDays = (now.getTime() - lastPayment.createdAt.getTime()) / (1000 * 60 * 60 * 24);
+        if (diffDays > 31) isDebtor = true; // 31 kundan oshgan bo'lsa qarzdor
+      }
+      if (isDebtor) {
+        debtors.push({
+          student_id: student.user_id,
+          name: student.name,
+          lastname: student.lastname,
+          middlename: student.middlename,
+          last_payment: lastPayment ? lastPayment.createdAt : null,
+        });
+        if (notify) {
+          await this.notificationService.create(
+            student.user_id,
+            'Hurmatli o‘quvchi! Sizning to‘lovingiz muddati o‘tib ketgan. Iltimos, o‘z vaqtida to‘lov qiling.',
+            'DEBTOR',
+          );
+        }
+      }
+    }
+    return debtors;
   }
 }

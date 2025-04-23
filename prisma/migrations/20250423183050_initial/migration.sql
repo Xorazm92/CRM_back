@@ -17,12 +17,25 @@ CREATE TYPE "PaymentStatus" AS ENUM ('PENDING', 'COMPLETED', 'CANCELLED');
 CREATE TYPE "PaymentType" AS ENUM ('MONTHLY', 'COURSE', 'OTHER');
 
 -- CreateEnum
+CREATE TYPE "TransactionType" AS ENUM ('PAYMENT', 'REFUND', 'SALARY', 'OTHER');
+
+-- CreateEnum
+CREATE TYPE "TransactionStatus" AS ENUM ('PENDING', 'SUCCESS', 'FAILED');
+
+-- CreateEnum
 CREATE TYPE "Gender" AS ENUM ('MALE', 'FEMALE');
+
+-- CreateEnum
+CREATE TYPE "NotificationType" AS ENUM ('DEBTOR', 'SYSTEM', 'INFO', 'OTHER');
+
+-- CreateEnum
+CREATE TYPE "UserStatus" AS ENUM ('ACTIVE', 'INACTIVE', 'BLOCKED');
 
 -- CreateTable
 CREATE TABLE "User" (
     "user_id" TEXT NOT NULL,
     "username" TEXT NOT NULL,
+    "email" TEXT,
     "password" TEXT NOT NULL,
     "role" "UserRole" NOT NULL,
     "name" TEXT NOT NULL,
@@ -31,8 +44,10 @@ CREATE TABLE "User" (
     "birthdate" TIMESTAMP(3),
     "gender" "Gender",
     "address" TEXT,
-    "payment" TEXT,
+    "avatar" TEXT,
     "phone_number" TEXT,
+    "status" "UserStatus" NOT NULL DEFAULT 'ACTIVE',
+    "last_login" TIMESTAMP(3),
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
 
@@ -48,6 +63,7 @@ CREATE TABLE "Groups" (
     "status" "GroupStatus" NOT NULL DEFAULT 'ACTIVE',
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
+    "teacher_id" TEXT,
 
     CONSTRAINT "Groups_pkey" PRIMARY KEY ("group_id")
 );
@@ -74,6 +90,8 @@ CREATE TABLE "Lessons" (
     "topic" TEXT NOT NULL,
     "lesson_date" TIMESTAMP(3) NOT NULL,
     "recording_path" TEXT NOT NULL,
+    "file_path" TEXT,
+    "file_name" TEXT,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
 
@@ -99,6 +117,7 @@ CREATE TABLE "Course" (
     "name" TEXT NOT NULL,
     "description" TEXT NOT NULL,
     "duration" INTEGER NOT NULL,
+    "price" DOUBLE PRECISION NOT NULL,
     "status" "CourseStatus" NOT NULL DEFAULT 'ACTIVE',
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
@@ -162,6 +181,7 @@ CREATE TABLE "StudentPayment" (
 -- CreateTable
 CREATE TABLE "TeacherSalary" (
     "id" TEXT NOT NULL,
+    "teacher_id" TEXT NOT NULL,
     "amount" DOUBLE PRECISION NOT NULL,
     "status" "PaymentStatus" NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -171,47 +191,59 @@ CREATE TABLE "TeacherSalary" (
 );
 
 -- CreateTable
-CREATE TABLE "Student" (
-    "user_id" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
-    "lastname" TEXT NOT NULL,
-    "middlename" TEXT,
-    "birthdate" TIMESTAMP(3),
-    "gender" "Gender",
-    "address" TEXT,
-    "payment" TEXT,
-    "phone_number" TEXT,
-    "group_id" TEXT,
+CREATE TABLE "Discount" (
+    "id" TEXT NOT NULL,
+    "student_id" TEXT NOT NULL,
+    "percent" INTEGER NOT NULL,
+    "description" TEXT,
+    "valid_from" TIMESTAMP(3) NOT NULL,
+    "valid_to" TIMESTAMP(3) NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "Student_pkey" PRIMARY KEY ("user_id")
+    CONSTRAINT "Discount_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "Teacher" (
+CREATE TABLE "Notification" (
+    "id" TEXT NOT NULL,
     "user_id" TEXT NOT NULL,
-    "full_name" TEXT NOT NULL,
-    "birthdate" TIMESTAMP(3) NOT NULL,
-    "gender" "Gender" NOT NULL,
-    "contact" TEXT,
+    "message" TEXT NOT NULL,
+    "type" "NotificationType" NOT NULL,
+    "is_read" BOOLEAN NOT NULL DEFAULT false,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT "Teacher_pkey" PRIMARY KEY ("user_id")
+    CONSTRAINT "Notification_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Transaction" (
+    "id" TEXT NOT NULL,
+    "amount" DOUBLE PRECISION NOT NULL,
+    "type" "TransactionType" NOT NULL,
+    "status" "TransactionStatus" NOT NULL DEFAULT 'PENDING',
+    "source_id" TEXT,
+    "target_id" TEXT,
+    "reason" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Transaction_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "Setting" (
-    "id" SERIAL NOT NULL,
     "key" TEXT NOT NULL,
     "value" TEXT NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "Setting_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "Setting_pkey" PRIMARY KEY ("key")
 );
 
 -- CreateIndex
 CREATE UNIQUE INDEX "User_username_key" ON "User"("username");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Groups_name_key" ON "Groups"("name");
@@ -219,11 +251,11 @@ CREATE UNIQUE INDEX "Groups_name_key" ON "Groups"("name");
 -- CreateIndex
 CREATE UNIQUE INDEX "Course_name_key" ON "Course"("name");
 
--- CreateIndex
-CREATE UNIQUE INDEX "Setting_key_key" ON "Setting"("key");
-
 -- AddForeignKey
 ALTER TABLE "Groups" ADD CONSTRAINT "Groups_course_id_fkey" FOREIGN KEY ("course_id") REFERENCES "Course"("course_id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Groups" ADD CONSTRAINT "Groups_teacher_id_fkey" FOREIGN KEY ("teacher_id") REFERENCES "User"("user_id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Assignments" ADD CONSTRAINT "Assignments_lesson_id_fkey" FOREIGN KEY ("lesson_id") REFERENCES "Lessons"("lesson_id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -265,4 +297,16 @@ ALTER TABLE "Submissions" ADD CONSTRAINT "Submissions_student_id_fkey" FOREIGN K
 ALTER TABLE "StudentPayment" ADD CONSTRAINT "StudentPayment_student_id_fkey" FOREIGN KEY ("student_id") REFERENCES "User"("user_id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Student" ADD CONSTRAINT "Student_group_id_fkey" FOREIGN KEY ("group_id") REFERENCES "Groups"("group_id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "TeacherSalary" ADD CONSTRAINT "TeacherSalary_teacher_id_fkey" FOREIGN KEY ("teacher_id") REFERENCES "User"("user_id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Discount" ADD CONSTRAINT "Discount_student_id_fkey" FOREIGN KEY ("student_id") REFERENCES "User"("user_id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Notification" ADD CONSTRAINT "Notification_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "User"("user_id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Transaction" ADD CONSTRAINT "Transaction_source_id_fkey" FOREIGN KEY ("source_id") REFERENCES "User"("user_id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Transaction" ADD CONSTRAINT "Transaction_target_id_fkey" FOREIGN KEY ("target_id") REFERENCES "User"("user_id") ON DELETE SET NULL ON UPDATE CASCADE;

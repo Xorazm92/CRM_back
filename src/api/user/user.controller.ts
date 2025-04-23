@@ -1,11 +1,13 @@
 // user.controller.ts
-import { Controller, Post, Body, Get, Param, Put, Delete, UseGuards, Req } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { Controller, Post, Body, Get, Param, Put, Delete, UseGuards, Req, Query } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { ValidationPipe, UsePipes, BadRequestException, NotFoundException } from '@nestjs/common';
+import { ChangePasswordDto } from './dto/change-password.dto';
+import { Request } from 'express';
 
 @ApiTags('users')
 @UseGuards(AuthGuard('jwt'))
@@ -51,6 +53,28 @@ export class UserController {
     }
   }
 
+  @Get('profile')
+  @ApiOperation({ summary: 'Get current user profile' })
+  @ApiResponse({ status: 200, description: 'Current user profile' })
+  async getProfile(@Req() req: Request) {
+    // req.user.id yoki req.user.user_id
+    return this.userService.findOne((req as any).user.user_id || (req as any).user.id);
+  }
+
+  @Get('filter')
+  @ApiOperation({ summary: 'Filter users by role, status, or search' })
+  @ApiResponse({ status: 200, description: 'Filtered users list' })
+  @ApiQuery({ name: 'role', required: false, enum: ['ADMIN', 'MANAGER', 'TEACHER', 'STUDENT'], description: 'User role to filter by' })
+  @ApiQuery({ name: 'status', required: false, enum: ['ACTIVE', 'INACTIVE', 'BLOCKED'], description: 'User status to filter by' })
+  @ApiQuery({ name: 'search', required: false, description: 'Search by name, username, email, phone, etc.' })
+  async filter(
+    @Query('role') role?: string,
+    @Query('status') status?: string,
+    @Query('search') search?: string
+  ) {
+    return this.userService.filterUsers(role, status, search);
+  }
+
   @Put(':id')
   @ApiOperation({ summary: 'Update user' })
   @ApiResponse({ status: 200, description: 'User updated successfully' })
@@ -61,6 +85,19 @@ export class UserController {
       return await this.userService.update(id, updateUserDto);
     } catch (e) {
       throw new NotFoundException(e.message);
+    }
+  }
+
+  @Put(':id/password')
+  @ApiOperation({ summary: 'Change user password' })
+  @ApiResponse({ status: 200, description: 'Password changed successfully' })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  @UsePipes(new ValidationPipe({ whitelist: true }))
+  async changePassword(@Param('id') id: string, @Body() dto: ChangePasswordDto) {
+    try {
+      return await this.userService.changePassword(id, dto);
+    } catch (e) {
+      throw new BadRequestException(e.message);
     }
   }
 

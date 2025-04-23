@@ -14,15 +14,21 @@ import {
   InternalServerErrorException,
   Query,
   DefaultValuePipe,
-  ParseIntPipe
+  ParseIntPipe,
+  UploadedFile,
+  UseInterceptors,
+  Res
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
 import { LessonService } from './lesson.service';
 import { CreateLessonDto } from './create-lesson.dto';
 import { UpdateLessonDto } from './update-lesson.dto';
 import { JwtAuthGuard } from 'src/infrastructure/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/infrastructure/guards/roles.guard';
 import { Roles } from 'src/infrastructure/decorators/roles.decorator';
-import { UserRole } from 'src/users/user-role.enum';
+import { UserRole } from '@prisma/client';
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -227,5 +233,37 @@ export class LessonController {
       }
       throw new InternalServerErrorException(e.message);
     }
+  }
+
+  @ApiOperation({ summary: 'Upload lesson file and link to lesson' })
+  @ApiResponse({ status: 200, description: 'File uploaded and linked to lesson' })
+  @Roles('teacher', 'TEACHER', 'admin', 'ADMIN')
+  @Post(':id/upload-file')
+  @UseInterceptors(FileInterceptor('file', {
+    storage: diskStorage({
+      destination: './uploads/lessons',
+      filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+        cb(null, uniqueSuffix + extname(file.originalname));
+      }
+    })
+  }))
+  async uploadLessonFile(
+    @Param('id') id: string,
+    @UploadedFile() file: Express.Multer.File
+  ) {
+    return this.lessonService.uploadFileToLesson(id, file);
+  }
+
+  @ApiOperation({ summary: 'Download lesson file' })
+  @ApiResponse({ status: 200, description: 'Lesson file download' })
+  @Roles('teacher', 'TEACHER', 'admin', 'ADMIN', 'manager', 'MANAGER', 'student', 'STUDENT')
+  @Get(':id/download-file')
+  async downloadLessonFile(@Param('id') id: string, @Res() res) {
+    const lesson = await this.lessonService.findOneRaw(id);
+    if (!lesson || !lesson.file_path) {
+      return res.status(404).json({ message: 'File not found' });
+    }
+    return res.download(lesson.file_path, lesson.file_name || undefined);
   }
 }

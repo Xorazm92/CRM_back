@@ -80,7 +80,7 @@ export class GroupService {
     const group = await this.prismaService.groups.findFirst({
       where: { group_id: groupId },
       include: { 
-        group_members: true,
+        group_members: { include: { user: true } },
         course: true 
       },
     });
@@ -89,10 +89,19 @@ export class GroupService {
       throw new NotFoundException('Group not found');
     }
 
+    // Map group_members to students array for response
+    const students = group.group_members.map((member: any) => member.user);
+    const response = {
+      group_id: group.group_id,
+      name: group.name,
+      students,
+      // add other fields as needed
+    };
+
     return this.formatResponse(
       HttpStatus.OK,
       'Group retrieved successfully',
-      group
+      response
     );
   }
 

@@ -10,13 +10,14 @@ import { DashboardService } from './dashboard.service';
 import { JwtAuthGuard } from 'src/infrastructure/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/infrastructure/guards/roles.guard';
 import { Roles } from 'src/infrastructure/decorators/roles.decorator';
-import { UserRole } from 'src/users/user-role.enum';
+import { UserRole } from '@prisma/client';
 import {
   ApiBearerAuth,
   ApiOperation,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { AgeStatsDto } from './dto/age-stats.dto';
 
 @ApiTags('Dashboard Api')
 @ApiBearerAuth()
@@ -99,5 +100,37 @@ export class DashboardController {
     } catch (e) {
       throw new InternalServerErrorException(e.message);
     }
+  }
+
+  @ApiOperation({ summary: 'Bolalarni yosh bo‘yicha statistikasi' })
+  @ApiResponse({ status: 200, description: 'Yosh bo‘yicha statistik ma’lumotlar', type: [AgeStatsDto] })
+  @Roles('admin', 'ADMIN', 'manager', 'MANAGER')
+  @Get('students/age-stats')
+  async getStudentAgeStats() {
+    return this.dashboardService.getStudentAgeStats();
+  }
+
+  @ApiOperation({ summary: 'So‘nggi to‘lovlar' })
+  @ApiResponse({ status: 200, description: 'Oxirgi 5 ta to‘lov', type: Object })
+  @Roles('admin', 'ADMIN', 'manager', 'MANAGER')
+  @Get('recent-payments')
+  async getRecentPayments() {
+    return this.dashboardService.getRecentPayments();
+  }
+
+  @ApiOperation({ summary: 'Kirim statistikasi' })
+  @ApiResponse({ status: 200, description: 'Kirim statistikasi', type: Object })
+  @Roles('admin', 'ADMIN', 'manager', 'MANAGER')
+  @Get('stats/income')
+  async getIncomeStats() {
+    return this.dashboardService.getIncomeStats();
+  }
+
+  @ApiOperation({ summary: 'Bolalar soni o‘zgarishi' })
+  @ApiResponse({ status: 200, description: 'Bolalar soni o‘zgarishi', type: Object })
+  @Roles('admin', 'ADMIN', 'manager', 'MANAGER')
+  @Get('stats/student-delta')
+  async getStudentCountDelta() {
+    return this.dashboardService.getStudentCountDelta();
   }
 }

@@ -35,10 +35,10 @@ export class PaymentController {
   @Post('teacher')
   @UseGuards(AdminGuard)
   @UsePipes(new ValidationPipe({ whitelist: true }))
-  @ApiOperation({ summary: 'Create teacher salary', description: 'O‘qituvchiga oylik yozish (faqat admin uchun). Odatda avtomatik student payment orqali yaratiladi.' })
+  @ApiOperation({ summary: 'O‘qituvchiga oylik yozish', description: 'O‘qituvchiga oylik yozish (faqat admin uchun). Odatda avtomatik student payment orqali yaratiladi.' })
   @ApiBody({ type: CreateTeacherSalaryDto })
-  @ApiResponse({ status: 201, description: 'Teacher salary created' })
-  @ApiBadRequestResponse({ description: 'Bad Request' })
+  @ApiResponse({ status: 201, description: 'O‘qituvchiga oylik yozildi.' })
+  @ApiBadRequestResponse({ description: 'Xato yoki noto‘g‘ri so‘rov.' })
   async createTeacherSalary(@Body() dto: CreateTeacherSalaryDto) {
     try {
       return await this.paymentService.createTeacherSalary(dto);
@@ -65,10 +65,10 @@ export class PaymentController {
   @Get('teacher/:id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin', 'ADMIN', 'manager', 'MANAGER')
-  @ApiOperation({ summary: 'Get teacher salaries', description: 'O‘qituvchining barcha oyliklari tarixini olish.' })
-  @ApiParam({ name: 'id', type: String, required: true, description: 'Teacher UUID' })
-  @ApiResponse({ status: 200, description: 'Teacher salary history' })
-  @ApiNotFoundResponse({ description: 'Teacher topilmadi.' })
+  @ApiOperation({ summary: 'O‘qituvchining oyliklari tarixi', description: 'O‘qituvchining barcha oyliklari tarixini olish.' })
+  @ApiParam({ name: 'id', type: String, required: true, description: 'O‘qituvchi UUID' })
+  @ApiResponse({ status: 200, description: 'O‘qituvchining oyliklari tarixi' })
+  @ApiNotFoundResponse({ description: 'O‘qituvchi topilmadi.' })
   async getTeacherSalaries(@Param('id') id: string) {
     try {
       return await this.paymentService.getTeacherSalaryHistory(id);
@@ -107,11 +107,11 @@ export class PaymentController {
 
   @Put('teacher/:id/status')
   @UseGuards(AdminGuard)
-  @ApiOperation({ summary: 'Update teacher salary status', description: 'O‘qituvchi oyligi statusini o‘zgartirish.' })
-  @ApiParam({ name: 'id', type: String, required: true, description: 'Salary UUID' })
+  @ApiOperation({ summary: 'O‘qituvchi oyligi statusini o‘zgartirish', description: 'O‘qituvchi oyligi statusini (PENDING/COMPLETED) o‘zgartirish.' })
+  @ApiParam({ name: 'id', type: String, required: true, description: 'Oylik UUID' })
   @ApiBody({ schema: { type: 'object', properties: { status: { type: 'string', enum: Object.values(PaymentStatus) } } } })
-  @ApiResponse({ status: 200, description: 'Salary status updated' })
-  @ApiBadRequestResponse({ description: 'Bad Request' })
+  @ApiResponse({ status: 200, description: 'Oylik statusi yangilandi.' })
+  @ApiBadRequestResponse({ description: 'Xato yoki noto‘g‘ri so‘rov.' })
   async updateSalaryStatus(
     @Param('id') id: string,
     @Body('status') status: PaymentStatus,
@@ -123,11 +123,29 @@ export class PaymentController {
     }
   }
 
+  @Put('student/:id')
+  @UseGuards(AdminGuard)
+  @ApiOperation({ summary: 'Update student payment', description: 'O‘quvchi to‘lovini to‘liq yangilash.' })
+  @ApiParam({ name: 'id', type: String, required: true, description: 'Student payment UUID' })
+  @ApiBody({ type: CreateStudentPaymentDto })
+  @ApiResponse({ status: 200, description: 'Student payment updated' })
+  @ApiBadRequestResponse({ description: 'Bad Request' })
+  async updateStudentPayment(
+    @Param('id') id: string,
+    @Body() dto: CreateStudentPaymentDto,
+  ) {
+    try {
+      return await this.paymentService.updateStudentPayment(id, dto);
+    } catch (e) {
+      throw new BadRequestException(e.message);
+    }
+  }
+
   // Avtomatik teacher oyliklarini hisoblash va yozish
   @Post('teacher/calculate-salaries')
   @UseGuards(AdminGuard)
-  @ApiOperation({ summary: 'Calculate teacher salaries', description: 'Barcha o‘qituvchilar uchun avtomatik oylik hisoblash.' })
-  @ApiResponse({ status: 200, description: 'Barcha o‘qituvchilar uchun oyliklar hisoblandi.' })
+  @ApiOperation({ summary: 'O‘qituvchilar uchun avtomatik oylik hisoblash', description: 'Barcha o‘qituvchilar uchun avtomatik oylik hisoblash va yozish.' })
+  @ApiResponse({ status: 200, description: 'Barcha o‘qituvchilar uchun oyliklar hisoblandi va yozildi.' })
   async calculateTeacherSalaries() {
     try {
       return await this.paymentService.calculateTeacherSalaries();
@@ -139,14 +157,34 @@ export class PaymentController {
   // Teacher oyligini to'lash (statusini o'zgartirish)
   @Put('teacher/:salaryId/pay')
   @UseGuards(AdminGuard)
-  @ApiOperation({ summary: 'Pay teacher salary', description: 'O‘qituvchining oyligini to‘lash (statusini COMPLETED qilish).' })
-  @ApiParam({ name: 'salaryId', type: String, required: true, description: 'Salary UUID' })
-  @ApiResponse({ status: 200, description: 'Salary paid' })
+  @ApiOperation({ summary: 'O‘qituvchining oyligini to‘lash', description: 'O‘qituvchining oyligini to‘lash (statusini COMPLETED qilish).' })
+  @ApiParam({ name: 'salaryId', type: String, required: true, description: 'Oylik UUID' })
+  @ApiResponse({ status: 200, description: 'Oylik to‘landi.' })
   async payTeacherSalary(@Param('salaryId') salaryId: string) {
     try {
       return await this.paymentService.updateSalaryStatus(salaryId, PaymentStatus.COMPLETED);
     } catch (e) {
       throw new BadRequestException(e.message);
     }
+  }
+
+  // Qarzdorlar ro'yxatini olish (to'lov qilmagan studentlar)
+  @Get('debtors')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin', 'ADMIN', 'manager', 'MANAGER')
+  @ApiOperation({ summary: 'Qarzdorlar ro‘yxati', description: 'To‘lov qilmagan yoki muddati o‘tgan studentlar ro‘yxatini olish.' })
+  @ApiResponse({ status: 200, description: 'Qarzdor studentlar ro‘yxati' })
+  async getDebtors() {
+    return this.paymentService.getDebtors();
+  }
+
+  // Qarzdorlarni ogohlantirish (notification) yuborish va ro'yxatini olish
+  @Post('debtors/notify')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin', 'ADMIN', 'manager', 'MANAGER')
+  @ApiOperation({ summary: 'Qarzdorlarni ogohlantirish', description: 'Qarzdor studentlarga notification yuborish va ro‘yxatini olish.' })
+  @ApiResponse({ status: 200, description: 'Qarzdorlar notification bilan qaytarildi.' })
+  async notifyDebtors() {
+    return this.paymentService.getDebtors(true);
   }
 }

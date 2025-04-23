@@ -28,7 +28,7 @@ import { AddMemberDto } from './dto/add-memberdto';
 import { UserID } from 'src/common/decorator';
 import { JwtAuthGuard } from 'src/infrastructure/guards/jwt-auth.guard';
 import { Roles } from 'src/infrastructure/decorators/roles.decorator';
-import { UserRole } from 'src/users/user-role.enum';
+import { UserRole } from '@prisma/client';
 import { RolesGuard } from 'src/infrastructure/guards/roles.guard';
 import { AddTeacherToGroupDto } from './dto/add-teacher-to-group.dto';
 

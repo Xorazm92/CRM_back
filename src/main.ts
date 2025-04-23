@@ -12,13 +12,13 @@ async function bootstrap() {
 
   // Swagger setup
   const config = new DocumentBuilder()
-    .setTitle('CRM API')
-    .setDescription('CRM system API documentation')
+    .setTitle('CRM/LMS Universal User API')
+    .setDescription('Professional, scalable, and secure user management API.\n\n**Features:**\n- Universal user model (Student, Teacher, Admin, Manager)\n- Role & status filtering, search\n- Secure password handling\n- Robust validation & error handling\n- Swagger documentation\n\n**Filter Example:**\n`/users/filter?role=TEACHER&status=ACTIVE&search=ali`')
     .setVersion('1.0')
     .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api/v1/docs', app, document);
+  SwaggerModule.setup('api', app, document);
 
   await app.listen(3000);
 }

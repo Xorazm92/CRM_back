@@ -3,8 +3,6 @@ import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { AdminModule } from './admin/admin.module';
-import { TeacherModule } from './teacher/teacher.module';
-import { StudentModule } from './student/student.module';
 import { CourseModule } from './course/course.module';
 import { GroupModule } from './group/group.module';
 import { DashboardModule } from './dashboard/dashboard.module';
@@ -18,6 +16,7 @@ import { CacheModule } from '@nestjs/cache-manager';
 import { CustomJwtModule } from 'src/infrastructure/lib/custom-jwt.module';
 import { SettingModule } from './setting/setting.module';
 
+// StudentModule va TeacherModule olib tashlandi, endi UserModule universal
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
@@ -29,8 +28,6 @@ import { SettingModule } from './setting/setting.module';
     AuthModule,
     UserModule,
     AdminModule,
-    TeacherModule,
-    StudentModule,
     CourseModule,
     GroupModule,
     DashboardModule,

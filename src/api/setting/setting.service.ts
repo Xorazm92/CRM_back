@@ -6,6 +6,7 @@ export class SettingService {
   constructor(private readonly prisma: PrismaService) {}
 
   async getAll() {
+    // Model nomi kichik harf bilan: setting
     return this.prisma.setting.findMany({ select: { key: true, value: true } });
   }
 

@@ -12,7 +12,7 @@ import {
 } from '@nestjs/common';
 import { CreateGroupDto } from './dto/create.group.dto';
 import { GroupService } from './group.service';
-import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags, ApiParam } from '@nestjs/swagger';
 import { UserID } from 'src/common/decorator/user-id.decorator';
 import { UpdateGroupDto } from './dto/update.group.dto';
 import { JwtAuthGuard } from '../../infrastructure/guards/jwt-auth.guard';
@@ -26,33 +26,23 @@ export class GroupController {
   constructor(private readonly groupService: GroupService) {}
 
   @Post()
-  @ApiOperation({ summary: 'Create new group' })
+  @ApiOperation({ summary: 'Guruh yaratish', description: 'Yangi guruh yaratadi.' })
   @ApiResponse({
     status: HttpStatus.CREATED,
-    description: 'New group created successfully',
+    description: 'Yangi guruh muvaffaqiyatli yaratildi.',
     schema: {
       example: {
-        status: HttpStatus.CREATED,
-        message: 'New group created',
-        data: {
-          group_id: 'uuid-example',
-          name: 'N14',
-          description: 'Advanced programming group',
-          course_id: 'course-uuid-example',
-          created_at: '2025-04-10T05:42:33.401Z',
-          updated_at: '2025-04-10T05:42:33.401Z'
-        }
+        group_id: 'uuid-example',
+        name: 'N14',
+        description: 'Advanced programming group',
+        course_id: 'course-uuid-example',
+        created_at: '2025-04-10T05:42:33.401Z',
+        updated_at: '2025-04-10T05:42:33.401Z'
       }
     }
   })
-  @ApiResponse({
-    status: HttpStatus.CONFLICT,
-    description: 'Group with this name already exists'
-  })
-  @ApiResponse({
-    status: HttpStatus.BAD_REQUEST,
-    description: 'Invalid input data'
-  })
+  @ApiResponse({ status: HttpStatus.CONFLICT, description: 'Bu nomda guruh allaqachon mavjud.' })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Noto‘g‘ri ma’lumot.' })
   @UsePipes(new ValidationPipe({ whitelist: true }))
   async createGroup(@Body() createGroupDto: CreateGroupDto) {
     try {
@@ -64,20 +54,16 @@ export class GroupController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Get all groups for the admin' })
+  @ApiOperation({ summary: 'Barcha guruhlarni olish', description: 'Barcha guruhlarni ro‘yxatini olish.' })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'Groups retrieved successfully',
+    description: 'Guruhlar muvaffaqiyatli olindi.',
     type: [CreateGroupDto],
   })
-  @ApiResponse({
-    status: HttpStatus.NOT_FOUND,
-    description: 'No groups found for this admin',
-  })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Hech qanday guruh topilmadi.' })
   async getAllGroups() {
     try {
       const result = await this.groupService.findAllGroup();
-      // result = { status, message, data }
       return result;
     } catch (e) {
       throw new NotFoundException(e.message);
@@ -85,16 +71,14 @@ export class GroupController {
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Get a specific group by ID' })
+  @ApiOperation({ summary: 'Guruhni ID bo‘yicha olish', description: 'Berilgan ID bo‘yicha guruh ma’lumotlarini olish.' })
+  @ApiParam({ name: 'id', type: String, required: true, description: 'Guruh UUID' })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'Group details retrieved successfully',
-    type: CreateGroupDto,
+    description: 'Guruh topildi.',
+    type: CreateGroupDto
   })
-  @ApiResponse({
-    status: HttpStatus.NOT_FOUND,
-    description: 'Group not found',
-  })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Guruh topilmadi.' })
   async getOneGroup(@Param('id') groupId: string) {
     try {
       const group = await this.groupService.findOneGroup(groupId);
@@ -106,20 +90,15 @@ export class GroupController {
   }
 
   @Put(':id')
-  @ApiOperation({ summary: 'Update group details' })
+  @ApiOperation({ summary: 'Guruhni yangilash', description: 'Berilgan ID bo‘yicha guruh ma’lumotlarini yangilash.' })
+  @ApiParam({ name: 'id', type: String, required: true, description: 'Guruh UUID' })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'Group updated successfully',
-    type: UpdateGroupDto,
+    description: 'Guruh yangilandi.',
+    type: UpdateGroupDto
   })
-  @ApiResponse({
-    status: HttpStatus.NOT_FOUND,
-    description: 'Group not found',
-  })
-  @ApiResponse({
-    status: HttpStatus.CONFLICT,
-    description: 'Group name already exists',
-  })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Guruh topilmadi.' })
+  @ApiResponse({ status: HttpStatus.CONFLICT, description: 'Bu nomda guruh allaqachon mavjud.' })
   @UsePipes(new ValidationPipe({ whitelist: true }))
   async updateGroup(
     @Param('id') groupId: string,
@@ -135,15 +114,10 @@ export class GroupController {
   }
 
   @Delete(':id')
-  @ApiOperation({ summary: 'Delete a group' })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'Group deleted successfully',
-  })
-  @ApiResponse({
-    status: HttpStatus.NOT_FOUND,
-    description: 'Group not found',
-  })
+  @ApiOperation({ summary: 'Guruhni o‘chirish', description: 'Berilgan ID bo‘yicha guruhni o‘chirish.' })
+  @ApiParam({ name: 'id', type: String, required: true, description: 'Guruh UUID' })
+  @ApiResponse({ status: HttpStatus.OK, description: 'Guruh o‘chirildi.' })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Guruh topilmadi.' })
   async deleteOne(@Param('id') groupId: string) {
     try {
       return await this.groupService.remove(groupId);

@@ -7,9 +7,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// User model optimized for all roles (Student, Teacher, Admin, Manager)
 model User {
   user_id      String   @id @default(uuid())
   username     String   @unique
+  email        String?  @unique
   password     String
   role         UserRole
   name         String
@@ -18,11 +20,14 @@ model User {
   birthdate    DateTime?
   gender       Gender?
   address      String?
-  payment      String?
+  avatar       String?
   phone_number String?
+  status       UserStatus @default(ACTIVE)
+  last_login   DateTime?
   created_at   DateTime @default(now())
   updated_at   DateTime @updatedAt
 
+  // Relations
   attendances       Attendance[]
   group_members     GroupMembers[]
   gradedSubmissions Submissions[]  @relation("GraderSubmissions")
@@ -30,6 +35,11 @@ model User {
   assignments       Assignments[]  @relation("AssignmentsTeacher")
   student_payments  StudentPayment[] @relation("StudentPaymentUser")
   groups_as_teacher Groups[] @relation("GroupsTeacher")
+  discounts         Discount[]
+  notifications     Notification[]
+  salaries          TeacherSalary[] @relation("TeacherSalaryUser")
+  transactions_from Transaction[] @relation("TransactionSource")
+  transactions_to   Transaction[] @relation("TransactionTarget")
 }
 
 model Groups {
@@ -45,7 +55,6 @@ model Groups {
   lessons       Lessons[]
   schedules     Schedule[]
   assignments   Assignments[]
-  students      Student[]
   teacher_id    String?        
   teacher       User?          @relation("GroupsTeacher", fields: [teacher_id], references: [user_id])
 }
@@ -72,6 +81,8 @@ model Lessons {
   topic          String
   lesson_date    DateTime
   recording_path String
+  file_path      String?
+  file_name      String?
   created_at     DateTime      @default(now())
   updated_at     DateTime      @updatedAt
   assignments    Assignments[]
@@ -96,6 +107,7 @@ model Course {
   name        String       @unique
   description String
   duration    Int
+  price       Float
   status      CourseStatus @default(ACTIVE)
   created_at  DateTime     @default(now())
   updated_at  DateTime     @updatedAt
@@ -152,42 +164,53 @@ model StudentPayment {
 
 model TeacherSalary {
   id        String        @id @default(uuid())
+  teacher_id String
   amount    Float
   status    PaymentStatus
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
+  teacher   User          @relation("TeacherSalaryUser", fields: [teacher_id], references: [user_id])
 }
 
-model Student {
-  user_id     String   @id @default(uuid())
-  name        String
-  lastname    String
-  middlename  String?
-  birthdate   DateTime?
-  gender      Gender?
-  address     String?
-  payment     String?
-  phone_number String?
-  group_id    String?
+model Discount {
+  id           String   @id @default(uuid())
+  student_id   String
+  percent      Int      // Chegirma foizi (masalan, 20 = 20%)
+  description  String?
+  valid_from   DateTime
+  valid_to     DateTime
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+  student      User     @relation(fields: [student_id], references: [user_id])
+}
+
+model Notification {
+  id          String   @id @default(uuid())
+  user_id     String
+  message     String
+  type        NotificationType
+  is_read     Boolean  @default(false)
   created_at  DateTime @default(now())
-  group       Groups?  @relation(fields: [group_id], references: [group_id])
+  user        User     @relation(fields: [user_id], references: [user_id])
 }
 
-model Teacher {
-  user_id    String   @id @default(uuid())
-  full_name  String
-  birthdate  DateTime
-  gender     Gender
-  contact    String?
-  created_at DateTime @default(now())
+model Transaction {
+  id        String            @id @default(uuid())
+  amount    Float
+  type      TransactionType
+  status    TransactionStatus @default(PENDING)
+  source_id String?
+  target_id String?
+  reason    String?
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+  source    User?             @relation("TransactionSource", fields: [source_id], references: [user_id])
+  target    User?             @relation("TransactionTarget", fields: [target_id], references: [user_id])
 }
 
 model Setting {
-  id        Int      @id @default(autoincrement())
-  key       String   @unique
-  value     String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  key   String @id
+  value String
 }
 
 enum UserRole {
@@ -228,7 +251,33 @@ enum PaymentType {
   OTHER
 }
 
+enum TransactionType {
+  PAYMENT
+  REFUND
+  SALARY
+  OTHER
+}
+
+enum TransactionStatus {
+  PENDING
+  SUCCESS
+  FAILED
+}
+
 enum Gender {
   MALE
   FEMALE
+}
+
+enum NotificationType {
+  DEBTOR
+  SYSTEM
+  INFO
+  OTHER
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  BLOCKED
 }

@@ -11,7 +11,7 @@ import { PrismaService } from 'src/common/prisma/prisma.service';
 import { SignInAdminDto } from './dto/signin-admin.dto';
 import { BcryptEncryption } from 'src/infrastructure/lib/bcrypt/bcrypt';
 import { ConfigService } from '@nestjs/config';
-import { UserRole } from 'src/users/user-role.enum';
+import { UserRole } from '@prisma/client';
 import { AddMemberDto } from './dto/add-memberdto';
 import { CustomJwtService } from 'src/infrastructure/lib/custom-jwt.service';
 import { AddTeacherToGroupDto } from './dto/add-teacher-to-group.dto';
@@ -238,8 +238,7 @@ export class AdminService {
         },
         lessons: true,
         schedules: true,
-        assignments: true,
-        students: true
+        assignments: true
       }
     });
     if (!group) {

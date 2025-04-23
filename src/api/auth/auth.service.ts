@@ -9,11 +9,10 @@ import {
 import { RegisterDto, LoginDto } from '../admin/dto/auth.dto';
 import { PrismaService } from 'src/common/prisma/prisma.service';
 import { BcryptEncryption } from 'src/infrastructure/lib/bcrypt/bcrypt';
-import { UserRole as PrismaUserRole } from '@prisma/client';
+import { UserRole } from '@prisma/client';
 import { ConfigService } from '@nestjs/config';
 import { ConfirmPasswordDto } from './dto/confirm-password.dto';
 import { CustomJwtService } from 'src/infrastructure/lib/custom-jwt.service';
-import { UserRole } from 'src/users/user-role.enum';
 
 @Injectable()
 export class AuthService {
@@ -55,7 +54,7 @@ export class AuthService {
         lastname: dto.lastname,
         username: dto.username,
         password: dto.password,
-        role: dto.role as PrismaUserRole
+        role: dto.role as UserRole
       }
     });
 

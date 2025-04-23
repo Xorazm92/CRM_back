@@ -22,6 +22,7 @@ export class LessonService {
   async findAll() {
     try {
       const lessons = await this.prisma.lessons.findMany();
+      // Fayl ma'lumotlari ham chiqadi (file_path, file_name)
       return { status: 200, message: 'success', data: lessons };
     } catch (e) {
       throw new InternalServerErrorException(e.message);
@@ -39,6 +40,7 @@ export class LessonService {
         }
       });
       if (!lesson) throw new NotFoundException('Lesson not found');
+      // Fayl ma'lumotlari ham chiqadi (file_path, file_name)
       return { status: 200, message: 'success', data: lesson };
     } catch (e) {
       throw new InternalServerErrorException(e.message);
@@ -69,5 +71,29 @@ export class LessonService {
     } catch (e) {
       throw new InternalServerErrorException(e.message);
     }
+  }
+
+  async uploadFileToLesson(lesson_id: string, file: Express.Multer.File) {
+    if (!file) {
+      throw new BadRequestException('File is required');
+    }
+    try {
+      // Fayl nomini va pathini darsga bog'lash (DBga yozish)
+      const lesson = await this.prisma.lessons.update({
+        where: { lesson_id },
+        data: {
+          file_path: file.path, // file_path ustuni bo'lishi kerak
+          file_name: file.originalname,
+        },
+      });
+      return { status: 200, message: 'File uploaded and linked to lesson', data: lesson };
+    } catch (e) {
+      throw new InternalServerErrorException(e.message);
+    }
+  }
+
+  async findOneRaw(lesson_id: string) {
+    // Returns raw lesson object for internal use (e.g., file_path)
+    return this.prisma.lessons.findUnique({ where: { lesson_id } });
   }
 }

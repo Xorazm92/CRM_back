@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 
 export enum PaymentStatus {
   PENDING = 'PENDING',

@@ -2,72 +2,104 @@
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
 </p>
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+# CRM_back
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+**CRM_back** — bu o‘quv markazlari va ta’lim muassasalari uchun mo‘ljallangan zamonaviy CRM tizimining backend qismi. Loyiha NestJS (TypeScript), Prisma ORM va Docker texnologiyalari asosida ishlab chiqilgan.
 
-## Description
+## Asosiy imkoniyatlar
+- Talabalar, o‘qituvchilar, kurslar, to‘lovlar, davomat va topshiriqlarni boshqarish
+- Modular arxitektura va kengaytiriladigan kod
+- JWT asosida autentifikatsiya va rollar boshqaruvi
+- Prisma ORM orqali ma’lumotlar bazasi bilan ishlash
+- Docker yordamida tez va oson ishga tushirish
+- Testlar va kod sifati uchun ESLint, Prettier, Husky
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
-
-## Installation
-
-```bash
-$ npm install
+## Loyiha tuzilmasi
+```
+CRM_back/
+├── src/
+│   ├── api/           # Asosiy modullar (student, teacher, payment, ...)
+│   ├── common/        # Umumiy util, decorator, exception va boshqalar
+│   ├── core/          # Auth va users uchun yadro logika
+│   ├── infrastructure/# Prisma va boshqa tashqi integratsiyalar
+│   └── main.ts        # Kirish nuqtasi
+├── prisma/            # Prisma schema va migratsiyalar
+├── logs/              # Log fayllar
+├── docker-compose.yml # Docker konfiguratsiyasi
+├── .env.example       # Namuna muhit sozlamalari
+└── README.md
 ```
 
-## Running the app
+## Ishga tushirish
 
-```bash
-# development
-$ npm run start
+1. **.env faylini sozlang**
+   .env.example faylidan nusxa olib, kerakli qiymatlarni to‘ldiring:
+   ```bash
+   cp .env.example .env
+   ```
+2. **Docker yordamida ishga tushirish**
+   ```bash
+   docker-compose up --build
+   ```
+3. **Yoki lokalda**
+   ```bash
+   npm install
+   npx prisma generate
+   npm run start:dev
+   ```
 
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+## .env namunasi
+```
+DATABASE_URL="postgresql://user:password@localhost:5432/crm_db"
+JWT_SECRET="your_jwt_secret"
+PORT=3000
 ```
 
-## Test
-
+## Testlarni ishga tushirish
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+npm run test
+npm run test:e2e
+npm run test:cov
 ```
 
-## Support
+## API hujjatlari
+Swagger yoki Postman collection orqali API endpointlari bilan ishlash mumkin. (Swagger: `localhost:3000/api` yoki loyihada mavjud bo‘lsa)
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+## Universal User API (CRM/LMS)
 
-## Stay in touch
+**Professional, scalable, and secure user management system for CRM/LMS projects.**
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+### Universal User Model
+- Bitta model orqali barcha rollar: Student, Teacher, Admin, Manager
+- CRUD, filter, search, profile, password change
+- Secure password hashing, email uniqueness
+- Robust validation, error handling
+- Swagger documentation (`/api`)
 
-## License
+### API misollar
+- **Filter users:**
+  ```http
+  GET /users/filter?role=TEACHER&status=ACTIVE&search=ali
+  ```
+- **Profile:**
+  ```http
+  GET /users/profile
+  ```
+- **Change password:**
+  ```http
+  PUT /users/:id/password
+  ```
 
-Nest is [MIT licensed](LICENSE).
+### Security
+- JWT authentication (Bearer token)
+- Passwords are hashed
+- Email and username are unique
+
+### Swagger
+- Swagger UI: [http://localhost:3000/api](http://localhost:3000/api)
+
+---
+
+Agar universal user API yoki boshqa modullar bo‘yicha savollaringiz bo‘lsa, bemalol murojaat qiling!
+
+Agar savollar yoki takliflar bo‘lsa, bemalol murojaat qiling!

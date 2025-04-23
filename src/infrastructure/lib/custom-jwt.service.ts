@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { UserRole } from '../../users/user-role.enum';
+import { UserRole } from '@prisma/client';
 
 interface JwtPayload {
   sub: string;
