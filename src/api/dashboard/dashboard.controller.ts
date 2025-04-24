@@ -1,7 +1,6 @@
 import {
   Controller,
   Get,
-  UseGuards,
   UsePipes,
   ValidationPipe,
   InternalServerErrorException,
@@ -21,7 +20,6 @@ import { AgeStatsDto } from './dto/age-stats.dto';
 
 @ApiTags('Dashboard Api')
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard, RolesGuard)
 @UsePipes(new ValidationPipe({ whitelist: true }))
 @Controller('dashboard')
 export class DashboardController {

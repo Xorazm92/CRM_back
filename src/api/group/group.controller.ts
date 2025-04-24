@@ -7,7 +7,6 @@ import {
   Param,
   Post,
   Put,
-  UseGuards,
   UsePipes,
 } from '@nestjs/common';
 import { CreateGroupDto } from './dto/create.group.dto';
@@ -20,7 +19,6 @@ import { ValidationPipe, BadRequestException, NotFoundException, ConflictExcepti
 
 @ApiTags('Groups') // Group API documentation tag
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
 @Controller('groups')
 export class GroupController {
   constructor(private readonly groupService: GroupService) {}

@@ -6,7 +6,6 @@ import {
   Patch,
   Param,
   Delete,
-  UseGuards,
   UsePipes,
   ValidationPipe,
   NotFoundException,
@@ -40,7 +39,6 @@ import { Public } from 'src/common';
 
 @ApiTags('Lesson Api')
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard, RolesGuard)
 @UsePipes(new ValidationPipe({ whitelist: true }))
 @Public()
 @Controller('lesson')

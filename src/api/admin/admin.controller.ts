@@ -34,7 +34,6 @@ import { AddTeacherToGroupDto } from './dto/add-teacher-to-group.dto';
 
 @ApiTags('Admin Api')
 @Controller('admin')
-@UseGuards(JwtAuthGuard, RolesGuard)
 export class AdminController {
   constructor(private readonly adminService: AdminService) {}
 

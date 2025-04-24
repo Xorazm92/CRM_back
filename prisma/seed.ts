@@ -14,12 +14,15 @@ async function main() {
 
   for (const role of roles) {
     for (let i = 1; i <= 2; i++) {
+      // Har bir user uchun parolni xashlash
+      const bcrypt = await import('../src/infrastructure/lib/bcrypt/bcrypt');
+      const hashedPassword = await bcrypt.BcryptEncryption.hashPassword(`${role.toLowerCase()}_user${i}`);
       const user = await prisma.user.create({
         data: {
           name: `${role} User ${i}`,
           lastname: `Lastname${i}`,
           username: `${role.toLowerCase()}_user${i}`,
-          password: 'hashed_password',
+          password: hashedPassword,
           role: role,
         },
       });
@@ -103,7 +106,6 @@ async function main() {
       role: UserRole.ADMIN,
     },
   });
-
   users.push(superadmin);
   // --- END SUPERADMIN ---
 

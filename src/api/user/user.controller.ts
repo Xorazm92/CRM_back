@@ -8,14 +8,15 @@ import { AuthGuard } from '@nestjs/passport';
 import { ValidationPipe, UsePipes, BadRequestException, NotFoundException } from '@nestjs/common';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { Request } from 'express';
+import { Public } from 'src/common/decorator/auth.decorator';
 
 @ApiTags('users')
-@UseGuards(AuthGuard('jwt'))
 @Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post()
+  @Public()
   @ApiOperation({ summary: 'Create a new user' })
   @ApiResponse({ status: 201, description: 'User created successfully' })
   @ApiResponse({ status: 400, description: 'Bad request' })
@@ -29,6 +30,7 @@ export class UserController {
   }
 
   @Get()
+  @Public()
   @ApiOperation({ summary: 'Get all users' })
   @ApiResponse({ status: 200, description: 'List of users' })
   async findAll() {
@@ -40,6 +42,7 @@ export class UserController {
   }
 
   @Get(':id')
+  @UseGuards(AuthGuard('jwt'))
   @ApiOperation({ summary: 'Get user by ID' })
   @ApiResponse({ status: 200, description: 'User found' })
   @ApiResponse({ status: 404, description: 'User not found' })
@@ -54,6 +57,7 @@ export class UserController {
   }
 
   @Get('profile')
+  @UseGuards(AuthGuard('jwt'))
   @ApiOperation({ summary: 'Get current user profile' })
   @ApiResponse({ status: 200, description: 'Current user profile' })
   async getProfile(@Req() req: Request) {
@@ -62,20 +66,26 @@ export class UserController {
   }
 
   @Get('filter')
+  @UseGuards(AuthGuard('jwt'))
   @ApiOperation({ summary: 'Filter users by role, status, or search' })
   @ApiResponse({ status: 200, description: 'Filtered users list' })
   @ApiQuery({ name: 'role', required: false, enum: ['ADMIN', 'MANAGER', 'TEACHER', 'STUDENT'], description: 'User role to filter by' })
   @ApiQuery({ name: 'status', required: false, enum: ['ACTIVE', 'INACTIVE', 'BLOCKED'], description: 'User status to filter by' })
   @ApiQuery({ name: 'search', required: false, description: 'Search by name, username, email, phone, etc.' })
+  @ApiQuery({ name: 'page', required: false, description: 'Page number', type: Number })
+  @ApiQuery({ name: 'limit', required: false, description: 'Page size', type: Number })
   async filter(
     @Query('role') role?: string,
     @Query('status') status?: string,
-    @Query('search') search?: string
+    @Query('search') search?: string,
+    @Query('page') page: string = '1',
+    @Query('limit') limit: string = '10',
   ) {
-    return this.userService.filterUsers(role, status, search);
+    return this.userService.filterUsers(role, status, search, Number(page), Number(limit));
   }
 
   @Put(':id')
+  @UseGuards(AuthGuard('jwt'))
   @ApiOperation({ summary: 'Update user' })
   @ApiResponse({ status: 200, description: 'User updated successfully' })
   @ApiResponse({ status: 404, description: 'User not found' })
@@ -89,6 +99,7 @@ export class UserController {
   }
 
   @Put(':id/password')
+  @UseGuards(AuthGuard('jwt'))
   @ApiOperation({ summary: 'Change user password' })
   @ApiResponse({ status: 200, description: 'Password changed successfully' })
   @ApiResponse({ status: 400, description: 'Bad request' })

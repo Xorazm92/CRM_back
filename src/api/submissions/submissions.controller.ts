@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards, UsePipes } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, UsePipes } from '@nestjs/common';
 import { SubmissionsService } from './submissions.service';
 import { JwtAuthGuard } from '../../infrastructure/guards/jwt-auth.guard';
 import { RolesGuard } from '../../infrastructure/guards/roles.guard';
@@ -11,7 +11,6 @@ import { ValidationPipe, BadRequestException, NotFoundException } from '@nestjs/
 
 @ApiTags('Submissions')
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('submissions')
 export class SubmissionsController {
   constructor(private readonly submissionsService: SubmissionsService) {}

@@ -61,15 +61,11 @@ export class AuthController {
     try {
       const { user, accessToken, refreshToken, access_token_expire, refresh_token_expire } = await this.authService.login(loginDto);
       return {
-        status: 200,
-        message: 'success',
-        data: {
-          user,
-          accessToken,
-          refreshToken,
-          access_token_expire,
-          refresh_token_expire,
-        }
+        accessToken,
+        refreshToken,
+        user,
+        access_token_expire,
+        refresh_token_expire
       };
     } catch (e) {
       throw new UnauthorizedException(e.message);

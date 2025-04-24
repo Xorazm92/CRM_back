@@ -26,6 +26,17 @@ export class UserService {
     }
     // Password hash
     const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
+    // birthdate oddiy formatda kelsa, ISO formatga o'gir va Date obyektiga aylantir
+    let birthdate: Date | undefined = undefined;
+    if (typeof createUserDto.birthdate === 'string') {
+      let raw = createUserDto.birthdate;
+      if (raw.length === 10 && /^\d{4}-\d{2}-\d{2}$/.test(raw)) {
+        raw = raw + 'T00:00:00.000Z';
+      }
+      birthdate = new Date(raw);
+    } else if (createUserDto.birthdate instanceof Date) {
+      birthdate = createUserDto.birthdate;
+    }
     return this.prismaService.user.create({
       data: {
         username: createUserDto.username,
@@ -33,7 +44,7 @@ export class UserService {
         name: createUserDto.name,
         lastname: createUserDto.lastname,
         middlename: createUserDto.middlename,
-        birthdate: createUserDto.birthdate,
+        birthdate: birthdate,
         gender: createUserDto.gender,
         address: createUserDto.address,
         phone_number: createUserDto.phone_number,
@@ -115,7 +126,7 @@ export class UserService {
     return { message: 'Password changed successfully' };
   }
 
-  async filterUsers(role?: string, status?: string, search?: string) {
+  async filterUsers(role?: string, status?: string, search?: string, page = 1, limit = 10) {
     const allowedRoles = ['ADMIN', 'MANAGER', 'TEACHER', 'STUDENT'];
     const allowedStatus = ['ACTIVE', 'INACTIVE', 'BLOCKED'];
     const where: any = {};
@@ -141,11 +152,15 @@ export class UserService {
         { phone_number: { contains: search, mode: 'insensitive' } },
       ];
     }
-    const users = await this.prismaService.user.findMany({ where });
-    if (!users.length) {
-      return { message: 'No users found matching the filter', data: [] };
-    }
-    return users;
+    const [data, total] = await Promise.all([
+      this.prismaService.user.findMany({
+        where,
+        skip: (page - 1) * limit,
+        take: limit,
+      }),
+      this.prismaService.user.count({ where }),
+    ]);
+    return { data, total };
   }
 
   // Username orqali userni topish uchun universal metod

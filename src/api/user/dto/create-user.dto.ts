@@ -39,7 +39,7 @@ export class CreateUserDto {
   @ApiProperty({ description: 'User birthdate', example: '2000-01-01', required: false, type: String, format: 'date' })
   @IsOptional()
   @IsDateString()
-  birthdate?: Date;
+  birthdate?: string | Date;
 
   @ApiProperty({ description: 'User gender', example: 'MALE', enum: Gender, required: false })
   @IsOptional()

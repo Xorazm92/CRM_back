@@ -6,7 +6,6 @@ import {
   Patch,
   Param,
   Delete,
-  UseGuards,
   UsePipes,
   ValidationPipe,
   NotFoundException,
@@ -33,7 +32,6 @@ import {
 
 @ApiTags('Course Api')
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard, RolesGuard)
 @UsePipes(new ValidationPipe({ whitelist: true }))
 @Controller('course')
 export class CourseController {
