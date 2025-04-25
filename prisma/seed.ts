@@ -5,20 +5,20 @@ const prisma = new PrismaClient();
 async function main() {
   const users = [];
 
-  const roles: UserRole[] = [
-    UserRole.ADMIN,
-    UserRole.MANAGER,
-    UserRole.TEACHER,
-    UserRole.STUDENT,
-  ];
+  // bcrypt ni faqat bir marta import qilamiz
+  const bcrypt = await import('../src/infrastructure/lib/bcrypt/bcrypt');
+
+  // Barcha rollarni enumdan olib, SUPERADMIN ni chiqarib tashlaymiz
+  const roles: UserRole[] = Object.values(UserRole).filter(role => role !== UserRole.SUPERADMIN);
 
   for (const role of roles) {
     for (let i = 1; i <= 2; i++) {
       // Har bir user uchun parolni xashlash
-      const bcrypt = await import('../src/infrastructure/lib/bcrypt/bcrypt');
       const hashedPassword = await bcrypt.BcryptEncryption.hashPassword(`${role.toLowerCase()}_user${i}`);
-      const user = await prisma.user.create({
-        data: {
+      const user = await prisma.user.upsert({
+        where: { username: `${role.toLowerCase()}_user${i}` },
+        update: {}, // mavjud bo‘lsa, o‘zgartirmaydi
+        create: {
           name: `${role} User ${i}`,
           lastname: `Lastname${i}`,
           username: `${role.toLowerCase()}_user${i}`,
@@ -30,9 +30,11 @@ async function main() {
     }
   }
 
-  // Create default course
-  const course = await prisma.course.create({
-    data: {
+  // Create default course (idempotent, upsert)
+  const course = await prisma.course.upsert({
+    where: { name: 'Web Development' },
+    update: {}, // mavjud bo‘lsa, o‘zgartirmaydi
+    create: {
       name: 'Web Development',
       description: 'Learn web development from scratch',
       duration: 3,
@@ -59,11 +61,14 @@ async function main() {
     },
   ];
 
+  // Groups uchun upsert (idempotent)
   const groups = await Promise.all(
     groupData.map((group) =>
-      prisma.groups.create({
-        data: group,
-      }),
+      prisma.groups.upsert({
+        where: { name: group.name },
+        update: {},
+        create: group,
+      })
     ),
   );
 
@@ -93,7 +98,6 @@ async function main() {
 
   // --- SUPERADMIN USER YARATISH ---
   const superadminUsername = 'superadmin';
-  const bcrypt = await import('../src/infrastructure/lib/bcrypt/bcrypt');
   const superadminPassword = await bcrypt.BcryptEncryption.hashPassword('superadmin');
   const superadmin = await prisma.user.upsert({
     where: { username: superadminUsername },
@@ -103,7 +107,7 @@ async function main() {
       lastname: 'Admin',
       username: superadminUsername,
       password: superadminPassword,
-      role: UserRole.ADMIN,
+      role: UserRole.SUPERADMIN,
     },
   });
   users.push(superadmin);

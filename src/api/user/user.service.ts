@@ -169,6 +169,14 @@ export class UserService {
   }
 
   async remove(id: string) {
+    // SUPERADMIN userni o'chirishni taqiqlash
+    const user = await this.prismaService.user.findUnique({ where: { user_id: id } });
+    if (!user) {
+      throw new NotFoundException(`User with ID ${id} not found`);
+    }
+    if (user.role === 'SUPERADMIN') {
+      throw new BadRequestException('Superadminni o‘chirish mumkin emas!');
+    }
     return this.prismaService.user.delete({
       where: { user_id: id },
     });

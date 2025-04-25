@@ -41,7 +41,7 @@ export class AdminService {
     }
     const payload = {
       sub: currentAdmin.username,
-      role: UserRole[currentAdmin.role],
+      role: currentAdmin.role,
     };
     const accessToken = await this.jwt.generateAccessToken(payload);
     const refreshToken = await this.jwt.generateRefreshToken(payload);
@@ -55,6 +55,15 @@ export class AdminService {
         refreshToken,
         refresh_token_expire:
           this.configService.get<string>('REFRESH_TOKEN_TIME'),
+        user: {
+          user_id: currentAdmin.user_id,
+          username: currentAdmin.username,
+          name: currentAdmin.name,
+          lastname: currentAdmin.lastname,
+          role: currentAdmin.role,
+          created_at: currentAdmin.created_at,
+          updated_at: currentAdmin.updated_at,
+        },
       },
     };
   }
@@ -70,7 +79,7 @@ export class AdminService {
       createAdminDto.password,
     );
     const admin = await this.prismaService.user.create({
-      data: { ...createAdminDto, role: 'ADMIN' },
+      data: { ...createAdminDto, role: UserRole.ADMIN },
     });
     return {
       status: HttpStatus.CREATED,
@@ -82,9 +91,12 @@ export class AdminService {
   //! GET ADMIN PROFILE
   async getProfile(id: string) {
     const admin = await this.prismaService.user.findUnique({
-      where: { user_id: id, role: 'ADMIN' },
+      where: { user_id: id },
       select: { user_id: true, name: true, lastname: true, username: true, role: true },
     });
+    if (!admin || (admin.role !== UserRole.ADMIN && admin.role !== UserRole.SUPERADMIN)) {
+      throw new NotFoundException(`Admin with id ${id} not found.`);
+    }
     return {
       status: HttpStatus.OK,
       message: 'success',
@@ -134,7 +146,7 @@ export class AdminService {
     page = (page - 1) * limit;
     const admins = await this.prismaService.user.findMany({
       where: {
-        role: 'ADMIN',
+        role: { in: [UserRole.ADMIN, UserRole.SUPERADMIN] },
       },
       skip: page,
       take: limit,
@@ -149,12 +161,10 @@ export class AdminService {
   //!FIND ADMIN BY ID
   async findOne(id: string) {
     const admin = await this.prismaService.user.findUnique({
-      where: {
-        user_id: id,
-        role: 'ADMIN',
-      },
+      where: { user_id: id },
+      select: { user_id: true, name: true, lastname: true, username: true, role: true },
     });
-    if (!admin) {
+    if (!admin || (admin.role !== UserRole.ADMIN && admin.role !== UserRole.SUPERADMIN)) {
       throw new NotFoundException(`Admin with id ${id} not found.`);
     }
     return {
@@ -167,12 +177,9 @@ export class AdminService {
   //! EDIT PROFILE ADMIN
   async update(id: string, updateAdminDto: UpdateAdminDto) {
     const currentAdmin = await this.prismaService.user.findUnique({
-      where: {
-        user_id: id,
-        role: 'ADMIN',
-      },
+      where: { user_id: id },
     });
-    if (!currentAdmin) {
+    if (!currentAdmin || (currentAdmin.role !== UserRole.ADMIN && currentAdmin.role !== UserRole.SUPERADMIN)) {
       throw new NotFoundException(`Admin with id ${id} not found.`);
     }
     await this.prismaService.user.update({
@@ -188,13 +195,13 @@ export class AdminService {
   //! DELETE ADMIN BY ID
   async remove(id: string) {
     const currentAdmin = await this.prismaService.user.findUnique({
-      where: {
-        user_id: id,
-        role: 'ADMIN',
-      },
+      where: { user_id: id },
     });
-    if (!currentAdmin) {
+    if (!currentAdmin || (currentAdmin.role !== UserRole.ADMIN && currentAdmin.role !== UserRole.SUPERADMIN)) {
       throw new NotFoundException(`Admin with id ${id} not found.`);
+    }
+    if (currentAdmin.role === UserRole.SUPERADMIN) {
+      throw new BadRequestException('Superadminni o‘chirish mumkin emas!');
     }
     await this.prismaService.user.delete({ where: { user_id: id } });
     return {

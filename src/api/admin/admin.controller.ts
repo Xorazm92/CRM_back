@@ -27,10 +27,10 @@ import { Public } from 'src/common/decorator/auth.decorator';
 import { AddMemberDto } from './dto/add-memberdto';
 import { UserID } from 'src/common/decorator';
 import { JwtAuthGuard } from 'src/infrastructure/guards/jwt-auth.guard';
-import { Roles } from 'src/infrastructure/decorators/roles.decorator';
-import { UserRole } from '@prisma/client';
-import { RolesGuard } from 'src/infrastructure/guards/roles.guard';
+import { Roles } from 'src/common/decorator/roles.decorator';
+import { RolesGuard } from 'src/common/guards/roles.guard';
 import { AddTeacherToGroupDto } from './dto/add-teacher-to-group.dto';
+import { UserRole } from '@prisma/client';
 
 @ApiTags('Admin Api')
 @Controller('admin')
@@ -95,7 +95,8 @@ export class AdminController {
       },
     },
   })
-  @Public()
+  @UseGuards(RolesGuard)
+  @Roles(UserRole.SUPERADMIN)
   @Post('createAdmin')
   create(@Body() createAdminDto: CreateAdminDto) {
     return this.adminService.create(createAdminDto);
