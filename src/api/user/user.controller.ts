@@ -33,12 +33,14 @@ export class UserController {
   @Public()
   @ApiOperation({ summary: 'Get all users' })
   @ApiResponse({ status: 200, description: 'List of users' })
-  async findAll() {
-    try {
-      return await this.userService.findAll();
-    } catch (e) {
-      throw new BadRequestException(e.message);
-    }
+  async findAll(
+    @Query('role') role?: string,
+    @Query('status') status?: string,
+    @Query('search') search?: string,
+    @Query('page') page: string = '1',
+    @Query('limit') limit: string = '10',
+  ) {
+    return this.userService.filterUsers(role, status, search, Number(page), Number(limit));
   }
 
   @Get(':id')
