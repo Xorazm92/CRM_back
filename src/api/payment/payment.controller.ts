@@ -18,7 +18,7 @@ export class PaymentController {
 
   @Post('student')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('student', 'admin', 'manager')
+  @Roles('student', 'ADMIN', 'manager', 'MANAGER', 'superadmin','SUPERADMIN')
   @UsePipes(new ValidationPipe({ whitelist: true }))
   @ApiOperation({ summary: 'Create student payment', description: 'O‘quvchi uchun to‘lov qilish. Chegirma description orqali: "discount:20". Har bir student har 30 kunda faqat 1 marta to‘lov qilishi mumkin.' })
   @ApiBody({ type: CreateStudentPaymentDto })
@@ -49,7 +49,7 @@ export class PaymentController {
 
   @Get('student/:id')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('admin', 'ADMIN', 'manager', 'MANAGER')
+  @Roles('admin', 'ADMIN', 'manager', 'MANAGER', 'superadmin','SUPERADMIN')
   @ApiOperation({ summary: 'Get student payment history', description: 'O‘quvchining barcha to‘lovlari tarixini olish.' })
   @ApiParam({ name: 'id', type: String, required: true, description: 'Student UUID' })
   @ApiResponse({ status: 200, description: 'Student to‘lovlari tarixi' })
@@ -64,7 +64,7 @@ export class PaymentController {
 
   @Get('teacher/:id')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('admin', 'ADMIN', 'manager', 'MANAGER')
+  @Roles('admin', 'ADMIN', 'manager', 'MANAGER', 'superadmin','SUPERADMIN')
   @ApiOperation({ summary: 'O‘qituvchining oyliklari tarixi', description: 'O‘qituvchining barcha oyliklari tarixini olish.' })
   @ApiParam({ name: 'id', type: String, required: true, description: 'O‘qituvchi UUID' })
   @ApiResponse({ status: 200, description: 'O‘qituvchining oyliklari tarixi' })
@@ -80,7 +80,7 @@ export class PaymentController {
   // Barcha student to'lovlarini olish (faqat admin/manager ko'radi)
   @Get('student-payments')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('admin', 'ADMIN', 'manager', 'MANAGER')
+  @Roles('admin', 'ADMIN', 'manager', 'MANAGER', 'superadmin','SUPERADMIN')
   @ApiOperation({ summary: 'Get all student payments', description: 'Barcha o‘quvchilarning barcha to‘lovlarini olish (faqat admin/manager).' })
   @ApiResponse({ status: 200, description: 'Barcha student to‘lovlari' })
   async getAllStudentPayments() {
@@ -181,7 +181,7 @@ export class PaymentController {
   // Qarzdorlarni ogohlantirish (notification) yuborish va ro'yxatini olish
   @Post('debtors/notify')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('admin', 'ADMIN', 'manager', 'MANAGER')
+  @Roles('admin', 'ADMIN', 'manager', 'MANAGER', 'superadmin','SUPERADMIN')
   @ApiOperation({ summary: 'Qarzdorlarni ogohlantirish', description: 'Qarzdor studentlarga notification yuborish va ro‘yxatini olish.' })
   @ApiResponse({ status: 200, description: 'Qarzdorlar notification bilan qaytarildi.' })
   async notifyDebtors() {

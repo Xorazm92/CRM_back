@@ -105,6 +105,33 @@ export class GroupService {
     );
   }
 
+  async getGroupWithMembers(id: string) {
+    const group = await this.prismaService.groups.findUnique({
+      where: { group_id: id },
+      include: {
+        course: true,
+        teacher: true,
+        group_members: {
+          include: { user: true }
+        }
+      }
+    });
+    if (!group) throw new NotFoundException('Group not found');
+    return group;
+  }
+
+  async getGroupFull(id: string) {
+    const group = await this.prismaService.groups.findUnique({
+      where: { group_id: id },
+      include: {
+        course: true,
+        teacher: true,
+        group_members: { include: { user: true } }
+      }
+    });
+    return group;
+  }
+
   async updateOne(groupId: string, updateGroupDto: UpdateGroupDto) {
     const currentGroup = await this.prismaService.groups.findUnique({
       where: { group_id: groupId },
@@ -164,5 +191,14 @@ export class GroupService {
       'Group deleted successfully',
       deletedGroup
     );
+  }
+
+  // Guruhga tegishli barcha darslarni olish
+  async getLessonsByGroupId(groupId: string) {
+    const lessons = await this.prismaService.lessons.findMany({
+      where: { group_id: groupId },
+      orderBy: { lesson_date: 'asc' },
+    });
+    return lessons;
   }
 }

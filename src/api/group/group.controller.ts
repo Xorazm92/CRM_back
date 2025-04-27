@@ -69,22 +69,53 @@ export class GroupController {
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Guruhni ID bo‘yicha olish', description: 'Berilgan ID bo‘yicha guruh ma’lumotlarini olish.' })
+  @ApiOperation({ summary: 'Guruhni ID bo‘yicha olish', description: 'Berilgan ID bo‘yicha guruh, course, teacher va group_members (user bilan) ma’lumotlarini olish.' })
   @ApiParam({ name: 'id', type: String, required: true, description: 'Guruh UUID' })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Guruh topildi.',
-    type: CreateGroupDto
   })
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Guruh topilmadi.' })
-  async getOneGroup(@Param('id') groupId: string) {
-    try {
-      const group = await this.groupService.findOneGroup(groupId);
-      if (!group) throw new NotFoundException('Group not found');
-      return group;
-    } catch (e) {
-      throw new NotFoundException(e.message);
-    }
+  async getGroup(@Param('id') id: string) {
+    const group = await this.groupService.getGroupFull(id);
+    if (!group) throw new NotFoundException('Group not found');
+    return group;
+  }
+
+  @Get(':id/full')
+  @ApiOperation({ summary: 'Guruhni ID bo‘yicha olish', description: 'Berilgan ID bo‘yicha guruh, course, teacher va group_members (user bilan) ma’lumotlarini olish.' })
+  @ApiParam({ name: 'id', type: String, required: true, description: 'Guruh UUID' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Guruh topildi.',
+  })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Guruh topilmadi.' })
+  async getGroupFull(@Param('id') id: string) {
+    return this.groupService.getGroupWithMembers(id);
+  }
+
+  @Get(':id/members')
+  @ApiOperation({ summary: 'Guruh aʼzolari roʻyxati', description: 'Berilgan ID bo‘yicha guruhga tegishli barcha aʼzolar (userlar) roʻyxatini olish.' })
+  @ApiParam({ name: 'id', type: String, required: true, description: 'Guruh UUID' })
+  @ApiResponse({ status: HttpStatus.OK, description: 'Guruh aʼzolari roʻyxati.' })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Guruh yoki aʼzolar topilmadi.' })
+  async getGroupMembers(@Param('id') id: string) {
+    const group = await this.groupService.getGroupWithMembers(id);
+    if (!group || !group.group_members) throw new NotFoundException('Guruh yoki aʼzolar topilmadi.');
+    // Faqat userlar roʻyxatini qaytaramiz
+    return group.group_members.map((member: any) => member.user);
+  }
+
+  @Get(':id/lessons')
+  @ApiOperation({ summary: 'Guruh darslari roʻyxati', description: 'Berilgan ID bo‘yicha guruhga tegishli barcha darslar (lessons) roʻyxatini olish.' })
+  @ApiParam({ name: 'id', type: String, required: true, description: 'Guruh UUID' })
+  @ApiResponse({ status: HttpStatus.OK, description: 'Guruh darslari roʻyxati.' })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Guruh yoki darslar topilmadi.' })
+  async getGroupLessons(@Param('id') id: string) {
+    // Prisma orqali group_id bo'yicha darslarni olish
+    const lessons = await this.groupService.getLessonsByGroupId(id);
+    if (!lessons || lessons.length === 0) throw new NotFoundException('Guruh yoki darslar topilmadi.');
+    return lessons;
   }
 
   @Put(':id')

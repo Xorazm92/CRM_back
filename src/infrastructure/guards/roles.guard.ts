@@ -24,6 +24,9 @@ export class RolesGuard implements CanActivate {
     });
     if (!user || !user.role) return false;
 
+    // SUPERADMIN har doim ruxsatli
+    if (String(user.role).toLowerCase() === 'superadmin') return true;
+
     return requiredRoles.some(
       (role) => String(user.role).toLowerCase() === String(role).toLowerCase()
     );
