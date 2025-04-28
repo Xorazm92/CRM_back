@@ -15,6 +15,8 @@ import { FileUploadModule } from './fileupload/fileupload.module';
 import { CacheModule } from '@nestjs/cache-manager';
 import { CustomJwtModule } from 'src/infrastructure/lib/custom-jwt.module';
 import { SettingModule } from './setting/setting.module';
+import { TransactionModule } from './transaction/transaction.module';
+import { ScheduleModule } from './schedule/schedule.module';
 
 // StudentModule va TeacherModule olib tashlandi, endi UserModule universal
 @Module({
@@ -38,6 +40,8 @@ import { SettingModule } from './setting/setting.module';
     PaymentModule,
     FileUploadModule,
     SettingModule,
+    TransactionModule,
+    ScheduleModule,
   ],
 })
 export class AppModule {}

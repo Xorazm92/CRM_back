@@ -243,6 +243,24 @@ async function main() {
   users.push(superadmin);
   // --- END SUPERADMIN ---
 
+  // --- TEACHER USER YARATISH ---
+  const teacherUsername = 'teacher1';
+  const teacherPassword = await bcrypt.BcryptEncryption.hashPassword('teacher1');
+  const teacher = await prisma.user.upsert({
+    where: { username: teacherUsername },
+    update: {},
+    create: {
+      name: 'Ali',
+      lastname: 'Valiyev',
+      username: teacherUsername,
+      password: teacherPassword,
+      role: UserRole.TEACHER,
+    },
+  });
+  users.push(teacher);
+  console.log('TEACHER user created:', teacher.username);
+  // --- END TEACHER ---
+
   console.log('yakunlandi!');
 }
 
