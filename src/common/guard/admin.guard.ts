@@ -10,10 +10,12 @@ import { UserRole } from '../enum';
 export class AdminGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const req = context.switchToHttp().getRequest();
-    if (!req.user?.role || req.user?.role !== UserRole.ADMIN) {
+    console.log('ADMIN GUARD req.user:', req.user); // DEBUG
+    // ADMIN yoki SUPERADMIN ham kirishi mumkin
+    const role = req.user?.role?.toUpperCase();
+    if (!role || (role !== 'ADMIN' && role !== 'SUPERADMIN')) {
       throw new ForbiddenException('Forbidden user');
-    } else {
-      return true;
     }
+    return true;
   }
 }

@@ -16,7 +16,7 @@ export class CreateStudentPaymentDto {
   @ApiProperty({ description: 'To‘lov turi', enum: PaymentType, example: PaymentType.COURSE })
   @IsNotEmpty()
   @IsEnum(PaymentType)
-  payment_type: PaymentType;
+  type: PaymentType;
 
   @ApiProperty({ description: 'Izoh (ixtiyoriy)', required: false, example: 'discount:20' })
   @IsOptional()

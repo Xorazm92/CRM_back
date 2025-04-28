@@ -84,7 +84,7 @@ export class PaymentService {
     const discountedAmount = dto.amount * (1 - discountPercent / 100);
     // 4. 30 kunlik cheklov
     const lastPayment = await this.prisma.studentPayment.findFirst({
-      where: { student_id: dto.student_id, type: dto.payment_type },
+      where: { student_id: dto.student_id, type: dto.type },
       orderBy: { createdAt: 'desc' }
     });
     if (lastPayment) {
@@ -98,7 +98,7 @@ export class PaymentService {
     const paymentData: any = {
       student_id: dto.student_id,
       amount: discountedAmount,
-      type: dto.payment_type as PaymentType,
+      type: dto.type as PaymentType,
       status: PaymentStatus.PENDING,
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -248,7 +248,7 @@ export class PaymentService {
     const updateData: any = {
       student_id: dto.student_id,
       amount: dto.amount,
-      type: dto.payment_type,
+      type: dto.type,
       updatedAt: new Date(),
     };
     if (dto.description) updateData.description = dto.description;
@@ -298,5 +298,13 @@ export class PaymentService {
       }
     }
     return debtors;
+  }
+
+  // SUPERADMIN uchun barcha o'qituvchilarning oyliklari
+  async getAllTeacherSalaries() {
+    return this.prisma.teacherSalary.findMany({
+      include: { teacher: true },
+      orderBy: { createdAt: 'desc' }
+    });
   }
 }

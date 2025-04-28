@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Put, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Put, UseGuards, Request } from '@nestjs/common';
 import { PaymentService } from './payment.service';
 import { CreateStudentPaymentDto } from './dto/create-student-payment.dto';
 import { CreateTeacherSalaryDto } from './dto/create-teacher-salary.dto';
@@ -8,7 +8,7 @@ import { JwtAuthGuard } from 'src/infrastructure/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/infrastructure/guards/roles.guard';
 import { Roles } from 'src/infrastructure/decorators/roles.decorator';
 import { ApiBearerAuth, ApiTags, ApiBody, ApiParam, ApiNotFoundResponse, ApiBadRequestResponse, ApiOperation, ApiResponse } from '@nestjs/swagger';
-import { ValidationPipe, UsePipes, BadRequestException, NotFoundException } from '@nestjs/common';
+import { ValidationPipe, UsePipes, BadRequestException, NotFoundException, ForbiddenException } from '@nestjs/common';
 
 @ApiTags('Payments')
 @ApiBearerAuth()
@@ -33,9 +33,9 @@ export class PaymentController {
   }
 
   @Post('teacher')
-  @UseGuards(AdminGuard)
+  @UseGuards(JwtAuthGuard, AdminGuard)
   @UsePipes(new ValidationPipe({ whitelist: true }))
-  @ApiOperation({ summary: 'O‘qituvchiga oylik yozish', description: 'O‘qituvchiga oylik yozish (faqat admin uchun). Odatda avtomatik student payment orqali yaratiladi.' })
+  @ApiOperation({ summary: 'O‘qituvchiga oylik yozish (ADMIN/SUPERADMIN)', description: 'O‘qituvchiga oylik yozish (faqat admin yoki superadmin uchun). Odatda avtomatik student payment orqali yaratiladi.' })
   @ApiBody({ type: CreateTeacherSalaryDto })
   @ApiResponse({ status: 201, description: 'O‘qituvchiga oylik yozildi.' })
   @ApiBadRequestResponse({ description: 'Xato yoki noto‘g‘ri so‘rov.' })
@@ -186,5 +186,21 @@ export class PaymentController {
   @ApiResponse({ status: 200, description: 'Qarzdorlar notification bilan qaytarildi.' })
   async notifyDebtors() {
     return this.paymentService.getDebtors(true);
+  }
+
+  // SUPERADMIN uchun barcha o'qituvchilarning oyliklari
+  @Get('teacher')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin', 'ADMIN', 'manager', 'MANAGER', 'superadmin', 'SUPERADMIN')
+  @ApiOperation({ summary: 'Barcha o‘qituvchilarga berilgan oyliklar', description: 'Superadmin barcha o‘qituvchilarning oyliklarini ko‘radi. Oddiy o‘qituvchi faqat o‘zini ko‘radi.' })
+  @ApiResponse({ status: 200, description: 'Barcha o‘qituvchilarning oyliklari' })
+  async getAllTeacherSalaries(@Request() req) {
+    if (req.user.role === 'SUPERADMIN') {
+      return this.paymentService.getAllTeacherSalaries();
+    }
+    if (req.user.role === 'TEACHER') {
+      return this.paymentService.getTeacherSalaryHistory(req.user.user_id);
+    }
+    throw new ForbiddenException('Sizda ruxsat yo‘q');
   }
 }
