@@ -23,7 +23,8 @@ export class ScheduleService {
     return this.prisma.schedule.update({ where: { schedule_id: id }, data: dto });
   }
 
-  async remove(id: string) {
-    return this.prisma.schedule.delete({ where: { schedule_id: id } });
+  async generateSchedule(courseId: string, dto: { start_date: string, lessons_per_week: number, days_of_week: number[] }) {
+    // TODO: Kurs syllabusini olib, dars va jadval bandlarini avtomatik generatsiya qilish logikasini yozish
+    return { success: true, message: 'Schedule generation stub. Logic to be implemented.' };
   }
 }

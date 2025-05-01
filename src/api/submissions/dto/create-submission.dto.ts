@@ -14,11 +14,11 @@ export class CreateSubmissionDto {
   @ApiProperty({
     description: 'Student ID who submitted the assignment',
     example: '123e4567-e89b-12d3-a456-426614174000',
-    required: true,
+    required: false,
   })
   @IsUUID()
-  @IsNotEmpty()
-  student_id: string;
+  @IsOptional()
+  student_id?: string;
 
   @ApiProperty({
     description: 'File path for the submission',

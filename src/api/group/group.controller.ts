@@ -112,10 +112,13 @@ export class GroupController {
   @ApiResponse({ status: HttpStatus.OK, description: 'Guruh darslari roʻyxati.' })
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Guruh yoki darslar topilmadi.' })
   async getGroupLessons(@Param('id') id: string) {
-    // Prisma orqali group_id bo'yicha darslarni olish
+    // Guruh mavjudligini tekshirish
+    const group = await this.groupService.findOneGroup(id);
+    if (!group) throw new NotFoundException('Guruh topilmadi.');
+    // Darslarni olish
     const lessons = await this.groupService.getLessonsByGroupId(id);
-    if (!lessons || lessons.length === 0) throw new NotFoundException('Guruh yoki darslar topilmadi.');
-    return lessons;
+    // Darslar bo'lmasa ham bo'sh massiv qaytariladi
+    return lessons || [];
   }
 
   @Put(':id')

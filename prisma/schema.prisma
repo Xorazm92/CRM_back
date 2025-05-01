@@ -49,6 +49,7 @@ model Groups {
   course_id     String         
   course        Course         @relation(fields: [course_id], references: [course_id])
   status        GroupStatus    @default(ACTIVE)
+  start_date    DateTime?
   created_at    DateTime       @default(now())
   updated_at    DateTime       @updatedAt
   group_members GroupMembers[]
@@ -57,6 +58,33 @@ model Groups {
   assignments   Assignments[]
   teacher_id    String?        
   teacher       User?          @relation("GroupsTeacher", fields: [teacher_id], references: [user_id])
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+}
+
+model Account {
+  id           String        @id @default(uuid())
+  name         String
+  created_at   DateTime      @default(now())
+  updated_at   DateTime      @updatedAt
+  transactions Transaction[]
+}
+
+model Transaction {
+  id           String            @id @default(uuid())
+  amount       Decimal
+  type         TransactionType   // INCOME yoki EXPENSE
+  source_id    String?
+  target_id    String?
+  description  String?
+  created_at   DateTime          @default(now())
+  account_id   String
+  account      Account           @relation(fields: [account_id], references: [id])
+  source       User?             @relation("TransactionSource", fields: [source_id], references: [user_id])
+  target       User?             @relation("TransactionTarget", fields: [target_id], references: [user_id])
 }
 
 model Assignments {
@@ -194,19 +222,7 @@ model Notification {
   user        User     @relation(fields: [user_id], references: [user_id])
 }
 
-model Transaction {
-  id        String            @id @default(uuid())
-  amount    Float
-  type      TransactionType
-  status    TransactionStatus @default(PENDING)
-  source_id String?
-  target_id String?
-  reason    String?
-  createdAt DateTime          @default(now())
-  updatedAt DateTime          @updatedAt
-  source    User?             @relation("TransactionSource", fields: [source_id], references: [user_id])
-  target    User?             @relation("TransactionTarget", fields: [target_id], references: [user_id])
-}
+
 
 model Setting {
   key   String @id
@@ -252,12 +268,7 @@ enum PaymentType {
   OTHER
 }
 
-enum TransactionType {
-  PAYMENT
-  REFUND
-  SALARY
-  OTHER
-}
+
 
 enum TransactionStatus {
   PENDING

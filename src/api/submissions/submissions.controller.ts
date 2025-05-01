@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, UsePipes } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, UsePipes, Req } from '@nestjs/common';
 import { SubmissionsService } from './submissions.service';
 import { JwtAuthGuard } from '../../infrastructure/guards/jwt-auth.guard';
 import { RolesGuard } from '../../infrastructure/guards/roles.guard';
@@ -22,7 +22,6 @@ export class SubmissionsController {
     default: {
       value: {
         assignment_id: 'uuid-assignment',
-        student_id: 'uuid-student',
         file_path: '/uploads/hw1.pdf',
         answer_text: 'My answer'
       }
@@ -33,9 +32,17 @@ export class SubmissionsController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Forbidden' })
   @UsePipes(new ValidationPipe({ whitelist: true }))
-  async create(@Body() createSubmissionDto: CreateSubmissionDto) {
+  async create(@Req() req, @Body() createSubmissionDto: CreateSubmissionDto) {
     try {
-      return await this.submissionsService.create(createSubmissionDto);
+      // student_id ni token (req.user) dan olish
+      const student_id = req.user?.user_id;
+      if (!student_id) {
+        throw new BadRequestException('student_id aniqlanmadi! Iltimos, qayta login qiling.');
+      }
+      return await this.submissionsService.create({
+        ...createSubmissionDto,
+        student_id,
+      });
     } catch (e) {
       throw new BadRequestException(e.message);
     }

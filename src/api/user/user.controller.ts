@@ -1,6 +1,7 @@
 // user.controller.ts
 import { Controller, Post, Body, Get, Param, Put, Delete, UseGuards, Req, Query } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiQuery, ApiBearerAuth } from '@nestjs/swagger';
+import { JwtAuthGuard } from 'src/infrastructure/guards/jwt-auth.guard';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -43,6 +44,16 @@ export class UserController {
     return this.userService.filterUsers(role, status, search, Number(page), Number(limit));
   }
 
+  @Get('profile')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Get current user profile' })
+  @ApiResponse({ status: 200, description: 'Current user profile' })
+  async getProfile(@Req() req: Request) {
+    // req.user.id yoki req.user.user_id
+    return this.userService.findOne((req as any).user.user_id || (req as any).user.id);
+  }
+
   @Get(':id')
   @UseGuards(AuthGuard('jwt'))
   @ApiOperation({ summary: 'Get user by ID' })
@@ -56,15 +67,6 @@ export class UserController {
     } catch (e) {
       throw new NotFoundException(e.message);
     }
-  }
-
-  @Get('profile')
-  @UseGuards(AuthGuard('jwt'))
-  @ApiOperation({ summary: 'Get current user profile' })
-  @ApiResponse({ status: 200, description: 'Current user profile' })
-  async getProfile(@Req() req: Request) {
-    // req.user.id yoki req.user.user_id
-    return this.userService.findOne((req as any).user.user_id || (req as any).user.id);
   }
 
   @Get('filter')

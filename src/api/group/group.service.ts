@@ -65,7 +65,8 @@ export class GroupService {
     const allGroups = await this.prismaService.groups.findMany({
       include: { 
         group_members: true,
-        course: true 
+        course: true,
+        teacher: true
       },
     });
 

@@ -27,8 +27,13 @@ export class ScheduleController {
     return this.scheduleService.update(id, dto);
   }
 
-  @Delete(':id')
-  async remove(@Param('id') id: string) {
-    return this.scheduleService.remove(id);
-  }
+  @Post('/generate/:courseId')
+async generateSchedule(
+  @Param('courseId') courseId: string,
+  @Body() dto: { start_date: string, lessons_per_week: number, days_of_week: number[] }
+) {
+  return this.scheduleService.generateSchedule(courseId, dto);
+}
+
+
 }
