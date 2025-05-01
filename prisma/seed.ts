@@ -1,4 +1,4 @@
-import { PrismaClient, UserRole } from '@prisma/client';
+import { PrismaClient, UserRole, TransactionType } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -205,36 +205,27 @@ async function main() {
     });
   }
 
-
-// --- MOCK TRANSACTION ---
-// Avval Account yaratish
-const account = await prisma.account.create({
-  data: {
-    id: '123e4567-e89b-12d3-a456-426614174000',
-    name: 'Main Account'
-  }
-});
-
-// Keyin Transaction yaratish
-for (let i = 0; i < 5; i++) {
-  await prisma.transaction.create({
+  // --- MOCK TRANSACTION ---
+  // Avval Account yaratish
+  const account = await prisma.account.create({
     data: {
-      amount: 100000,
-      type: 'INCOME',
-      source_id: users[i % users.length].user_id,
-      target_id: users[(i + 1) % users.length].user_id,
-      description: 'Test transaction',
-      account_id: account.id
+      id: '123e4567-e89b-12d3-a456-426614174000',
+      name: 'Main Account'
     }
   });
-}
 
-  // --- MOCK SETTING ---
-  await prisma.setting.upsert({
-    where: { key: 'site_name' },
-    update: { value: 'CRM Test Platform' },
-    create: { key: 'site_name', value: 'CRM Test Platform' },
-  });
+  // Keyin Transaction yaratish
+  for (let i = 0; i < 5; i++) {
+    await prisma.transaction.create({
+      data: {
+        amount: 100000,
+        type: TransactionType.INCOME_TRANSACTION,
+        source_id: users[i % users.length].user_id,
+        target_id: users[(i + 1) % users.length].user_id,
+        account_id: account.id
+      }
+    });
+  }
 
   // --- SUPERADMIN USER YARATISH ---
   const superadminUsername = 'superadmin';

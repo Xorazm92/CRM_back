@@ -61,8 +61,8 @@ model Groups {
 }
 
 enum TransactionType {
-  INCOME
-  EXPENSE
+  INCOME_TRANSACTION
+  EXPENSE_TRANSACTION
 }
 
 model Account {
