@@ -209,12 +209,13 @@ async function main() {
   for (let i = 0; i < 5; i++) {
     await prisma.transaction.create({
       data: {
-        amount: 100000 * (i + 1),
-        type: 'PAYMENT',
+        amount: 100000 ,
+        type: 'INCOME',
         status: 'SUCCESS',
         source_id: users[i % users.length].user_id,
         target_id: users[(i + 1) % users.length].user_id,
         reason: 'Test transaction',
+        
       },
     });
   }
