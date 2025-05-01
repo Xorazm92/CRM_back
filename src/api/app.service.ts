@@ -36,7 +36,7 @@ export default class Application {
     const documentFactory = () =>
       SwaggerModule.createDocument(app, config_swagger);
     SwaggerModule.setup(swaggerApi, app, documentFactory);
-    const server_port = process.env.API_PORT ?? 3000;
+    const server_port = process.env.API_PORT ?? 3030;
     await app.listen(server_port, () => {
       // logger.log(`Server: http://localhost:${server_port}/api/v1/`);
       console.log(`Server: http://localhost:${server_port}/api/v1/`);

@@ -52,7 +52,7 @@ CRM_back/
 ```
 DATABASE_URL="postgresql://user:password@localhost:5432/crm_db"
 JWT_SECRET="your_jwt_secret"
-PORT=3000
+PORT=3030
 ```
 
 ## Testlarni ishga tushirish
@@ -63,7 +63,7 @@ npm run test:cov
 ```
 
 ## API hujjatlari
-Swagger yoki Postman collection orqali API endpointlari bilan ishlash mumkin. (Swagger: `localhost:3000/api` yoki loyihada mavjud bo‘lsa)
+Swagger yoki Postman collection orqali API endpointlari bilan ishlash mumkin. (Swagger: `localhost:3030/api` yoki loyihada mavjud bo‘lsa)
 
 ## Universal User API (CRM/LMS)
 
@@ -96,7 +96,7 @@ Swagger yoki Postman collection orqali API endpointlari bilan ishlash mumkin. (S
 - Email and username are unique
 
 ### Swagger
-- Swagger UI: [http://localhost:3000/api](http://localhost:3000/api)
+- Swagger UI: [http://localhost:3030/api](http://localhost:3030/api)
 
 ---
 
