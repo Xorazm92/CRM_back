@@ -205,20 +205,29 @@ async function main() {
     });
   }
 
-  // --- MOCK TRANSACTION ---
-  for (let i = 0; i < 5; i++) {
-    await prisma.transaction.create({
-      data: {
-        amount: 100000 ,
-        type: 'INCOME',
-        status: 'SUCCESS',
-        source_id: users[i % users.length].user_id,
-        target_id: users[(i + 1) % users.length].user_id,
-        reason: 'Test transaction',
-        
-      },
-    });
+
+// --- MOCK TRANSACTION ---
+// Avval Account yaratish
+const account = await prisma.account.create({
+  data: {
+    id: '123e4567-e89b-12d3-a456-426614174000',
+    name: 'Main Account'
   }
+});
+
+// Keyin Transaction yaratish
+for (let i = 0; i < 5; i++) {
+  await prisma.transaction.create({
+    data: {
+      amount: 100000,
+      type: 'INCOME',
+      source_id: users[i % users.length].user_id,
+      target_id: users[(i + 1) % users.length].user_id,
+      description: 'Test transaction',
+      account_id: account.id
+    }
+  });
+}
 
   // --- MOCK SETTING ---
   await prisma.setting.upsert({
