@@ -8,7 +8,7 @@ export class CreateStudentPaymentDto {
   @IsString()
   student_id: string;
 
-  @ApiProperty({ description: 'To‘lov miqdori (so‘m)', example: 00 })
+  @ApiProperty({ description: 'To‘lov miqdori (so‘m)', example: 0 })
   @IsNotEmpty()
   @IsNumber()
   amount: number;
