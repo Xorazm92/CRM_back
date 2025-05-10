@@ -105,28 +105,97 @@ export class DashboardService {
 
   // PUBLIC: Attendance stats for dashboard controller
   async getAttendanceStats() {
-    // TODO: implement real logic
-    return { message: 'Attendance stats not implemented yet.' };
+    try {
+      // Attendance statuslar bo‘yicha guruhlash
+      const stats = await this.prisma.attendance.groupBy({
+        by: ['status'],
+        _count: true,
+      });
+      const total = stats.reduce((acc, curr) => acc + curr._count, 0);
+      const present = stats.find((s) => s.status === 'PRESENT')?._count || 0;
+      const absent = stats.find((s) => s.status === 'ABSENT')?._count || 0;
+      const late = stats.find((s) => s.status === 'LATE')?._count || 0;
+      const excused = stats.find((s) => s.status === 'EXCUSED')?._count || 0;
+      return { total, present, absent, late, excused };
+    } catch (e) {
+      console.error('[DashboardService][getAttendanceStats]', e);
+      throw new InternalServerErrorException(e.message);
+    }
   }
 
   private async calculateTotalRevenue() {
-    // TODO: implement
-    return 0;
+    try {
+      // Faqat COMPLETED statusdagi student paymentlarni yig‘ish
+      const result = await this.prisma.studentPayment.aggregate({
+        _sum: { amount: true },
+        where: { status: 'COMPLETED' },
+      });
+      return result._sum.amount || 0;
+    } catch (e) {
+      console.error('[DashboardService][calculateTotalRevenue]', e);
+      throw new InternalServerErrorException(e.message);
+    }
   }
 
   private async compareMonthlyRevenue(lastMonth: Date, currentMonth: Date) {
-    // TODO: implement
-    return 0;
+    try {
+      // Oldingi va joriy oy uchun tushumlarni hisoblash
+      const prevMonthStart = new Date(lastMonth.getFullYear(), lastMonth.getMonth(), 1);
+      const currMonthStart = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
+      const nextMonthStart = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1);
+      const prev = await this.prisma.studentPayment.aggregate({
+        _sum: { amount: true },
+        where: {
+          status: 'COMPLETED',
+          createdAt: { gte: prevMonthStart, lt: currMonthStart },
+        },
+      });
+      const curr = await this.prisma.studentPayment.aggregate({
+        _sum: { amount: true },
+        where: {
+          status: 'COMPLETED',
+          createdAt: { gte: currMonthStart, lt: nextMonthStart },
+        },
+      });
+      return {
+        previousMonth: prev._sum.amount || 0,
+        currentMonth: curr._sum.amount || 0,
+        delta: (curr._sum.amount || 0) - (prev._sum.amount || 0),
+      };
+    } catch (e) {
+      console.error('[DashboardService][compareMonthlyRevenue]', e);
+      throw new InternalServerErrorException(e.message);
+    }
   }
 
   private async getUnpaidInvoicesCount() {
-    // TODO: implement
-    return 0;
+    try {
+      // Statusi PENDING bo‘lgan student paymentlar soni
+      const count = await this.prisma.studentPayment.count({
+        where: { status: 'PENDING' },
+      });
+      return count;
+    } catch (e) {
+      console.error('[DashboardService][getUnpaidInvoicesCount]', e);
+      throw new InternalServerErrorException(e.message);
+    }
   }
 
   private async calculateAveragePaymentTime() {
-    // TODO: implement
-    return 0;
+    try {
+      // COMPLETED statusdagi paymentlar uchun createdAt va updatedAt orasidagi o‘rtacha vaqt (soatda)
+      const payments = await this.prisma.studentPayment.findMany({
+        where: { status: 'COMPLETED' },
+        select: { createdAt: true, updatedAt: true },
+      });
+      if (!payments.length) return 0;
+      const totalMs = payments.reduce((acc, p) => acc + (p.updatedAt.getTime() - p.createdAt.getTime()), 0);
+      const avgMs = totalMs / payments.length;
+      return Math.round((avgMs / (1000 * 60 * 60)) * 100) / 100; // soatda, 2 xonali
+    } catch (e) {
+      console.error('[DashboardService][calculateAveragePaymentTime]', e);
+      throw new InternalServerErrorException(e.message);
+    }
   }
 
   // Bolalarni yosh bo‘yicha statistikasi

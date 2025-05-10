@@ -23,3 +23,31 @@ async function bootstrap() {
   await app.listen(3030);
 }
 bootstrap();
+
+                             
+// import { NestFactory } from '@nestjs/core';
+// import { AppModule } from './api/app.module';
+// import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+
+// async function bootstrap() {
+//   const app = await NestFactory.create(AppModule);
+//   app.enableCors({
+//     origin: ['https://crm.zufariy.uz', 'http://localhost:3030', 'https://raya>
+//     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+//     credentials: true,
+//   });
+//   app.setGlobalPrefix('api/v1');
+
+//   // Swagger setup
+//   const config = new DocumentBuilder()
+//     .setTitle('CRM/LMS Universal User API')
+//     .setDescription('Professional, scalable, and secure user management API.\>
+//     .setVersion('1.0')
+//     .addBearerAuth()
+//     .build();
+//   const document = SwaggerModule.createDocument(app, config);
+//   SwaggerModule.setup('api', app, document);
+
+//   await app.listen(3030);
+// }
+// bootstrap();
