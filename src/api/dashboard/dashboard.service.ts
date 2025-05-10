@@ -1,9 +1,10 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 import { PrismaService } from 'src/infrastructure/prisma/prisma.service';
 import { DashboardStatsDto } from './dto/dashboard-stats.dto';
 
 @Injectable()
 export class DashboardService {
+  private readonly logger = new Logger(DashboardService.name);
   constructor(private prisma: PrismaService) {}
 
   async getStats(): Promise<DashboardStatsDto & { monthlyRevenue: number; lastUpdated: Date }> {
@@ -13,6 +14,7 @@ export class DashboardService {
         this.getFinancialStats(),
         this.getPerformanceStats(),
       ]);
+      this.logger.log('Dashboard statistics successfully retrieved');
       return {
         ...basicStats,
         ...financialStats,
@@ -21,6 +23,7 @@ export class DashboardService {
         lastUpdated: new Date(),
       };
     } catch (e) {
+      this.logger.error('Error in getStats', e.stack || e.message);
       throw new InternalServerErrorException(e.message);
     }
   }
@@ -118,7 +121,7 @@ export class DashboardService {
       const excused = stats.find((s) => s.status === 'EXCUSED')?._count || 0;
       return { total, present, absent, late, excused };
     } catch (e) {
-      console.error('[DashboardService][getAttendanceStats]', e);
+      this.logger.error('[DashboardService][getAttendanceStats]', e.stack || e.message);
       throw new InternalServerErrorException(e.message);
     }
   }
@@ -163,7 +166,7 @@ export class DashboardService {
         delta: (curr._sum.amount || 0) - (prev._sum.amount || 0),
       };
     } catch (e) {
-      console.error('[DashboardService][compareMonthlyRevenue]', e);
+      this.logger.error('[DashboardService][compareMonthlyRevenue]', e.stack || e.message);
       throw new InternalServerErrorException(e.message);
     }
   }
@@ -176,7 +179,7 @@ export class DashboardService {
       });
       return count;
     } catch (e) {
-      console.error('[DashboardService][getUnpaidInvoicesCount]', e);
+      this.logger.error('[DashboardService][getUnpaidInvoicesCount]', e.stack || e.message);
       throw new InternalServerErrorException(e.message);
     }
   }
@@ -193,7 +196,7 @@ export class DashboardService {
       const avgMs = totalMs / payments.length;
       return Math.round((avgMs / (1000 * 60 * 60)) * 100) / 100; // soatda, 2 xonali
     } catch (e) {
-      console.error('[DashboardService][calculateAveragePaymentTime]', e);
+      this.logger.error('[DashboardService][calculateAveragePaymentTime]', e.stack || e.message);
       throw new InternalServerErrorException(e.message);
     }
   }

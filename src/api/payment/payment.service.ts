@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, Inject, forwardRef } from '@nestjs/common';
+import { Injectable, NotFoundException, Inject, forwardRef, Logger } from '@nestjs/common';
 import { Prisma, PaymentType, PaymentStatus } from '@prisma/client';
 import { PrismaService } from 'src/infrastructure/prisma/prisma.service';
 import { CreateStudentPaymentDto } from './dto/create-student-payment.dto';
@@ -7,10 +7,12 @@ import { NotificationService } from 'src/api/notification/notification.service';
 
 @Injectable()
 export class PaymentService {
+  private readonly logger = new Logger(PaymentService.name);
   // O'qituvchining barcha oyliklari tarixini qaytaradi
   async getTeacherSalaryHistory(id: string) {
     const teacher = await this.prisma.user.findUnique({ where: { user_id: id } });
     if (!teacher || teacher.role !== 'TEACHER') {
+      this.logger.warn(`Teacher with ID ${id} not found`);
       throw new NotFoundException(`Teacher with ID ${id} not found`);
     }
     return this.prisma.teacherSalary.findMany({
@@ -23,6 +25,7 @@ export class PaymentService {
   async getStudentPayments(id: string) {
     const student = await this.prisma.user.findUnique({ where: { user_id: id } });
     if (!student || student.role !== 'STUDENT') {
+      this.logger.warn(`Student with ID ${id} not found`);
       throw new NotFoundException(`Student with ID ${id} not found`);
     }
     return this.prisma.studentPayment.findMany({
@@ -60,6 +63,7 @@ export class PaymentService {
     // 1. Studentni tekshirish
     const student = await this.prisma.user.findUnique({ where: { user_id: dto.student_id } });
     if (!student || student.role !== 'STUDENT') {
+      this.logger.warn(`Student with ID ${dto.student_id} not found`);
       throw new NotFoundException(`Student with ID ${dto.student_id} not found`);
     }
     // 2. Chegirma aniqlash (Discount model orqali)
@@ -91,6 +95,7 @@ export class PaymentService {
       const now = new Date();
       const diffDays = (now.getTime() - lastPayment.createdAt.getTime()) / (1000 * 60 * 60 * 24);
       if (diffDays < 30) {
+        this.logger.warn(`Student ${dto.student_id} tried to pay more than once in a month.`);
         throw new Error('Har oy faqat bir marta toʻlov qilishingiz mumkin!');
       }
     }
@@ -242,6 +247,7 @@ export class PaymentService {
     // Student payment mavjudligini tekshirish
     const existing = await this.prisma.studentPayment.findUnique({ where: { id } });
     if (!existing) {
+      this.logger.warn(`Student payment with ID ${id} not found`);
       throw new NotFoundException(`Student payment with ID ${id} not found`);
     }
     // Yangilash uchun ma'lumotlarni tayyorlash
@@ -254,10 +260,12 @@ export class PaymentService {
     if (dto.description) updateData.description = dto.description;
     // Status mavjud bo'lsa, statusni ham yangilash
     if ((dto as any).status) updateData.status = (dto as any).status;
-    return this.prisma.studentPayment.update({
+    const updated = await this.prisma.studentPayment.update({
       where: { id },
       data: updateData,
     });
+    this.logger.log(`Student payment updated: ${id}`);
+    return updated;
   }
 
   // Qarzdorlar ro'yxatini aniqlash (to'lov qilmagan studentlar)
