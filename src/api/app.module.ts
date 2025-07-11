@@ -17,6 +17,8 @@ import { CustomJwtModule } from 'src/infrastructure/lib/custom-jwt.module';
 import { SettingModule } from './setting/setting.module';
 import { TransactionModule } from './transaction/transaction.module';
 import { ScheduleModule } from './schedule/schedule.module';
+import { SecurityModule } from '../common/security/security.module';
+import { HealthModule } from './health/health.module';
 
 // StudentModule va TeacherModule olib tashlandi, endi UserModule universal
 @Module({
@@ -26,6 +28,7 @@ import { ScheduleModule } from './schedule/schedule.module';
       isGlobal: true,
       ttl: 60000
     }),
+    SecurityModule,
     CustomJwtModule,
     AuthModule,
     UserModule,
@@ -42,6 +45,7 @@ import { ScheduleModule } from './schedule/schedule.module';
     SettingModule,
     TransactionModule,
     ScheduleModule,
+    HealthModule,
   ],
 })
 export class AppModule {}

@@ -40,6 +40,14 @@ model User {
   salaries          TeacherSalary[] @relation("TeacherSalaryUser")
   transactions_from Transaction[] @relation("TransactionSource")
   transactions_to   Transaction[] @relation("TransactionTarget")
+
+  @@index([username])
+  @@index([email])
+  @@index([role])
+  @@index([status])
+  @@index([created_at])
+  @@index([role, status])
+  @@index([name, lastname])
 }
 
 model Groups {
@@ -56,8 +64,14 @@ model Groups {
   lessons       Lessons[]
   schedules     Schedule[]
   assignments   Assignments[]
-  teacher_id    String?        
+  teacher_id    String?
   teacher       User?          @relation("GroupsTeacher", fields: [teacher_id], references: [user_id])
+
+  @@index([course_id])
+  @@index([status])
+  @@index([teacher_id])
+  @@index([created_at])
+  @@index([status, course_id])
 }
 
 enum TransactionType {
@@ -128,6 +142,12 @@ model Attendance {
   updated_at   DateTime @updatedAt
   lesson       Lessons  @relation(fields: [lesson_id], references: [lesson_id])
   student      User     @relation(fields: [student_id], references: [user_id])
+
+  @@index([lesson_id])
+  @@index([student_id])
+  @@index([status])
+  @@index([created_at])
+  @@index([lesson_id, student_id])
 }
 
 model Course {
@@ -140,6 +160,10 @@ model Course {
   created_at  DateTime     @default(now())
   updated_at  DateTime     @updatedAt
   groups      Groups[]
+
+  @@index([status])
+  @@index([created_at])
+  @@index([name])
 }
 
 model Schedule {
@@ -188,6 +212,12 @@ model StudentPayment {
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
   student   User          @relation("StudentPaymentUser", fields: [student_id], references: [user_id])
+
+  @@index([student_id])
+  @@index([status])
+  @@index([type])
+  @@index([createdAt])
+  @@index([student_id, status])
 }
 
 model TeacherSalary {
