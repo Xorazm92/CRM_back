@@ -41,6 +41,10 @@ model User {
   transactions_from Transaction[] @relation("TransactionSource")
   transactions_to   Transaction[] @relation("TransactionTarget")
 
+  // RBAC Relations
+  user_role_assignments UserRoleAssignment[] @relation("UserRoleAssignments")
+  granted_roles         UserRoleAssignment[] @relation("GrantedRoles")
+
   @@index([username])
   @@index([email])
   @@index([role])
@@ -257,6 +261,78 @@ model Notification {
 model Setting {
   key   String @id
   value String
+}
+
+// RBAC Models
+model Permission {
+  id          String @id @default(uuid())
+  name        String @unique // e.g., "users:read", "payments:create"
+  resource    String // e.g., "users", "payments", "courses"
+  action      String // e.g., "create", "read", "update", "delete"
+  description String?
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  // Relations
+  role_permissions RolePermission[]
+
+  @@index([resource])
+  @@index([action])
+  @@index([resource, action])
+}
+
+model Role {
+  id          String @id @default(uuid())
+  name        String @unique // e.g., "ADMIN", "TEACHER", "STUDENT"
+  display_name String // e.g., "Administrator", "Teacher", "Student"
+  description String?
+  level       Int    @default(0) // Role hierarchy level
+  is_system   Boolean @default(false) // System roles cannot be deleted
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  // Relations
+  role_permissions RolePermission[]
+  user_role_assignments UserRoleAssignment[]
+
+  @@index([level])
+  @@index([is_system])
+}
+
+model RolePermission {
+  id            String @id @default(uuid())
+  role_id       String
+  permission_id String
+  granted       Boolean @default(true)
+  created_at    DateTime @default(now())
+
+  // Relations
+  role       Role       @relation(fields: [role_id], references: [id], onDelete: Cascade)
+  permission Permission @relation(fields: [permission_id], references: [id], onDelete: Cascade)
+
+  @@unique([role_id, permission_id])
+  @@index([role_id])
+  @@index([permission_id])
+}
+
+model UserRoleAssignment {
+  id         String @id @default(uuid())
+  user_id    String
+  role_id    String
+  granted_by String? // Who granted this role
+  granted_at DateTime @default(now())
+  expires_at DateTime? // Optional role expiration
+  is_active  Boolean @default(true)
+
+  // Relations
+  user    User @relation("UserRoleAssignments", fields: [user_id], references: [user_id], onDelete: Cascade)
+  role    Role @relation(fields: [role_id], references: [id], onDelete: Cascade)
+  granter User? @relation("GrantedRoles", fields: [granted_by], references: [user_id])
+
+  @@unique([user_id, role_id])
+  @@index([user_id])
+  @@index([role_id])
+  @@index([is_active])
 }
 
 enum UserRole {

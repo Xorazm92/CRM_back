@@ -19,6 +19,8 @@ import { TransactionModule } from './transaction/transaction.module';
 import { ScheduleModule } from './schedule/schedule.module';
 import { SecurityModule } from '../common/security/security.module';
 import { HealthModule } from './health/health.module';
+import { RbacModule } from '../common/rbac/rbac.module';
+import { RbacApiModule } from './rbac/rbac.module';
 
 // StudentModule va TeacherModule olib tashlandi, endi UserModule universal
 @Module({
@@ -28,7 +30,8 @@ import { HealthModule } from './health/health.module';
       isGlobal: true,
       ttl: 60000
     }),
-    SecurityModule,
+    // SecurityModule,
+    RbacModule,
     CustomJwtModule,
     AuthModule,
     UserModule,
@@ -46,6 +49,7 @@ import { HealthModule } from './health/health.module';
     TransactionModule,
     ScheduleModule,
     HealthModule,
+    RbacApiModule,
   ],
 })
 export class AppModule {}

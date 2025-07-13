@@ -1,11 +1,15 @@
 import { Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 import { PrismaService } from 'src/infrastructure/prisma/prisma.service';
+import { CacheService } from 'src/common/cache/cache.service';
 import { DashboardStatsDto } from './dto/dashboard-stats.dto';
 
 @Injectable()
 export class DashboardService {
   private readonly logger = new Logger(DashboardService.name);
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private cacheService: CacheService,
+  ) {}
 
   async getStats(): Promise<DashboardStatsDto & { monthlyRevenue: number; lastUpdated: Date }> {
     try {

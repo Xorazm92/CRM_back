@@ -11,10 +11,12 @@ import { SecurityService } from './security.service';
     ThrottlerModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        ttl: parseInt(configService.get<string>('RATE_LIMIT_TTL', '60')),
-        limit: parseInt(configService.get<string>('RATE_LIMIT_LIMIT', '100')),
-      }),
+      useFactory: (configService: ConfigService) => [
+        {
+          ttl: parseInt(configService.get<string>('RATE_LIMIT_TTL', '60')) * 1000,
+          limit: parseInt(configService.get<string>('RATE_LIMIT_LIMIT', '100')),
+        },
+      ],
     }),
   ],
   providers: [
